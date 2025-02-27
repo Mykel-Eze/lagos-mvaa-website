@@ -13,7 +13,7 @@ const NumberOfServices = () => {
           title="Get New Plate ID" 
           description="REGISTER FOR A LAGOS STATE NEW VEHICLE PLATE NUMBER" 
           image="plate-new.jpg"
-          link="/#"
+          link="/services/new-plate-id-steps"
         />
         <PlateServiceCard 
           title="Reprint Old Plate ID" 

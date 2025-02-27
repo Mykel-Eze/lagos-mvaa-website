@@ -99,3 +99,61 @@ section#services-section {
     object-fit: cover;
     object-position: center;
 }
+
+.plate-steps {
+    position: relative;
+    display: grid;
+    gap: 60px;
+}
+.plate-step-block {
+    display: flex;
+    align-items: flex-start;
+    gap: 24.5px;
+    position: relative;
+    z-index: 1;
+}
+.plate-step-block::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 26px;
+    width: 2px;
+    height: calc(100% + 60px);
+    background-color: #EEEEEE;
+    z-index: -1;
+}
+.plate-step-block:last-child:before {
+    display: none;
+}
+.plate-step-number {
+    background-color: #EEEEEE;
+    border-radius: 8px;
+    color: #1C3F3A;
+    font-family: var(--font-bold);
+    font-size: 18px;
+    padding: 14px 16px;
+}
+.plate-step-title {
+    font-family: var(--font-xbold);
+    font-size: 18px;
+    margin-bottom: 16px;
+}
+ul.plate-step-txts {
+    padding-left: 20px;
+    font-size: 14px;
+    display: grid;
+    gap: 16px;
+}
+ul.plate-step-txts li {
+    list-style-type: disc;
+}
+a.get-started-btn-2 {
+    font-size: 12px;
+    letter-spacing: 2px;
+    font-family: var(--font-bold);
+    padding: 14px 24px;
+    border: 1px solid var(--sec-color);
+    display: inline-block;
+    border-radius: 5px;
+    text-transform: uppercase;
+}

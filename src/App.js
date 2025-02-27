@@ -8,6 +8,7 @@ import Services from './pages/Services';
 import Registration from './pages/Registration';
 import Home from './pages/Home';
 import NumberOfServices from './pages/NumberOfServices';
+import NewPlateIdSteps from './pages/NewPlateIdSteps';
 
 import './index.css';
 import './assets/css/fonts.css'
@@ -29,6 +30,7 @@ function App() {
           <Route path="/services" element={<Services />} />
           <Route path="/register" element={<Registration />} />
           <Route path="/services/number-of-services" element={<NumberOfServices />} />
+          <Route path="/services/new-plate-id-steps" element={<NewPlateIdSteps />} />
         </Routes>
       </div>
     </Router>
