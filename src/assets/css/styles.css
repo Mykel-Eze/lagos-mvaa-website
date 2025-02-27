@@ -224,6 +224,15 @@ img {
 a.btn {
     overflow: hidden;
 }
+.border-cst {
+    border: 1.33px solid #C3C4CD
+}
+.submit-btn {
+    background-color: var(--sec-color);
+}
+.submit-btn:hover {
+    background-color: var(--pry-color);
+}
 
 @media (max-width: 992px) {
     .visible-xs-sm {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Form, Input, Button } from 'antd';
+import { Link } from 'react-router-dom';
 
 const LoginForm = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -19,50 +20,88 @@ const LoginForm = () => {
       >
         <Form.Item
           name="portalType"
-          label="Portal Type"
-          rules={[{ required: true, message: 'Please select a portal type!' }]}
+          label=""
         >
           <div className="flex space-x-4">
-            <input
-                type="radio"
-                id="user"
-                name="portal"
-                value="user"
-                checked={!isAdmin}
-                onChange={() => setIsAdmin(false)}
-                className="form-radio text-green-500"
-            />
-            <label htmlFor="user">User Portal</label>
-            <input
-                type="radio"
-                id="admin"
-                name="portal"
-                value="admin"
-                checked={isAdmin}
-                onChange={() => setIsAdmin(true)}
-                className="form-radio text-green-500"
-            />
-            <label htmlFor="admin">Admin Portal</label>
+            {/* Custom radio button styles */}
+            <div className="flex w-full">
+              <label 
+                className={`
+                  flex-1 py-2 px-4 border border-gray-300 rounded-md cursor-pointer text-center font-medium
+                  ${!isAdmin ? 'bg-green-500 text-white border-green-500' : 'bg-white text-gray-700'}
+                  transition-all duration-200 ease-in-out
+                `}
+                onClick={() => setIsAdmin(false)}
+              >
+                <div className="flex items-center justify-center space-x-2">
+                  
+                    <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center border-cst">
+                        {!isAdmin && (
+                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        )}
+                    </div>
+                  <input
+                    type="radio"
+                    id="user"
+                    name="portal"
+                    value="user"
+                    checked={!isAdmin}
+                    onChange={() => setIsAdmin(false)}
+                    defaultChecked
+                    className="hidden"
+                  />
+                  <span>USER PORTAL</span>
+                </div>
+              </label>
+              
+              <label 
+                className={`
+                  flex-1 py-2 px-4 border border-gray-300 rounded-md cursor-pointer text-center font-medium ml-4
+                  ${isAdmin ? 'bg-green-500 text-white border-green-500' : 'bg-white text-gray-700'}
+                  transition-all duration-200 ease-in-out
+                `}
+                onClick={() => setIsAdmin(true)}
+              >
+                <div className="flex items-center justify-center space-x-2">
+                  
+                    <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center border-cst">
+                        {isAdmin && (
+                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        )}
+                    </div>
+                  
+                  <input
+                    type="radio"
+                    id="admin"
+                    name="portal"
+                    value="admin"
+                    checked={isAdmin}
+                    onChange={() => setIsAdmin(true)}
+                    className="hidden"
+                  />
+                  <span>ADMIN PORTAL</span>
+                </div>
+              </label>
+            </div>
           </div>
         </Form.Item>
 
-        {/*
-          For Admin Portal, add Department dropdown
-          For User Portal, remove Department
-        */}
-        <Form.Item
-          name="department"
-          label="Department"
-          rules={[{ required: true, message: 'Please select a department!' }]}
-        >
-          <select className="w-full p-2 border rounded">
-            <option value="">Select Department</option>
-            <option value="numberPlate">Number Plate Services</option>
-            <option value="autoDealers">Auto-Dealers and Spare Parts</option>
-            <option value="roadWorthiness">Road Worthiness Officers</option>
-            <option value="supervisory">Supervisory Officers</option>
-          </select>
-        </Form.Item>
+        {/* Only show Department dropdown for Admin portal */}
+        {isAdmin && (
+          <Form.Item
+            name="department"
+            label="Department"
+            rules={[{ required: true, message: 'Please select a department!' }]}
+          >
+            <select className="w-full p-2 border rounded">
+              <option value="">Select Department</option>
+              <option value="numberPlate">Number Plate Services</option>
+              <option value="autoDealers">Auto-Dealers and Spare Parts</option>
+              <option value="roadWorthiness">Road Worthiness Officers</option>
+              <option value="supervisory">Supervisory Officers</option>
+            </select>
+          </Form.Item>
+        )}
 
         <Form.Item
           name="email"
@@ -85,12 +124,16 @@ const LoginForm = () => {
         </Form.Item>
 
         <Form.Item>
-          <Button type="primary" htmlType="submit" block className="bg-green-600">
+          <Button type="primary" htmlType="submit" block className="submit-btn">
             Log In
           </Button>
-          <p className="text-center mt-4 text-gray-600">
-            Don’t have an account? <a href="/signup" className="text-green-600">Sign Up</a>
-          </p>
+
+          {/* Only show Sign Up notice for User portal */}
+          {!isAdmin && (
+            <p className="text-center mt-4 text-gray-600">
+              Don't have an account? <Link to="/register" className="sec-color">Sign Up</Link>
+            </p>
+          )}
         </Form.Item>
       </Form>
     </div>

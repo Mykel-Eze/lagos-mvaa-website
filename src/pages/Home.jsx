@@ -3,6 +3,7 @@ import React from 'react';
 import { Layout } from 'antd';
 import Hero from '../components/Hero';
 import ServicesComponent from '../components/ServicesComponent';
+import Footer from '../components/Footer';
 const { Content } = Layout;
 
 const Home = () => {
@@ -12,7 +13,8 @@ const Home = () => {
         <Hero />
         
         <ServicesComponent />
-
+        
+        <Footer />
       </Content>
     </Layout>
   );

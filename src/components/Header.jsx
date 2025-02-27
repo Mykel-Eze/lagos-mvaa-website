@@ -53,9 +53,9 @@ const Header = () => {
       <div id="main-header">
         <div className="container">
             <nav className="nav flex-div justify-content-btw">
-                <a href="/" className="nav-logo">
+                <Link to="/" className="nav-logo">
                     <img src={Logo} alt="Lagos MVAA Logo" />
-                </a>
+                </Link>
                 <ul className="flex-div hidden-xs mid-link">
                     {navItems.map((item) => (
                         <li key={item.path}>

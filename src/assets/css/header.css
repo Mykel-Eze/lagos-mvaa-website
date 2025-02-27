@@ -90,8 +90,8 @@
     .mobile-menu.active {
         display: block;
     }
-    #sub-header > .container {
-        /* flex-wrap: wrap;
-        gap: 10px; */
-    }
+    /* #sub-header > .container {
+        flex-wrap: wrap;
+        gap: 10px;
+    } */
 }
