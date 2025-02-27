@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Form, Input, Button } from 'antd';
 
 const LoginForm = () => {
+  const [isAdmin, setIsAdmin] = useState(false);
+
   const onFinish = (values) => {
     console.log('Login values:', values);
   };
@@ -21,9 +23,25 @@ const LoginForm = () => {
           rules={[{ required: true, message: 'Please select a portal type!' }]}
         >
           <div className="flex space-x-4">
-            <input type="radio" id="user" name="portal" value="user" defaultChecked />
+            <input
+                type="radio"
+                id="user"
+                name="portal"
+                value="user"
+                checked={!isAdmin}
+                onChange={() => setIsAdmin(false)}
+                className="form-radio text-green-500"
+            />
             <label htmlFor="user">User Portal</label>
-            <input type="radio" id="admin" name="portal" value="admin" />
+            <input
+                type="radio"
+                id="admin"
+                name="portal"
+                value="admin"
+                checked={isAdmin}
+                onChange={() => setIsAdmin(true)}
+                className="form-radio text-green-500"
+            />
             <label htmlFor="admin">Admin Portal</label>
           </div>
         </Form.Item>

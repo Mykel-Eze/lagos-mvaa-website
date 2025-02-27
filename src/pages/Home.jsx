@@ -1,13 +1,16 @@
 /* eslint-disable no-unused-vars */
 import React from 'react';
 import { Layout } from 'antd';
+import Hero from '../components/Hero';
 import ServicesComponent from '../components/ServicesComponent';
 const { Content } = Layout;
 
-const Services = () => {
+const Home = () => {
   return (
-    <Layout id="servicespage" className="min-h-screen">
+    <Layout id="homepage" className="min-h-screen">
       <Content>
+        <Hero />
+        
         <ServicesComponent />
 
       </Content>
@@ -15,4 +18,4 @@ const Services = () => {
   );
 };
 
-export default Services;
+export default Home;

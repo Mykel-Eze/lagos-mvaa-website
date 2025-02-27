@@ -27,12 +27,12 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(30, 80, 209, 0.9);
+    background: rgba(16, 138, 0, 0.9);
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(30, 80, 209, 0.4);
+    background: rgba(16, 138, 0, 0.4);
 }
 
 body {
@@ -47,7 +47,7 @@ body {
 
 h1, h2, h3, h4 {
     font-family: var(--font-bold);
-    letter-spacing: -2px;
+    letter-spacing: -1px;
 }
 
 h5, h6 {
@@ -163,10 +163,6 @@ h5, h6 {
     display: block !important;
 }
 
-.hidden-xs.flex-div {
-    display: flex !important;
-}
-
 .visible-xs {
     display: none !important;
 }
@@ -218,6 +214,7 @@ img {
 
 #app-wrapper .container {
     width: 90%;
+    margin: auto;
 }
 
 #main-contents-wrapper {
@@ -228,7 +225,6 @@ a.btn {
     overflow: hidden;
 }
 
-
 @media (max-width: 992px) {
     .visible-xs-sm {
         display: block !important;
@@ -236,6 +232,12 @@ a.btn {
 
     .hidden-xs-sm {
         display: none !important;
+    }
+}
+
+@media (min-width: 601px) {
+    .hidden-xs.flex-div {
+        display: flex !important;
     }
 }
 
