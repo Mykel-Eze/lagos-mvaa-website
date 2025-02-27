@@ -26,21 +26,21 @@ const Login = () => {
           value={portalType} 
           onChange={(e) => setPortalType(e.target.value)}
           buttonStyle="solid"
-          className="flex-div gap-6"
+          className="flex-div gap-2 sm:gap-6"
         >
           <Radio.Button 
             value="user" 
             className={`portal-btn ${portalType === 'user' ? 'active-portal-btn' : 'inactive-portal-btn'}`}
           >
             <span className="dot"></span>
-            USER PORTAL
+            <span>USER PORTAL</span>
           </Radio.Button>
           <Radio.Button 
             value="admin" 
             className={`portal-btn ${portalType === 'admin' ? 'active-portal-btn' : 'inactive-portal-btn'}`}
           >
             <span className="dot"></span>
-            ADMIN PORTAL
+            <span>ADMIN PORTAL</span>
           </Radio.Button>
         </Radio.Group>
       </div>

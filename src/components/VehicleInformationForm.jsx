@@ -11,7 +11,7 @@ const VehicleInformationForm = () => {
     };
   
     return (
-        <div className="grid grid-cols-2 gap-x-10 gap-y-6 vehicle-form-fields">
+        <div className="grid md:grid-cols-2 gap-x-10 gap-y-6 vehicle-form-fields">
             <Form.Item label="Vehicle Category" name="vehicleCategory">
                 <Select placeholder="Select vehicle category">
                 <Select.Option value="sedan">Sedan</Select.Option>
@@ -49,7 +49,7 @@ const VehicleInformationForm = () => {
                 name="vehicleImage"
                 valuePropName="fileList"
                 getValueFromEvent={normFile}
-                className="col-span-2"
+                className="md:col-span-2"
             >
                 <Upload.Dragger 
                 name="files" 

@@ -5,7 +5,7 @@ const ServicesLayout = ({ children, title, description="" }) => {
   const goBack = useNavigate();
 
   return (
-    <main className="flex-grow bg-white px-6 py-8">
+    <main className="flex-grow bg-white px-6 py-8 mb-[50px]">
       <div className="max-w-6xl mx-auto">
         {/* Back Button */}
         <div className="flex-div gap-4">

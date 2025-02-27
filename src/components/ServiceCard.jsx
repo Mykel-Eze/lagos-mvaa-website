@@ -15,7 +15,7 @@ const ServiceCard = ({ title, icon, link = "/", gridSpan = "", description }) =>
                     className="h-16 w-16 object-contain"
                 />
             </div>
-            <h3 className="font-semibold text-lg mt-[20px] mb-[26px]">{title}</h3>
+            <h3 className="font-semibold text-lg mt-[20px] mb-[26px] text-center">{title}</h3>
             <p className="text-sm text-gray-600 text-center">
                 {description}
             </p>

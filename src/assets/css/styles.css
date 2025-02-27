@@ -244,8 +244,8 @@ a.btn {
     }
 }
 
-@media (min-width: 601px) {
-    .hidden-xs.flex-div {
+@media (min-width: 993px) {
+    .hidden-xs-sm.flex-div {
         display: flex !important;
     }
 }

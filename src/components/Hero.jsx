@@ -17,7 +17,7 @@ const Hero = () => {
 
             <ul className="flex-div hidden-xs nav-btn-wrapper">
                 <li>
-                    <Link to="/get-started" className="pry-nav-btn flex div">
+                    <Link to="/register" className="pry-nav-btn flex div">
                         <span>Get Started</span>
                         <img src={require("../assets/images/arrow-1.svg").default} alt="arrow-icon" />
                     </Link>

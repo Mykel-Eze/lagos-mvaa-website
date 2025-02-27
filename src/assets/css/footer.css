@@ -48,6 +48,10 @@ ul.footer-links li a {
         grid-template-columns: repeat(3, 1fr);
         gap: 30px;
     }
+    .footer-bottom-section.flex-div {
+        flex-direction: column;
+        gap: 10px;
+    }
 }
 
 @media(max-width: 600px) {

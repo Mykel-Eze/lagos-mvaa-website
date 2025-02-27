@@ -11,7 +11,7 @@ const OwnerInformationForm = () => {
     };
     
     return (
-        <div className="grid grid-cols-2 gap-x-10 gap-y-6 vehicle-form-fields">
+        <div className="grid md:grid-cols-2 gap-x-10 gap-y-6 vehicle-form-fields">
             <Form.Item label="Full Name" name="fullName">
                 <Input placeholder="Enter full name" />
             </Form.Item>
@@ -40,7 +40,7 @@ const OwnerInformationForm = () => {
                 </Select>
             </Form.Item>
             
-            <Form.Item label="Residential Address" name="residentialAddress" className="col-span-2">
+            <Form.Item label="Residential Address" name="residentialAddress" className="md:col-span-2">
                 <Input.TextArea rows={3} placeholder="Enter residential address" />
             </Form.Item>
             
@@ -49,7 +49,7 @@ const OwnerInformationForm = () => {
                 name="idDocument"
                 valuePropName="fileList"
                 getValueFromEvent={normFile}
-                className="col-span-2"
+                className="md:col-span-2"
             >
                 <Upload.Dragger
                     name="files"

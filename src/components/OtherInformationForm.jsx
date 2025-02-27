@@ -11,7 +11,7 @@ const OtherInformationForm = () => {
     };
     
     return (
-        <div className="grid grid-cols-2 gap-x-10 gap-y-6 vehicle-form-fields">
+        <div className="grid md:grid-cols-2 gap-x-10 gap-y-6 vehicle-form-fields">
             <Form.Item label="Registration Purpose" name="registrationPurpose">
                 <Select placeholder="Select registration purpose">
                     <Select.Option value="private">Private</Select.Option>
@@ -50,7 +50,7 @@ const OtherInformationForm = () => {
                 name="additionalDocuments"
                 valuePropName="fileList"
                 getValueFromEvent={normFile}
-                className="col-span-2"
+                className="md:col-span-2"
             >
                 <Upload.Dragger
                     name="files"

@@ -1,8 +1,8 @@
 // Auth Layout Component
 const AuthLayout = ({ children, title }) => {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <main className="flex-1 flex flex-col items-center py-12">
+    <div className="min-h-screen flex flex-col bg-[#F0F7F6]">
+      <main className="flex-1 flex flex-col items-center py-12 container">
         <h1 className="text-[32px] font-bold mb-2">{title}</h1>
         
         <div className="bg-white p-8 rounded-lg shadow-sm w-full max-w-md">

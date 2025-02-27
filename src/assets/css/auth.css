@@ -125,3 +125,9 @@
 #app-wrapper .ant-upload-wrapper .ant-upload-drag:not(.ant-upload-disabled):hover {
     border-color: var(--sec-color);
 }
+
+@media(max-width: 420px) {
+    #app-wrapper label.portal-btn .ant-radio-button-label span.dot {
+        display: none;
+    }
+}
