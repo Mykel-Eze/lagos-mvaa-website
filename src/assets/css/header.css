@@ -71,6 +71,9 @@
     border-radius: 5px;
     font-size: 12px;
     text-transform: uppercase;
+    box-sizing: border-box;
+    max-height: 45px;
+    display: inline-flex;
 }
 .nav-btn {
     border: 1px solid #00000033 !important;
