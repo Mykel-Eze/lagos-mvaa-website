@@ -55,7 +55,8 @@
 #app-wrapper .ant-input-affix-wrapper, 
 #app-wrapper .ant-select-outlined:not(.ant-select-customize-input) .ant-select-selector,
 #app-wrapper .ant-select-selection-search-input,
-#app-wrapper .ant-select-single {
+#app-wrapper .ant-select-single,
+#app-wrapper .ant-picker-outlined {
     background: #F9F9F9;
     height: 55px;
 }
@@ -65,7 +66,8 @@
 #app-wrapper .ant-input-outlined:focus,
 #app-wrapper .ant-input-outlined:focus-within,
 #app-wrapper .ant-input-outlined:hover,
-#app-wrapper .ant-select-outlined:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer):hover .ant-select-selector {
+#app-wrapper .ant-select-outlined:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer):hover .ant-select-selector,
+#app-wrapper .ant-picker-outlined:hover {
     background: #F9F9F9;
     border-color: var(--sec-color);
 }
@@ -119,4 +121,7 @@
     transform: translate(-50%, -50%);
     background-color: white;
     border-radius: 50%;
+}
+#app-wrapper .ant-upload-wrapper .ant-upload-drag:not(.ant-upload-disabled):hover {
+    border-color: var(--sec-color);
 }

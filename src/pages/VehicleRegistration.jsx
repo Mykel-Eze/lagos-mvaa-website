@@ -1,20 +1,16 @@
 import React from 'react';
-import { Form, Input, Select, DatePicker, Upload, Button, Collapse } from 'antd';
-import { UpOutlined, DownOutlined, ArrowRightOutlined, } from '@ant-design/icons';
+import { Form, Button, Collapse } from 'antd';
+import { UpOutlined, DownOutlined } from '@ant-design/icons';
 import ServicesLayout from '../components/ServicesLayout';
+import VehicleInformationForm from '../components/VehicleInformationForm';
+import OtherInformationForm from '../components/OtherInformationForm';
+import OwnerInformationForm from '../components/OwnerInformationForm';
 
 const { Panel } = Collapse;
 // const { Title } = Typography;
 
 const VehicleRegistration = () => {
   const [form] = Form.useForm();
-  
-  const normFile = (e) => {
-    if (Array.isArray(e)) {
-      return e;
-    }
-    return e?.fileList;
-  };
 
   return (
     <ServicesLayout
@@ -25,6 +21,7 @@ const VehicleRegistration = () => {
           form={form}
           layout="vertical"
           className="mt-6"
+          id="vehicle-registration-form"
         >
           <Collapse 
             defaultActiveKey={['1']}
@@ -32,60 +29,11 @@ const VehicleRegistration = () => {
             className="mb-4"
           >
             <Panel 
-              header={<span className="font-medium text-lg">Vehicle Information</span>} 
+              header={<span className="font-bold text-[24px]">Vehicle Information</span>} 
               key="1"
               className="bg-white"
             >
-              <div className="grid grid-cols-2 gap-8">
-                <Form.Item label="Vehicle Category" name="vehicleCategory">
-                  <Select placeholder="Select vehicle category">
-                    <Select.Option value="sedan">Sedan</Select.Option>
-                    <Select.Option value="suv">SUV</Select.Option>
-                    <Select.Option value="truck">Truck</Select.Option>
-                  </Select>
-                </Form.Item>
-                
-                <Form.Item label="Vehicle Model" name="vehicleModel">
-                  <Input placeholder="Enter vehicle model" />
-                </Form.Item>
-                
-                <Form.Item label="Vehicle Make" name="vehicleMake">
-                  <Select placeholder="Select vehicle make">
-                    <Select.Option value="toyota">Toyota</Select.Option>
-                    <Select.Option value="honda">Honda</Select.Option>
-                    <Select.Option value="ford">Ford</Select.Option>
-                  </Select>
-                </Form.Item>
-                
-                <Form.Item label="Chassis Number" name="chassisNumber">
-                  <Input placeholder="Enter chassis number" />
-                </Form.Item>
-                
-                <Form.Item label="Year of Manufacture" name="yearOfManufacture">
-                  <DatePicker className="w-full" picker="year" />
-                </Form.Item>
-                
-                <Form.Item label="Engine Number" name="engineNumber">
-                  <Input placeholder="Enter engine number" />
-                </Form.Item>
-                
-                <Form.Item 
-                  label="Vehicle Image" 
-                  name="vehicleImage"
-                  valuePropName="fileList"
-                  getValueFromEvent={normFile}
-                  className="col-span-2"
-                >
-                  <Upload.Dragger 
-                    name="files" 
-                    action="/upload.do"
-                    className="border-gray-300"
-                  >
-                    <p className="text-green-600 font-medium">Upload file</p>
-                    <p className="text-gray-400 text-xs">(JPG, PNG, PDF Max 3MB)</p>
-                  </Upload.Dragger>
-                </Form.Item>
-              </div>
+              <VehicleInformationForm />
             </Panel>
           </Collapse>
           
@@ -94,11 +42,11 @@ const VehicleRegistration = () => {
             className="mb-4"
           >
             <Panel 
-              header={<span className="font-medium text-lg">Owner Information</span>} 
+              header={<span className="font-bold text-[24px]">Owner Information</span>} 
               key="1"
               className="bg-white"
             >
-              {/* Owner information form fields would go here */}
+              <OwnerInformationForm />
             </Panel>
           </Collapse>
           
@@ -107,20 +55,25 @@ const VehicleRegistration = () => {
             className="mb-4"
           >
             <Panel 
-              header={<span className="font-medium text-lg">Other Information</span>} 
+              header={<span className="font-bold text-[24px]">Other Information</span>} 
               key="1"
               className="bg-white"
             >
-              {/* Other information form fields would go here */}
+              <OtherInformationForm />
             </Panel>
           </Collapse>
-          
-          <div className="flex justify-end space-x-4 mt-8">
-            <Button>PREVIEW</Button>
-            <Button type="primary" className="bg-green-600" icon={<ArrowRightOutlined />}>
-              SUBMIT
-            </Button>
-          </div>
+
+          <ul className="flex-div justify-center nav-btn-wrapper mt-12 mb-10">
+              <li>
+                  <Button className="nav-btn">Preview</Button>
+              </li>
+              <li>
+                  <Button className="pry-nav-btn flex div">
+                      <span>Submit</span>
+                      <img src={require("../assets/images/arrow-1.svg").default} alt="arrow-icon" />
+                  </Button>
+              </li>
+          </ul>
         </Form>
     </ServicesLayout>
   );

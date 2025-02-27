@@ -36,7 +36,7 @@ const GetNewPlateId = () => {
             label="Full Name" 
             name="fullName"
             rules={[{ required: true, message: 'Please enter your full name' }]}
-            className="mb-8"
+            className="mb-6"
           >
             <Input placeholder="Enter your full name" size="large" />
           </Form.Item>
@@ -45,7 +45,7 @@ const GetNewPlateId = () => {
             label="Department" 
             name="department"
             rules={[{ required: true, message: 'Please select your department' }]}
-            className="mb-8"
+            className="mb-6"
           >
             <Select placeholder="Select your department" size="large">
               <Select.Option value="finance">Finance</Select.Option>
@@ -59,7 +59,7 @@ const GetNewPlateId = () => {
             label="Registration Number" 
             name="registrationNumber"
             rules={[{ required: true, message: 'Please enter registration number' }]}
-            className="mb-8"
+            className="mb-6"
           >
             <Input placeholder="Enter registration number" size="large" />
           </Form.Item>
@@ -69,7 +69,7 @@ const GetNewPlateId = () => {
             name="document"
             valuePropName="fileList"
             getValueFromEvent={normFile}
-            className="mb-8"
+            className="mb-6"
           >
             <Upload.Dragger  name="files" action="/upload.do">
               <p className="text-green-600 font-medium">Upload file</p>
@@ -81,7 +81,7 @@ const GetNewPlateId = () => {
             <Button 
               type="primary" 
               htmlType="submit" 
-              className="sec-bg white-txt w-full h-12 text-lg font-medium"
+              className="w-full h-12 submit-btn"
             >
               SUBMIT
             </Button>
