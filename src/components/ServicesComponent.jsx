@@ -15,7 +15,7 @@ const ServicesComponent = () => {
                 <ServiceCard 
                     title="Number Plate Services" 
                     icon="plateNo.png" 
-                    link="/number-plate-services" 
+                    link="/services/number-plate-services" 
                     description="Find vehicle related services like verify VIN, pay VIS etc  permit"
                 />
                 <ServiceCard 

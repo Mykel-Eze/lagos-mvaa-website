@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Services from './pages/Services';
 import Registration from './pages/Registration';
 import Home from './pages/Home';
+import NumberOfServices from './pages/NumberOfServices';
 
 import './index.css';
 import './assets/css/fonts.css'
@@ -22,11 +23,12 @@ function App() {
       <div id="app-wrapper" className="flex flex-col min-h-screen">
         <Header />
         <Routes>
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/services" element={<Services />} />
           <Route path="/register" element={<Registration />} />
-          <Route path="/" element={<Home />} />
+          <Route path="/services/number-of-services" element={<NumberOfServices />} />
         </Routes>
       </div>
     </Router>
