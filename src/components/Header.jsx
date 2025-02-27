@@ -73,7 +73,7 @@ const Header = () => {
                         <Link to="/login" className="nav-btn">Login</Link>
                     </li>
                     <li>
-                        <Link to="/get-started" className="pry-nav-btn flex div">
+                        <Link to="/register" className="pry-nav-btn flex div">
                             <span>Get Started</span>
                             <img src={require("../assets/images/arrow-1.svg").default} alt="arrow-icon" />
                         </Link>

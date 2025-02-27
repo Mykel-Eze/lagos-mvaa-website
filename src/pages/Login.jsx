@@ -1,143 +1,122 @@
 import React, { useState } from 'react';
-import { Form, Input, Button } from 'antd';
-import { Link } from 'react-router-dom';
+import { Form, Input, Button, Radio, Select } from 'antd';
+import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
+import { Link, useNavigate } from 'react-router-dom';
+import AuthLayout from '../components/AuthLayout';
 
-const LoginForm = () => {
-  const [isAdmin, setIsAdmin] = useState(false);
+const Login = () => {
+  const [form] = Form.useForm();
+  const navigate = useNavigate();
+  const [portalType, setPortalType] = useState('user');
 
-  const onFinish = (values) => {
-    console.log('Login values:', values);
+  const handleSubmit = (values) => {
+    console.log('Login form values:', values);
+    if (portalType === 'user') {
+      navigate('/dashboard');
+    } else {
+      navigate('/admin-dashboard');
+    }
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-      <Form
-        name="login"
-        onFinish={onFinish}
-        layout="vertical"
-        className="login-form"
-      >
-        <Form.Item
-          name="portalType"
-          label=""
+    <AuthLayout title="Login">
+      {/* Portal Selection */}
+      <div className="mb-8">
+        <Radio.Group 
+          value={portalType} 
+          onChange={(e) => setPortalType(e.target.value)}
+          buttonStyle="solid"
+          className="flex-div gap-6"
         >
-          <div className="flex space-x-4">
-            {/* Custom radio button styles */}
-            <div className="flex w-full">
-              <label 
-                className={`
-                  flex-1 py-2 px-4 border border-gray-300 rounded-md cursor-pointer text-center font-medium
-                  ${!isAdmin ? 'bg-green-500 text-white border-green-500' : 'bg-white text-gray-700'}
-                  transition-all duration-200 ease-in-out
-                `}
-                onClick={() => setIsAdmin(false)}
-              >
-                <div className="flex items-center justify-center space-x-2">
-                  
-                    <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center border-cst">
-                        {!isAdmin && (
-                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                        )}
-                    </div>
-                  <input
-                    type="radio"
-                    id="user"
-                    name="portal"
-                    value="user"
-                    checked={!isAdmin}
-                    onChange={() => setIsAdmin(false)}
-                    defaultChecked
-                    className="hidden"
-                  />
-                  <span>USER PORTAL</span>
-                </div>
-              </label>
-              
-              <label 
-                className={`
-                  flex-1 py-2 px-4 border border-gray-300 rounded-md cursor-pointer text-center font-medium ml-4
-                  ${isAdmin ? 'bg-green-500 text-white border-green-500' : 'bg-white text-gray-700'}
-                  transition-all duration-200 ease-in-out
-                `}
-                onClick={() => setIsAdmin(true)}
-              >
-                <div className="flex items-center justify-center space-x-2">
-                  
-                    <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center border-cst">
-                        {isAdmin && (
-                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                        )}
-                    </div>
-                  
-                  <input
-                    type="radio"
-                    id="admin"
-                    name="portal"
-                    value="admin"
-                    checked={isAdmin}
-                    onChange={() => setIsAdmin(true)}
-                    className="hidden"
-                  />
-                  <span>ADMIN PORTAL</span>
-                </div>
-              </label>
-            </div>
-          </div>
-        </Form.Item>
-
-        {/* Only show Department dropdown for Admin portal */}
-        {isAdmin && (
-          <Form.Item
-            name="department"
-            label="Department"
-            rules={[{ required: true, message: 'Please select a department!' }]}
+          <Radio.Button 
+            value="user" 
+            className={`portal-btn ${portalType === 'user' ? 'active-portal-btn' : 'inactive-portal-btn'}`}
           >
-            <select className="w-full p-2 border rounded">
-              <option value="">Select Department</option>
-              <option value="numberPlate">Number Plate Services</option>
-              <option value="autoDealers">Auto-Dealers and Spare Parts</option>
-              <option value="roadWorthiness">Road Worthiness Officers</option>
-              <option value="supervisory">Supervisory Officers</option>
-            </select>
+            <span className="dot"></span>
+            USER PORTAL
+          </Radio.Button>
+          <Radio.Button 
+            value="admin" 
+            className={`portal-btn ${portalType === 'admin' ? 'active-portal-btn' : 'inactive-portal-btn'}`}
+          >
+            <span className="dot"></span>
+            ADMIN PORTAL
+          </Radio.Button>
+        </Radio.Group>
+      </div>
+      
+      {/* Login Form */}
+      <Form 
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+      >
+        {portalType === 'admin' && (
+          <Form.Item 
+            label="Department" 
+            name="department"
+            rules={[{ required: true, message: 'Please select your department' }]}
+            className="mb-4"
+          >
+            <Select placeholder="Select department">
+              <Select.Option value="licensing">Licensing</Select.Option>
+              <Select.Option value="registration">Registration</Select.Option>
+              <Select.Option value="enforcement">Enforcement</Select.Option>
+            </Select>
           </Form.Item>
         )}
-
-        <Form.Item
+        
+        <Form.Item 
+          label="Email Address" 
           name="email"
-          label="Email Address"
-          rules={[{ required: true, message: 'Please input your email!' }]}
+          rules={[
+            { required: true, message: 'Please enter your email address' },
+            { type: 'email', message: 'Please enter a valid email address' }
+          ]}
+          className="mb-4"
         >
-          <Input />
+          <Input size="large" />
         </Form.Item>
-
-        <Form.Item
+        
+        <Form.Item 
+          label="Password" 
           name="password"
-          label="Password"
-          rules={[{ required: true, message: 'Please input your password!' }]}
+          rules={[{ required: true, message: 'Please enter your password' }]}
+          className="mb-2"
         >
-          <Input.Password />
+          <Input.Password
+            size="large"
+            iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+          />
         </Form.Item>
-
+        
+        <div className="mb-12">
+          <Link to="/forgot-password" className="sec-color hover:text-green-700 font-bold">
+            Forgot Password?
+          </Link>
+        </div>
+        
         <Form.Item>
-          <a href="/#" className="text-green-600">Forgot Password?</a>
-        </Form.Item>
-
-        <Form.Item>
-          <Button type="primary" htmlType="submit" block className="submit-btn">
+          <Button 
+            type="primary" 
+            htmlType="submit" 
+            className="w-full h-[43px] submit-btn text-white text-[12px] uppercase"
+          >
             Log In
           </Button>
-
-          {/* Only show Sign Up notice for User portal */}
-          {!isAdmin && (
-            <p className="text-center mt-4 text-gray-600">
-              Don't have an account? <Link to="/register" className="sec-color">Sign Up</Link>
-            </p>
-          )}
         </Form.Item>
+        
+        {portalType === 'user' && (
+          <div className="text-center mt-4 text-gray-600">
+            Don't have an account? 
+            <Link to="/register" className="font-bold sec-color hover:text-green-700 ml-1">
+              Sign Up
+            </Link>
+          </div>
+        )}
       </Form>
-    </div>
+    </AuthLayout>
   );
 };
 
-export default LoginForm;
+export default Login;

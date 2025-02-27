@@ -18,7 +18,7 @@ import './assets/css/fonts.css'
 import './assets/css/styles.css'
 import './assets/css/header.css'
 import './assets/css/home.css'
-import './assets/css/login.css'
+import './assets/css/auth.css'
 import './assets/css/footer.css'
 
 

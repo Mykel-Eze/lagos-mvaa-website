@@ -228,10 +228,10 @@ a.btn {
     border: 1.33px solid #C3C4CD
 }
 .submit-btn {
-    background-color: var(--sec-color);
+    background-color: var(--sec-color) !important;
 }
 .submit-btn:hover {
-    background-color: var(--pry-color);
+    background-color: var(--pry-color) !important;
 }
 
 @media (max-width: 992px) {
