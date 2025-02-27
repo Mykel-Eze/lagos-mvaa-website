@@ -11,6 +11,7 @@ import NumberOfServices from './pages/NumberOfServices';
 import NewPlateIdSteps from './pages/NewPlateIdSteps';
 import GetNewPlateId from './pages/GetNewPlateId';
 import VehicleRegistration from './pages/VehicleRegistration';
+import OtherAgencyDepartments from './pages/OtherAgencyDepartments';
 
 import './index.css';
 import './assets/css/fonts.css'
@@ -36,6 +37,7 @@ function App() {
           <Route path="/services/new-plate-id-steps" element={<NewPlateIdSteps />} />
           <Route path="/services/get-new-plate-id" element={<GetNewPlateId />} />
           <Route path="/services/vehicle-registration" element={<VehicleRegistration />} />
+          <Route path="/services/other-agencies" element={<OtherAgencyDepartments />} />
         </Routes>
       </div>
     </Router>

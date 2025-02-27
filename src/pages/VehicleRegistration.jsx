@@ -79,7 +79,7 @@ const VehicleRegistration = () => {
                   <Upload.Dragger 
                     name="files" 
                     action="/upload.do"
-                    className="border-dashed border-2 border-gray-300 h-32"
+                    className="border-gray-300"
                   >
                     <p className="text-green-600 font-medium">Upload file</p>
                     <p className="text-gray-400 text-xs">(JPG, PNG, PDF Max 3MB)</p>
