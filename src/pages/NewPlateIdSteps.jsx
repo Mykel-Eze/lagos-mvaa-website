@@ -29,7 +29,7 @@ const NewPlateIdSteps = () => {
                     <li>Find vehicle related services like verify VIN, pay VIS etc  permit</li>
                 </ul>
                 <div className="mt-4">
-                    <Link to="/register" className="get-started-btn-2">Get Started</Link>
+                    <Link to="/services/get-new-plate-id" className="get-started-btn-2">Get Started</Link>
                 </div>
             </div>
         </div>

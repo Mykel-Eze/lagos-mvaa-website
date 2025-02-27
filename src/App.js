@@ -9,6 +9,8 @@ import Registration from './pages/Registration';
 import Home from './pages/Home';
 import NumberOfServices from './pages/NumberOfServices';
 import NewPlateIdSteps from './pages/NewPlateIdSteps';
+import GetNewPlateId from './pages/GetNewPlateId';
+import VehicleRegistration from './pages/VehicleRegistration';
 
 import './index.css';
 import './assets/css/fonts.css'
@@ -17,6 +19,7 @@ import './assets/css/header.css'
 import './assets/css/home.css'
 import './assets/css/login.css'
 import './assets/css/footer.css'
+
 
 function App() {
   return (
@@ -31,6 +34,8 @@ function App() {
           <Route path="/register" element={<Registration />} />
           <Route path="/services/number-of-services" element={<NumberOfServices />} />
           <Route path="/services/new-plate-id-steps" element={<NewPlateIdSteps />} />
+          <Route path="/services/get-new-plate-id" element={<GetNewPlateId />} />
+          <Route path="/services/vehicle-registration" element={<VehicleRegistration />} />
         </Routes>
       </div>
     </Router>
