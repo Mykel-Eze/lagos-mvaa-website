@@ -1,0 +1,133 @@
+/* You can add these styles to your CSS file if needed */
+
+/* For any additional custom styling */
+.portal-radio-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.portal-radio-label.active {
+    background-color: #10b981;
+    color: white;
+    border-color: #10b981;
+}
+
+.portal-radio-label:not(.active) {
+    background-color: white;
+    color: #4b5563;
+}
+
+.radio-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+}
+
+.radio-dot-inner {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #10b981;
+}
+
+#app-wrapper .ant-form-item .ant-form-item-label>label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::before {
+    display: none;
+}
+#app-wrapper .ant-form-item .ant-form-item-label>label {
+    font-size: 14px;
+    font-family: var(--font-bold);
+}
+#app-wrapper .ant-input, 
+#app-wrapper .ant-input-affix-wrapper, 
+#app-wrapper .ant-select-outlined:not(.ant-select-customize-input) .ant-select-selector,
+#app-wrapper .ant-select-selection-search-input,
+#app-wrapper .ant-select-single,
+#app-wrapper .ant-picker-outlined {
+    background: #F9F9F9;
+    height: 55px;
+}
+#app-wrapper .ant-input-affix-wrapper .ant-input {
+    height: auto;
+}
+#app-wrapper .ant-input-outlined:focus,
+#app-wrapper .ant-input-outlined:focus-within,
+#app-wrapper .ant-input-outlined:hover,
+#app-wrapper .ant-select-outlined:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer):hover .ant-select-selector,
+#app-wrapper .ant-picker-outlined:hover {
+    background: #F9F9F9;
+    border-color: var(--sec-color);
+}
+
+.ant-form-item-explain-error {
+    font-size: 11px;
+}
+#app-wrapper label.portal-btn {
+    font-size: 10.5px;
+    overflow: hidden;
+}
+#app-wrapper label.portal-btn {
+    font-size: 10.5px;
+    letter-spacing: 2px;
+    font-weight: 500;
+    border-radius: 5px;
+    border: 1px solid #00000033;
+}
+#app-wrapper label.portal-btn:hover {
+    color: #000000;
+}
+#app-wrapper label.portal-btn.active-portal-btn {
+    border-color: var(--sec-color);
+    background: #108A000D;
+    color: #000000;
+}
+#app-wrapper label.portal-btn .ant-radio-button-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+#app-wrapper label.portal-btn .ant-radio-button-label span.dot {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 1.33px solid #C3C4CD;
+    border-radius: 50%;
+    position: relative;
+}
+#app-wrapper label.portal-btn.active-portal-btn .ant-radio-button-label span.dot {
+    background-color: var(--sec-color);
+    border-color: var(--sec-color);
+}
+#app-wrapper label.portal-btn.active-portal-btn .ant-radio-button-label span.dot::before {
+    content: "";
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border-radius: 50%;
+}
+#app-wrapper .ant-upload-wrapper .ant-upload-drag:not(.ant-upload-disabled):hover {
+    border-color: var(--sec-color);
+}
+
+@media(max-width: 420px) {
+    #app-wrapper label.portal-btn .ant-radio-button-label span.dot {
+        display: none;
+    }
+}

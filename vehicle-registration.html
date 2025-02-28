@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Registration</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="app-wrapper" class="flex flex-col min-h-screen">
+        <!-- Header -->
+        <header class="rel full-width">
+            <div id="header-color-bars">
+                <div style="background-color: #E83B50;"></div>
+                <div style="background-color: #4D8EFF;"></div>
+                <div style="background-color: #FFBB32;"></div>
+                <div style="background-color: #32C76D;"></div>
+            </div>
+
+            <div id="sub-header">
+                <div class="container">
+                    <div class="sub-header-item flex-div">
+                        <img src="assets/images/call.svg" alt="call-icon">
+                        <span class="bold-txt" style="font-weight: 700;">07056557484</span>
+                    </div>
+                    <div class="sub-header-item flex-div">
+                        <img src="assets/images/ig-x.svg" alt="ig-x-icon">
+                        <span>@ lasgmvaa</span>
+                    </div>
+                    <div class="sub-header-item flex-div">
+                        <img src="assets/images/mail.svg" alt="mail-icon">
+                        <span>motorvehicle@lagosstate.gov.ng</span>
+                    </div>
+                    <div class="sub-header-item flex-div" style="font-weight: 700;">
+                        <b class="uppercase">TOll-free emergency:</b>
+                        <span class="bold-txt">767</span>
+                        <span> | </span>
+                        <span class="bold-txt">112</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="main-header">
+                <div class="container">
+                    <nav class="nav flex-div justify-content-btw">
+                        <a href="/" class="nav-logo">
+                            <img src="assets/images/full-mvaa-logo.png" alt="Lagos MVAA Logo">
+                        </a>
+                        <ul class="flex-div hidden-xs-sm mid-link">
+                            <li><a href="/">Home</a></li>
+                            <li><a href="/services" class="active">Services</a></li>
+                            <li><a href="/contact">Contact</a></li>
+                        </ul>
+                        <ul class="flex-div hidden-xs-sm nav-btn-wrapper">
+                            <li><a href="/login" class="nav-btn">Login</a></li>
+                            <li>
+                                <a href="/register" class="pry-nav-btn flex div">
+                                    <span>Get Started</span>
+                                    <img src="assets/images/arrow-1.svg" alt="arrow-icon">
+                                </a>
+                            </li>
+                        </ul>
+                        <button class="visible-xs-sm white-txt focus:outline-none pointer" onclick="toggleMobileMenu()">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 6h16M4 12h16m-7 6h7" stroke="#108a00"></path>
+                            </svg>
+                        </button>
+                    </nav>
+                </div>
+                <!-- Mobile Menu -->
+                <div id="mobile-menu" class="mobile-menu pry-bg white-txt px-4">
+                    <ul class="space-y-4">
+                        <li><a href="/" class="block white-txt hover-scale pointer">Home</a></li>
+                        <li><a href="/services" class="block white-txt hover-scale pointer active">Services</a></li>
+                        <li><a href="/contact" class="block white-txt hover-scale pointer">Contact</a></li>
+                    </ul>
+                    <ul class="flex-div nav-btn-wrapper mt-5 mb-3">
+                        <li><a href="/login" class="nav-btn">Login</a></li>
+                        <li>
+                            <a href="/register" class="pry-nav-btn flex div">
+                                <span>Get Started</span>
+                                <img src="assets/images/arrow-1.svg" alt="arrow-icon">
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow bg-white px-6 py-8 mb-[50px]">
+            <div class="max-w-6xl mx-auto">
+                <!-- Back Button -->
+                <div class="flex-div gap-4">
+                    <img src="assets/images/back-arr.svg" alt="back-arrow">
+                    <button onclick="window.history.back()" class="back-btn">BACK</button>
+                </div>
+
+                <!-- Title and Description -->
+                <div class="services-title-header py-4">
+                    <h1>Get New Plate ID</h1>
+                    <p></p>
+                </div>
+
+                <!-- Form -->
+                <form class="mt-6" id="vehicle-registration-form">
+                    <!-- Vehicle Information -->
+                    <div class="bg-white p-4 mb-4">
+                        <h2 class="font-bold text-[24px]">Vehicle Information</h2>
+                        <div class="grid md:grid-cols-2 gap-x-10 gap-y-6 vehicle-form-fields">
+                            <div>
+                                <label for="vehicleCategory">Vehicle Category</label>
+                                <select id="vehicleCategory" class="w-full p-2 border rounded">
+                                    <option value="sedan">Sedan</option>
+                                    <option value="suv">SUV</option>
+                                    <option value="truck">Truck</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="vehicleModel">Vehicle Model</label>
+                                <input type="text" id="vehicleModel" placeholder="Enter vehicle model"
+                                    class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label for="vehicleMake">Vehicle Make</label>
+                                <select id="vehicleMake" class="w-full p-2 border rounded">
+                                    <option value="toyota">Toyota</option>
+                                    <option value="honda">Honda</option>
+                                    <option value="ford">Ford</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="chassisNumber">Chassis Number</label>
+                                <input type="text" id="chassisNumber" placeholder="Enter chassis number"
+                                    class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label for="yearOfManufacture">Year of Manufacture</label>
+                                <input type="text" id="yearOfManufacture" placeholder="Enter year of manufacture"
+                                    class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label for="engineNumber">Engine Number</label>
+                                <input type="text" id="engineNumber" placeholder="Enter engine number"
+                                    class="w-full p-2 border rounded">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label for="vehicleImage">Vehicle Image</label>
+                                <div class="border-gray-300 border p-4">
+                                    <p class="text-green-600 font-medium">Upload file</p>
+                                    <p class="text-gray-400 text-xs">(JPG, PNG, PDF Max 3MB)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Owner Information -->
+                    <div class="bg-white p-4 mb-4">
+                        <h2 class="font-bold text-[24px]">Owner Information</h2>
+                        <div class="grid md:grid-cols-2 gap-x-10 gap-y-6 vehicle-form-fields">
+                            <div>
+                                <label for="fullName">Full Name</label>
+                                <input type="text" id="fullName" placeholder="Enter full name"
+                                    class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label for="idNumber">ID Number</label>
+                                <input type="text" id="idNumber" placeholder="Enter ID number"
+                                    class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label for="phoneNumber">Phone Number</label>
+                                <input type="text" id="phoneNumber" placeholder="Enter phone number"
+                                    class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label for="emailAddress">Email Address</label>
+                                <input type="email" id="emailAddress" placeholder="Enter email address"
+                                    class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label for="dateOfBirth">Date of Birth</label>
+                                <input type="date" id="dateOfBirth" class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label for="gender">Gender</label>
+                                <select id="gender" class="w-full p-2 border rounded">
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label for="residentialAddress">Residential Address</label>
+                                <textarea id="residentialAddress" rows="3" placeholder="Enter residential address"
+                                    class="w-full p-2 border rounded"></textarea>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label for="idDocument">ID Document</label>
+                                <div class="border-gray-300 border p-4">
+                                    <p class="text-green-600 font-medium">Upload file</p>
+                                    <p class="text-gray-400 text-xs">(JPG, PNG, PDF Max 3MB)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Other Information -->
+                    <div class="bg-white p-4 mb-4">
+                        <h2 class="font-bold text-[24px]">Other Information</h2>
+                        <div class="grid md:grid-cols-2 gap-x-10 gap-y-6 vehicle-form-fields">
+                            <div>
+                                <label for="registrationPurpose">Registration Purpose</label>
+                                <select id="registrationPurpose" class="w-full p-2 border rounded">
+                                    <option value="private">Private</option>
+                                    <option value="commercial">Commercial</option>
+                                    <option value="public">Public Transport</option>
+                                    <option value="government">Government</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="insuranceProvider">Insurance Provider</label>
+                                <select id="insuranceProvider" class="w-full p-2 border rounded">
+                                    <option value="provider1">Provider 1</option>
+                                    <option value="provider2">Provider 2</option>
+                                    <option value="provider3">Provider 3</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="policyNumber">Insurance Policy Number</label>
+                                <input type="text" id="policyNumber" placeholder="Enter policy number"
+                                    class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label for="insuranceExpiryDate">Insurance Expiry Date</label>
+                                <input type="date" id="insuranceExpiryDate" class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label for="previousRegistrationNumber">Previous Registration Number</label>
+                                <input type="text" id="previousRegistrationNumber"
+                                    placeholder="Enter previous registration number (if any)"
+                                    class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label for="preferredPlateNumber">Preferred Plate Number</label>
+                                <input type="text" id="preferredPlateNumber"
+                                    placeholder="Enter preferred plate number (optional)"
+                                    class="w-full p-2 border rounded">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label for="additionalDocuments">Additional Documents</label>
+                                <div class="border-gray-300 border p-4">
+                                    <p class="text-green-600 font-medium">Upload files</p>
+                                    <p class="text-gray-400 text-xs">(JPG, PNG, PDF Max 5MB)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex-div justify-center nav-btn-wrapper mt-12 mb-10">
+                        <button type="button" class="nav-btn">Preview</button>
+                        <button type="submit" class="pry-nav-btn flex div">
+                            <span>Submit</span>
+                            <img src="assets/images/arrow-1.svg" alt="arrow-icon">
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="py-[30px]">
+            <div class="container">
+                <div class="footer-top-section flex-div justify-between py-[35px]">
+                    <a href="/" class="footer-logo">
+                        <img src="assets/images/full-mvaa-logo-2.png" alt="Lagos MVAA Logo">
+                    </a>
+                    <div class="social-links">
+                        <a href="http://instagram.com" target="_blank" rel="noopener noreferrer">
+                            <img src="assets/images/ig-1.svg" alt="instagram" class="social-icon">
+                        </a>
+                        <a href="http://x.com" target="_blank" rel="noopener noreferrer">
+                            <img src="assets/images/x-1.svg" alt="x" class="social-icon">
+                        </a>
+                        <a href="http://facebook.com" target="_blank" rel="noopener noreferrer">
+                            <img src="assets/images/fb-1.svg" alt="facebook" class="social-icon">
+                        </a>
+                        <a href="http://linkedin.com" target="_blank" rel="noopener noreferrer">
+                            <img src="assets/images/ln-1.svg" alt="linkedin" class="social-icon">
+                        </a>
+                    </div>
+                </div>
+
+                <div class="footer-links-wrapper py-[50px]">
+                    <div class="footer-link-block">
+                        <div class="footer-link-header">Government</div>
+                        <ul class="footer-links">
+                            <li><a href="/#"><img src="assets/images/green-arrow.svg" alt="green-arrow"><span>Lorem
+                                        Ipspum</span></a></li>
+                            <!-- Repeat for other links -->
+                        </ul>
+                    </div>
+                    <!-- Repeat for other footer link blocks -->
+                </div>
+
+                <div class="footer-bottom-section flex-div justify-between">
+                    <div class="footer-copyright">
+                        © Copyright 2025, All Rights Reserved <span class="p-2">|</span> Lagos State MVAA
+                    </div>
+                    <div class="footer-copyright-2">
+                        <span class="sec-color">Powered by</span> - Lagos State MOTOR VEHICLE ADMINISTRATION AGENCY
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('active');
+        }
+    </script>
+</body>
+
+</html>
