@@ -5,8 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lagos State MVAA - Services</title>
-    <link rel="stylesheet" href="styles.css">
-
+    <link rel="shortcut icon" href="./images/icon.png" type="image/x-icon">
+    
+    <link rel="stylesheet" href="./css/fonts.css">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/auth.css">
+    <link rel="stylesheet" href="./css/footer.css">
+    <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./css/home.css">
+    <link rel="stylesheet" href="./css/vehicle-registeration.css">
+    
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 </head>
 
@@ -20,19 +28,19 @@
                 <div style="background-color: #FFBB32;"></div>
                 <div style="background-color: #32C76D;"></div>
             </div>
-
+        
             <div id="sub-header">
                 <div class="container">
                     <div class="sub-header-item flex-div">
-                        <img src="assets/images/call.svg" alt="call-icon">
+                        <img src="./images/call.svg" alt="call-icon">
                         <span class="bold-txt" style="font-weight: 700;">07056557484</span>
                     </div>
                     <div class="sub-header-item flex-div">
-                        <img src="assets/images/ig-x.svg" alt="ig-x-icon">
+                        <img src="./images/ig-x.svg" alt="ig-x-icon">
                         <span>@ lasgmvaa</span>
                     </div>
                     <div class="sub-header-item flex-div">
-                        <img src="assets/images/mail.svg" alt="mail-icon">
+                        <img src="./images/mail.svg" alt="mail-icon">
                         <span>motorvehicle@lagosstate.gov.ng</span>
                     </div>
                     <div class="sub-header-item flex-div" style="font-weight: 700;">
@@ -43,32 +51,32 @@
                     </div>
                 </div>
             </div>
-
+        
             <div id="main-header">
                 <div class="container">
                     <nav class="nav flex-div justify-content-btw">
-                        <a href="/" class="nav-logo">
-                            <img src="assets/images/full-mvaa-logo.png" alt="Lagos MVAA Logo">
+                        <a href="./index.html" class="nav-logo">
+                            <img src="./images/full-mvaa-logo.png" alt="Lagos MVAA Logo">
                         </a>
                         <ul class="flex-div hidden-xs-sm mid-link">
-                            <li><a href="/">Home</a></li>
-                            <li><a href="/services.html" class="active">Services</a></li>
-                            <li><a href="/#">Contact</a></li>
+                            <li><a href="./index.html">Home</a></li>
+                            <li><a href="./services.html" class="active">Services</a></li>
+                            <li><a href="#">Contact</a></li>
                         </ul>
                         <ul class="flex-div hidden-xs-sm nav-btn-wrapper">
-                            <li><a href="/login.html" class="nav-btn">Login</a></li>
+                            <li><a href="./login.html" class="nav-btn">Login</a></li>
                             <li>
-                                <a href="/register.html" class="pry-nav-btn flex div">
+                                <a href="./register.html" class="pry-nav-btn flex div">
                                     <span>Get Started</span>
-                                    <img src="assets/images/arrow-1.svg" alt="arrow-icon">
+                                    <img src="./images/arrow-1.svg" alt="arrow-icon">
                                 </a>
                             </li>
                         </ul>
                         <button class="visible-xs-sm white-txt focus:outline-none pointer" onclick="toggleMobileMenu()">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                 xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 6h16M4 12h16m-7 6h7" stroke="#108a00"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"
+                                    stroke="#108a00"></path>
                             </svg>
                         </button>
                     </nav>
@@ -76,16 +84,16 @@
                 <!-- Mobile Menu -->
                 <div id="mobile-menu" class="mobile-menu pry-bg white-txt px-4">
                     <ul class="space-y-4">
-                        <li><a href="/" class="block white-txt hover-scale pointer">Home</a></li>
-                        <li><a href="/services.html" class="block white-txt hover-scale pointer active">Services</a></li>
-                        <li><a href="/contact" class="block white-txt hover-scale pointer">Contact</a></li>
+                        <li><a href="./index.html" class="block white-txt hover-scale pointer">Home</a></li>
+                        <li><a href="./services.html" class="block white-txt hover-scale pointer active">Services</a></li>
+                        <li><a href="#" class="block white-txt hover-scale pointer">Contact</a></li>
                     </ul>
                     <ul class="flex-div nav-btn-wrapper mt-5 mb-3">
-                        <li><a href="/login.html" class="nav-btn">Login</a></li>
+                        <li><a href="./login.html" class="nav-btn">Login</a></li>
                         <li>
-                            <a href="/register.html" class="pry-nav-btn flex div">
+                            <a href="./register.html" class="pry-nav-btn flex div">
                                 <span>Get Started</span>
-                                <img src="assets/images/arrow-1.svg" alt="arrow-icon">
+                                <img src="./images/arrow-1.svg" alt="arrow-icon">
                             </a>
                         </li>
                     </ul>
@@ -93,75 +101,151 @@
             </div>
         </header>
 
-        <!-- Services Section -->
-        <section id="services-section">
-            <div class="container rel">
-                <div class="title-txts text-center mb-[62px]">
-                    <h1>Motor Vehicle Services</h1>
-                    <p>Lagos State VEHICLE services and information</p>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 service-card-grid gap-x-6 gap-y-8">
-                    <a href="/register.html" class="service-card py-[36px] px-[44px] flex flex-col items-center hover:shadow-md cursor-pointer">
-                        <div class="mb-4">
-                            <img src="assets/images/plateNo.png" alt="Number Plate Services"
-                                class="h-16 w-16 object-contain">
-                        </div>
-                        <h3 class="font-semibold text-lg mt-[20px] mb-[26px] text-center">Number Plate Services</h3>
-                        <p class="text-sm text-gray-600 text-center">
-                            Find vehicle related services like verify VIN, pay VIS etc permit
-                        </p>
-                    </a>
-                    <!-- Repeat for other service cards -->
-                </div>
-            </div>
-        </section>
-
-        <!-- Footer -->
-        <footer class="py-[30px]">
-            <div class="container">
-                <div class="footer-top-section flex-div justify-between py-[35px]">
-                    <a href="/" class="footer-logo">
-                        <img src="assets/images/full-mvaa-logo-2.png" alt="Lagos MVAA Logo">
-                    </a>
-                    <div class="social-links">
-                        <a href="http://instagram.com" target="_blank" rel="noopener noreferrer">
-                            <img src="assets/images/ig-1.svg" alt="instagram" class="social-icon">
+        <main>
+            <!-- Services Section -->
+            <section id="services-section">
+                <div class="container rel">
+                    <div class="title-txts text-center mb-[62px]">
+                        <h1>Motor Vehicle Services</h1>
+                        <p>Lagos State VEHICLE services and information</p>
+                    </div>
+            
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 service-card-grid gap-x-6 gap-y-8">
+                        <!-- Number Plate Services -->
+                        <a href="./number-plate-services.html"
+                            class="service-card py-[36px] px-[44px] flex flex-col items-center hover:shadow-md cursor-pointer">
+                            <div class="mb-4">
+                                <img src="./images/plateNo.png" alt="Number Plate Services" class="h-16 w-16 object-contain">
+                            </div>
+                            <h3 class="font-semibold text-lg mt-[20px] mb-[26px] text-center">Number Plate Services</h3>
+                            <p class="text-sm text-gray-600 text-center">
+                                Find vehicle related services like verify VIN, pay VIS etc permit
+                            </p>
                         </a>
-                        <a href="http://x.com" target="_blank" rel="noopener noreferrer">
-                            <img src="assets/images/x-1.svg" alt="x" class="social-icon">
+                    
+                        <!-- AutoDealer and Spare Part -->
+                        <a href="./auto-dealer-services.html"
+                            class="service-card py-[36px] px-[44px] flex flex-col items-center hover:shadow-md cursor-pointer">
+                            <div class="mb-4">
+                                <img src="./images/jacket.png" alt="AutoDealer and Spare Part" class="h-16 w-16 object-contain">
+                            </div>
+                            <h3 class="font-semibold text-lg mt-[20px] mb-[26px] text-center">AutoDealer and Spare Part</h3>
+                            <p class="text-sm text-gray-600 text-center">
+                                Find vehicle related services like verify VIN, pay VIS etc permit
+                            </p>
                         </a>
-                        <a href="http://facebook.com" target="_blank" rel="noopener noreferrer">
-                            <img src="assets/images/fb-1.svg" alt="facebook" class="social-icon">
+                    
+                        <!-- Car Registration -->
+                        <a href="./car-registration.html"
+                            class="service-card py-[36px] px-[44px] flex flex-col items-center hover:shadow-md cursor-pointer">
+                            <div class="mb-4">
+                                <img src="./images/steering.png" alt="Car Registration" class="h-16 w-16 object-contain">
+                            </div>
+                            <h3 class="font-semibold text-lg mt-[20px] mb-[26px] text-center">Car Registration</h3>
+                            <p class="text-sm text-gray-600 text-center">
+                                Find vehicle related services like verify VIN, pay VIS etc permit
+                            </p>
                         </a>
-                        <a href="http://linkedin.com" target="_blank" rel="noopener noreferrer">
-                            <img src="assets/images/ln-1.svg" alt="linkedin" class="social-icon">
+                    
+                        <!-- Driving License -->
+                        <a href="./driving-license.html"
+                            class="service-card py-[36px] px-[44px] flex flex-col items-center hover:shadow-md cursor-pointer">
+                            <div class="mb-4">
+                                <img src="./images/plateNo.png" alt="Driving License" class="h-16 w-16 object-contain">
+                            </div>
+                            <h3 class="font-semibold text-lg mt-[20px] mb-[26px] text-center">Driving License</h3>
+                            <p class="text-sm text-gray-600 text-center">
+                                Find vehicle related services like verify VIN, pay VIS etc permit
+                            </p>
+                        </a>
+                    
+                        <!-- Hackney Permit -->
+                        <a href="./hackney-permit.html"
+                            class="service-card py-[36px] px-[44px] flex flex-col items-center hover:shadow-md cursor-pointer">
+                            <div class="mb-4">
+                                <img src="./images/hackney.png" alt="Hackney Permit" class="h-16 w-16 object-contain">
+                            </div>
+                            <h3 class="font-semibold text-lg mt-[20px] mb-[26px] text-center">Hackney Permit</h3>
+                            <p class="text-sm text-gray-600 text-center">
+                                Find vehicle related services like verify VIN, pay VIS etc permit
+                            </p>
+                        </a>
+                    
+                        <!-- Road Worthiness -->
+                        <a href="./road-worthiness.html"
+                            class="service-card py-[36px] px-[44px] flex flex-col items-center hover:shadow-md cursor-pointer">
+                            <div class="mb-4">
+                                <img src="./images/steering.png" alt="Road Worthiness" class="h-16 w-16 object-contain">
+                            </div>
+                            <h3 class="font-semibold text-lg mt-[20px] mb-[26px] text-center">Road Worthiness</h3>
+                            <p class="text-sm text-gray-600 text-center">
+                                Find vehicle related services like verify VIN, pay VIS etc permit
+                            </p>
+                        </a>
+                    
+                        <!-- Third Party Insurance -->
+                        <a href="./third-party-insurance.html"
+                            class="service-card py-[36px] px-[44px] flex flex-col items-center hover:shadow-md cursor-pointer">
+                            <div class="mb-4">
+                                <img src="./images/plateNo.png" alt="Third Party Insurance" class="h-16 w-16 object-contain">
+                            </div>
+                            <h3 class="font-semibold text-lg mt-[20px] mb-[26px] text-center">Third Party Insurance</h3>
+                            <p class="text-sm text-gray-600 text-center">
+                                Find vehicle related services like verify VIN, pay VIS etc permit
+                            </p>
+                        </a>
+                    
+                        <!-- Int'l Driving License -->
+                        <a href="./international-driving-license.html"
+                            class="service-card py-[36px] px-[44px] flex flex-col items-center hover:shadow-md cursor-pointer">
+                            <div class="mb-4">
+                                <img src="./images/jacket.png" alt="Int'l Driving License" class="h-16 w-16 object-contain">
+                            </div>
+                            <h3 class="font-semibold text-lg mt-[20px] mb-[26px] text-center">Int'l Driving License</h3>
+                            <p class="text-sm text-gray-600 text-center">
+                                Find vehicle related services like verify VIN, pay VIS etc permit
+                            </p>
+                        </a>
+                    
+                        <!-- Tinted Permit -->
+                        <a href="./tinted-permit.html"
+                            class="service-card py-[36px] px-[44px] flex flex-col items-center hover:shadow-md cursor-pointer">
+                            <div class="mb-4">
+                                <img src="./images/steering.png" alt="Tinted Permit" class="h-16 w-16 object-contain">
+                            </div>
+                            <h3 class="font-semibold text-lg mt-[20px] mb-[26px] text-center">Tinted Permit</h3>
+                            <p class="text-sm text-gray-600 text-center">
+                                Find vehicle related services like verify VIN, pay VIS etc permit
+                            </p>
+                        </a>
+                    
+                        <!-- Number Plate Services -->
+                        <a href="./number-plate-services.html"
+                            class="service-card py-[36px] px-[44px] flex flex-col items-center hover:shadow-md cursor-pointer">
+                            <div class="mb-4">
+                                <img src="./images/keke.png" alt="Tinted Permit" class="h-16 w-16 object-contain">
+                            </div>
+                            <h3 class="font-semibold text-lg mt-[20px] mb-[26px] text-center">Number Plate Services</h3>
+                            <p class="text-sm text-gray-600 text-center">
+                                Find vehicle related services like verify VIN, pay VIS etc permit
+                            </p>
+                        </a>
+                    
+                        <!-- Number Plate Services -->
+                        <a href="./number-plate-services.html"
+                            class="service-card py-[36px] px-[44px] flex flex-col items-center hover:shadow-md cursor-pointer">
+                            <div class="mb-4">
+                                <img src="./images/hackney.png" alt="Tinted Permit" class="h-16 w-16 object-contain">
+                            </div>
+                            <h3 class="font-semibold text-lg mt-[20px] mb-[26px] text-center">Number Plate Services</h3>
+                            <p class="text-sm text-gray-600 text-center">
+                                Find vehicle related services like verify VIN, pay VIS etc permit
+                            </p>
                         </a>
                     </div>
                 </div>
-
-                <div class="footer-links-wrapper py-[50px]">
-                    <div class="footer-link-block">
-                        <div class="footer-link-header">Government</div>
-                        <ul class="footer-links">
-                            <li><a href="/#"><img src="assets/images/green-arrow.svg" alt="green-arrow"><span>Lorem
-                                        Ipspum</span></a></li>
-                            <!-- Repeat for other links -->
-                        </ul>
-                    </div>
-                    <!-- Repeat for other footer link blocks -->
-                </div>
-
-                <div class="footer-bottom-section flex-div justify-between">
-                    <div class="footer-copyright">
-                        © Copyright 2025, All Rights Reserved <span class="p-2">|</span> Lagos State MVAA
-                    </div>
-                    <div class="footer-copyright-2">
-                        <span class="sec-color">Powered by</span> - Lagos State MOTOR VEHICLE ADMINISTRATION AGENCY
-                    </div>
-                </div>
-            </div>
-        </footer>
+            </section>
+        </main>
     </div>
 
     <script>

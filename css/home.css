@@ -48,8 +48,9 @@ section#services-section {
 .service-card-grid {
     max-width: 1020px;
     margin: auto;
+    margin-bottom: 50px;
 }
-#homepage .service-card-grid > div:nth-child(n+7) {
+#homepage .service-card-grid > :nth-child(n+7) {
     display: none;
 }
 .service-card {
@@ -66,6 +67,7 @@ section#services-section {
     font-weight: 500;
     border-radius: 5px;
     font-size: 10.5px;
+    cursor: pointer;
 }
 .services-title-header {
     border-bottom: 1px solid #CCCCCC;
@@ -74,9 +76,11 @@ section#services-section {
 .services-title-header h1 {
     font-family: var(--font-bold);
     font-size: 32px;
+    margin: 0;
 }
 .services-title-header p {
     font-size: 14px;
+    margin: 0;
 }
 .plate-service-card-title h3 {
     font-size: 18px;
@@ -172,6 +176,9 @@ a.get-started-btn-2 {
     border-bottom: 1px solid #EEEEEE;
     padding: 21px 0;
 }
+.agency-link-block a {
+    color: black;
+}
 .agency-block-title {
     font-size: 14px;
     font-weight: 600;
@@ -180,3 +187,4 @@ a.get-started-btn-2 {
     color: #777777;
     font-size: 13px;
 }
+
