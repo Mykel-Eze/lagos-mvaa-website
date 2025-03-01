@@ -229,6 +229,7 @@ a.btn {
 }
 .submit-btn {
     background-color: var(--sec-color) !important;
+    color: white;
 }
 .submit-btn:hover {
     background-color: var(--pry-color) !important;
