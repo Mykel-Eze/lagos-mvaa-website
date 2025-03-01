@@ -1,3 +1,68 @@
+/* Collapsible styles */
+.collapsible-section {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+.collapsible-header {
+    background-color: white;
+    padding: 1rem;
+    cursor: pointer;
+    display: flex;
+    /* justify-content: space-between; */
+    gap: 20px;
+    align-items: center;
+    transition: background-color 0.3s;
+    position: relative;
+}
+.collapsible-header:hover {
+    background-color: #f9fafb;
+    position: relative;
+}
+.collapsible-header h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+}
+.collapsible-arrow-icon {
+    /* position: absolute; */
+    padding: 16px;
+    background-color: var(--pry-color);
+    border-radius: 6px;
+}
+.collapsible-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    padding: 0 1rem;
+}
+.collapsible-content.active {
+    max-height: 2000px;
+    /* Arbitrary large value */
+    padding: 1rem;
+}
+
+.arrow-icon {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.3s;
+}
+
+.arrow-icon.active {
+    transform: rotate(180deg);
+}
+
+/* Add a bit of shadow to make sections pop */
+.collapsible-section {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Active section styling */
+.collapsible-header.active {
+    border-bottom: 1px solid #e5e7eb;
+}
+
 .vehicle-form-fields {
     max-width: 750px;
     margin: 45px auto;

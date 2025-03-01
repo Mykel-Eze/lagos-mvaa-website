@@ -7,7 +7,7 @@
     <title>Get New Plate ID</title>
     <link rel="shortcut icon" href="./images/icon.png" type="image/x-icon">
     
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.13/dist/antd.min.css">
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.13/dist/antd.min.css"> -->
     <link rel="stylesheet" href="./css/fonts.css">
     <link rel="stylesheet" href="./css/styles.css">
     <link rel="stylesheet" href="./css/auth.css">
@@ -119,13 +119,13 @@
 
                 <!-- Form -->
                 <div class="get-new-plate-form-wrapper">
-                    <form action="./vehicle-registration.html" class="max-w-lg mx-auto">
-                        <div class="mb-6">
+                    <form action="./vehicle-registration.html" class="max-w-lg mx-auto grid gap-6">
+                        <div class="form-control">
                             <label for="fullName">Full Name</label>
                             <input type="text" id="fullName" placeholder="Enter your full name"
                                 class="w-full p-2 border rounded">
                         </div>
-                        <div class="mb-6">
+                        <div class="form-control">
                             <label for="department">Department</label>
                             <select id="department" class="w-full p-2 border rounded">
                                 <option value="finance">Finance</option>
@@ -134,20 +134,23 @@
                                 <option value="technical">Technical</option>
                             </select>
                         </div>
-                        <div class="mb-6">
+                        <div class="form-control">
                             <label for="registrationNumber">Registration Number</label>
                             <input type="text" id="registrationNumber" placeholder="Enter registration number"
                                 class="w-full p-2 border rounded">
                         </div>
-                        <div class="mb-6">
+                        <div class="form-control">
                             <label for="document">Upload file</label>
-                            <div class="border-gray-300 border p-4">
-                                <p class="text-green-600 font-medium">Upload file</p>
-                                <p class="text-gray-400 text-xs">(JPG, PNG, PDF Max 3MB)</p>
+                            <div class="file-upload p-4">
+                                <div class="sec-color text-[14px] underline m-0 font-bold">Upload files</div>
+                                <p class="text-[#72767F] text-[10px] m-0">(JPG, PNG, PDF Max 5MB)</p>
+                                <input type="file" name="documents" id="documents" class="file-input" multiple>
                             </div>
+                            <ul class="file-names">
+                            </ul>
                         </div>
-                        <div class="mt-12">
-                            <button type="submit" class="w-full h-12 submit-btn bg-blue-500 text-white">SUBMIT</button>
+                        <div class="mt-6">
+                            <button type="submit" class="w-full h-12 submit-btn">SUBMIT</button>
                         </div>
                     </form>
                 </div>
@@ -159,6 +162,84 @@
         function toggleMobileMenu() {
             const mobileMenu = document.getElementById('mobile-menu');
             mobileMenu.classList.toggle('active');
+        }
+
+        // File upload handling
+        document.addEventListener('DOMContentLoaded', function () {
+            // Find all file upload inputs on the page
+            const fileInputs = document.querySelectorAll('.file-input');
+
+            fileInputs.forEach(input => {
+                // Get parent container to find the associated file-names list
+                const formControl = input.closest('.form-control');
+                const fileNamesList = formControl.querySelector('.file-names');
+
+                // Create one if it doesn't exist
+                if (!fileNamesList) {
+                    const newList = document.createElement('ul');
+                    newList.className = 'file-names';
+                    formControl.appendChild(newList);
+                }
+
+                // Add event listener for file selection
+                input.addEventListener('change', function (event) {
+                    const files = event.target.files;
+                    const list = formControl.querySelector('.file-names');
+
+                    // Add each selected file to the list
+                    for (let i = 0; i < files.length; i++) {
+                        addFileToList(files[ i ], list, input);
+                    }
+
+                    // Clear the input so the same file can be selected again if needed
+                    input.value = '';
+                });
+            });
+
+            // Event delegation for delete buttons
+            document.addEventListener('click', function (event) {
+                if (event.target.classList.contains('delete')) {
+                    const listItem = event.target.closest('li');
+                    const list = listItem.parentElement;
+
+                    // Remove the list item
+                    listItem.remove();
+
+                    // If that was the last item, hide the list (optional)
+                    if (list.children.length === 0) {
+                        list.style.display = 'none';
+                    }
+                }
+            });
+        });
+
+        // Function to add a file to the list
+        function addFileToList(file, list, inputElement) {
+            // Show the list if it was hidden
+            list.style.display = 'block';
+
+            // Create a new list item
+            const listItem = document.createElement('li');
+            listItem.className = 'flex-div justify-between';
+
+            // Add the file name
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = file.name;
+
+            // Add the delete button
+            const deleteSpan = document.createElement('span');
+            deleteSpan.className = 'delete';
+            deleteSpan.title = 'delete';
+            deleteSpan.innerHTML = '&times;';
+
+            // Assemble and add to the list
+            listItem.appendChild(nameSpan);
+            listItem.appendChild(deleteSpan);
+            list.appendChild(listItem);
+
+            // Store the file in a data attribute or a FileList object
+            // This is useful if you need to actually upload these files later
+            listItem.dataset.fileName = file.name;
         }
     </script>
 </body>

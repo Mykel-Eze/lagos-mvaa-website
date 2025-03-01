@@ -230,6 +230,11 @@ a.btn {
 .submit-btn {
     background-color: var(--sec-color) !important;
     color: white;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-family: var(--font-bold);
+    cursor: pointer;
 }
 .submit-btn:hover {
     background-color: var(--pry-color) !important;

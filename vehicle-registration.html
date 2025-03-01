@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vehicle Registration</title>
     <link rel="shortcut icon" href="./images/icon.png" type="image/x-icon">
-    
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.13/dist/antd.min.css">
     <link rel="stylesheet" href="./css/fonts.css">
     <link rel="stylesheet" href="./css/styles.css">
@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="./css/header.css">
     <link rel="stylesheet" href="./css/home.css">
     <link rel="stylesheet" href="./css/vehicle-registeration.css">
-    
+
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 </head>
 
@@ -29,7 +29,7 @@
                 <div style="background-color: #FFBB32;"></div>
                 <div style="background-color: #32C76D;"></div>
             </div>
-        
+
             <div id="sub-header">
                 <div class="container">
                     <div class="sub-header-item flex-div">
@@ -52,7 +52,7 @@
                     </div>
                 </div>
             </div>
-        
+
             <div id="main-header">
                 <div class="container">
                     <nav class="nav flex-div justify-content-btw">
@@ -76,8 +76,8 @@
                         <button class="visible-xs-sm white-txt focus:outline-none pointer" onclick="toggleMobileMenu()">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                 xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"
-                                    stroke="#108a00"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 6h16M4 12h16m-7 6h7" stroke="#108a00"></path>
                             </svg>
                         </button>
                     </nav>
@@ -86,7 +86,8 @@
                 <div id="mobile-menu" class="mobile-menu pry-bg white-txt px-4">
                     <ul class="space-y-4">
                         <li><a href="./index.html" class="block white-txt hover-scale pointer">Home</a></li>
-                        <li><a href="./services.html" class="block white-txt hover-scale pointer active">Services</a></li>
+                        <li><a href="./services.html" class="block white-txt hover-scale pointer active">Services</a>
+                        </li>
                         <li><a href="#" class="block white-txt hover-scale pointer">Contact</a></li>
                     </ul>
                     <ul class="flex-div nav-btn-wrapper mt-5 mb-3">
@@ -113,160 +114,188 @@
 
                 <!-- Title and Description -->
                 <div class="services-title-header py-4">
-                    <h1>Get New Plate ID</h1>
+                    <h1>Vehicle Registration</h1>
                     <p></p>
                 </div>
 
                 <!-- Form -->
                 <form class="mt-6" id="vehicle-registration-form">
-                    <!-- Vehicle Information -->
-                    <div class="bg-white p-4 mb-4">
-                        <h2 class="font-bold text-[24px]">Vehicle Information</h2>
-                        <div class="grid md:grid-cols-2 gap-x-10 gap-y-6 vehicle-form-fields">
-                            <div>
-                                <label for="vehicleCategory">Vehicle Category</label>
-                                <select id="vehicleCategory" class="w-full p-2 border rounded">
-                                    <option value="sedan">Sedan</option>
-                                    <option value="suv">SUV</option>
-                                    <option value="truck">Truck</option>
-                                </select>
+                    <!-- Vehicle Information Section -->
+                    <div class="collapsible-section">
+                        <div class="collapsible-header active" onclick="toggleCollapsible(this)">
+                            <div class="collapsible-arrow-icon">
+                                <svg class="arrow-icon active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                    stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
                             </div>
-                            <div>
-                                <label for="vehicleModel">Vehicle Model</label>
-                                <input type="text" id="vehicleModel" placeholder="Enter vehicle model"
-                                    class="w-full p-2 border rounded">
-                            </div>
-                            <div>
-                                <label for="vehicleMake">Vehicle Make</label>
-                                <select id="vehicleMake" class="w-full p-2 border rounded">
-                                    <option value="toyota">Toyota</option>
-                                    <option value="honda">Honda</option>
-                                    <option value="ford">Ford</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="chassisNumber">Chassis Number</label>
-                                <input type="text" id="chassisNumber" placeholder="Enter chassis number"
-                                    class="w-full p-2 border rounded">
-                            </div>
-                            <div>
-                                <label for="yearOfManufacture">Year of Manufacture</label>
-                                <input type="text" id="yearOfManufacture" placeholder="Enter year of manufacture"
-                                    class="w-full p-2 border rounded">
-                            </div>
-                            <div>
-                                <label for="engineNumber">Engine Number</label>
-                                <input type="text" id="engineNumber" placeholder="Enter engine number"
-                                    class="w-full p-2 border rounded">
-                            </div>
-                            <div class="md:col-span-2">
-                                <label for="vehicleImage">Vehicle Image</label>
-                                <div class="border-gray-300 border p-4">
-                                    <p class="text-green-600 font-medium">Upload file</p>
-                                    <p class="text-gray-400 text-xs">(JPG, PNG, PDF Max 3MB)</p>
+                            <h2>Vehicle Information</h2>
+                        </div>
+                        <div class="collapsible-content active">
+                            <div class="grid md:grid-cols-2 gap-x-10 gap-y-6 vehicle-form-fields">
+                                <div class="form-control">
+                                    <label for="vehicleCategory">Vehicle Category</label>
+                                    <select id="vehicleCategory" class="w-full p-2">
+                                        <option value="sedan">Sedan</option>
+                                        <option value="suv">SUV</option>
+                                        <option value="truck">Truck</option>
+                                    </select>
+                                </div>
+                                <div class="form-control">
+                                    <label for="vehicleModel">Vehicle Model</label>
+                                    <input type="text" id="vehicleModel" placeholder="Enter vehicle model" class="w-full p-2">
+                                </div>
+                                <div class="form-control">
+                                    <label for="vehicleMake">Vehicle Make</label>
+                                    <select id="vehicleMake" class="w-full p-2">
+                                        <option value="toyota">Toyota</option>
+                                        <option value="honda">Honda</option>
+                                        <option value="ford">Ford</option>
+                                    </select>
+                                </div>
+                                <div class="form-control">
+                                    <label for="chassisNumber">Chassis Number</label>
+                                    <input type="text" id="chassisNumber" placeholder="Enter chassis number" class="w-full p-2">
+                                </div>
+                                <div class="form-control">
+                                    <label for="yearOfManufacture">Year of Manufacture</label>
+                                    <input type="text" id="yearOfManufacture" placeholder="Enter year of manufacture" class="w-full p-2">
+                                </div>
+                                <div class="form-control">
+                                    <label for="engineNumber">Engine Number</label>
+                                    <input type="text" id="engineNumber" placeholder="Enter engine number" class="w-full p-2">
+                                </div>
+                                <div class="md:col-span-2 form-control">
+                                    <label for="vehicleImage">Vehicle Image</label>
+                                    <div class="file-upload p-4">
+                                        <div class="sec-color text-[14px] underline m-0 font-bold">Upload files</div>
+                                        <p class="text-[#72767F] text-[10px] m-0">(JPG, PNG, PDF Max 5MB)</p>
+                                        <input type="file" name="vehicle_documents" id="vehicle_documents" class="file-input" multiple>
+                                    </div>
+                                    <ul class="file-names">
+                                    </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Owner Information -->
-                    <div class="bg-white p-4 mb-4">
-                        <h2 class="font-bold text-[24px]">Owner Information</h2>
-                        <div class="grid md:grid-cols-2 gap-x-10 gap-y-6 vehicle-form-fields">
-                            <div>
-                                <label for="fullName">Full Name</label>
-                                <input type="text" id="fullName" placeholder="Enter full name"
-                                    class="w-full p-2 border rounded">
+                    <!-- Owner Information Section -->
+                    <div class="collapsible-section">
+                        <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                            <div class="collapsible-arrow-icon">
+                                <svg class="arrow-icon active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                    stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
                             </div>
-                            <div>
-                                <label for="idNumber">ID Number</label>
-                                <input type="text" id="idNumber" placeholder="Enter ID number"
-                                    class="w-full p-2 border rounded">
-                            </div>
-                            <div>
-                                <label for="phoneNumber">Phone Number</label>
-                                <input type="text" id="phoneNumber" placeholder="Enter phone number"
-                                    class="w-full p-2 border rounded">
-                            </div>
-                            <div>
-                                <label for="emailAddress">Email Address</label>
-                                <input type="email" id="emailAddress" placeholder="Enter email address"
-                                    class="w-full p-2 border rounded">
-                            </div>
-                            <div>
-                                <label for="dateOfBirth">Date of Birth</label>
-                                <input type="date" id="dateOfBirth" class="w-full p-2 border rounded">
-                            </div>
-                            <div>
-                                <label for="gender">Gender</label>
-                                <select id="gender" class="w-full p-2 border rounded">
-                                    <option value="male">Male</option>
-                                    <option value="female">Female</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </div>
-                            <div class="md:col-span-2">
-                                <label for="residentialAddress">Residential Address</label>
-                                <textarea id="residentialAddress" rows="3" placeholder="Enter residential address"
-                                    class="w-full p-2 border rounded"></textarea>
-                            </div>
-                            <div class="md:col-span-2">
-                                <label for="idDocument">ID Document</label>
-                                <div class="border-gray-300 border p-4">
-                                    <p class="text-green-600 font-medium">Upload file</p>
-                                    <p class="text-gray-400 text-xs">(JPG, PNG, PDF Max 3MB)</p>
+                            <h2>Owner Information</h2>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="grid md:grid-cols-2 gap-x-10 gap-y-6 vehicle-form-fields">
+                                <div class="form-control">
+                                    <label for="fullName">Full Name</label>
+                                    <input type="text" id="fullName" placeholder="Enter full name" class="w-full p-2">
+                                </div>
+                                <div class="form-control">
+                                    <label for="idNumber">ID Number</label>
+                                    <input type="text" id="idNumber" placeholder="Enter ID number" class="w-full p-2">
+                                </div>
+                                <div class="form-control">
+                                    <label for="phoneNumber">Phone Number</label>
+                                    <input type="text" id="phoneNumber" placeholder="Enter phone number" class="w-full p-2">
+                                </div>
+                                <div class="form-control">
+                                    <label for="emailAddress">Email Address</label>
+                                    <input type="email" id="emailAddress" placeholder="Enter email address" class="w-full p-2">
+                                </div>
+                                <div class="form-control">
+                                    <label for="dateOfBirth">Date of Birth</label>
+                                    <input type="date" id="dateOfBirth" class="w-full p-2">
+                                </div>
+                                <div class="form-control">
+                                    <label for="gender">Gender</label>
+                                    <select id="gender" class="w-full p-2">
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="md:col-span-2 form-control">
+                                    <label for="residentialAddress">Residential Address</label>
+                                    <textarea id="residentialAddress" rows="3" placeholder="Enter residential address"
+                                        class="w-full p-2"></textarea>
+                                </div>
+                                <div class="md:col-span-2 form-control">
+                                    <label for="idDocument">ID Document</label>
+                                    <div class="file-upload p-4">
+                                        <div class="sec-color text-[14px] underline m-0 font-bold">Upload files</div>
+                                        <p class="text-[#72767F] text-[10px] m-0">(JPG, PNG, PDF Max 5MB)</p>
+                                        <input type="file" name="owner_documents" id="owner_documents" class="file-input" multiple>
+                                    </div>
+                                    <ul class="file-names">
+                                    </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Other Information -->
-                    <div class="bg-white p-4 mb-4">
-                        <h2 class="font-bold text-[24px]">Other Information</h2>
-                        <div class="grid md:grid-cols-2 gap-x-10 gap-y-6 vehicle-form-fields">
-                            <div>
-                                <label for="registrationPurpose">Registration Purpose</label>
-                                <select id="registrationPurpose" class="w-full p-2 border rounded">
-                                    <option value="private">Private</option>
-                                    <option value="commercial">Commercial</option>
-                                    <option value="public">Public Transport</option>
-                                    <option value="government">Government</option>
-                                </select>
+                    <!-- Other Information Section -->
+                    <div class="collapsible-section">
+                        <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                            <div class="collapsible-arrow-icon">
+                                <svg class="arrow-icon active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                    stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
                             </div>
-                            <div>
-                                <label for="insuranceProvider">Insurance Provider</label>
-                                <select id="insuranceProvider" class="w-full p-2 border rounded">
-                                    <option value="provider1">Provider 1</option>
-                                    <option value="provider2">Provider 2</option>
-                                    <option value="provider3">Provider 3</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="policyNumber">Insurance Policy Number</label>
-                                <input type="text" id="policyNumber" placeholder="Enter policy number"
-                                    class="w-full p-2 border rounded">
-                            </div>
-                            <div>
-                                <label for="insuranceExpiryDate">Insurance Expiry Date</label>
-                                <input type="date" id="insuranceExpiryDate" class="w-full p-2 border rounded">
-                            </div>
-                            <div>
-                                <label for="previousRegistrationNumber">Previous Registration Number</label>
-                                <input type="text" id="previousRegistrationNumber"
-                                    placeholder="Enter previous registration number (if any)"
-                                    class="w-full p-2 border rounded">
-                            </div>
-                            <div>
-                                <label for="preferredPlateNumber">Preferred Plate Number</label>
-                                <input type="text" id="preferredPlateNumber"
-                                    placeholder="Enter preferred plate number (optional)"
-                                    class="w-full p-2 border rounded">
-                            </div>
-                            <div class="md:col-span-2">
-                                <label for="additionalDocuments">Additional Documents</label>
-                                <div class="border-gray-300 border p-4">
-                                    <p class="text-green-600 font-medium">Upload files</p>
-                                    <p class="text-gray-400 text-xs">(JPG, PNG, PDF Max 5MB)</p>
+                            <h2>Other Information</h2>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="grid md:grid-cols-2 gap-x-10 gap-y-6 vehicle-form-fields">
+                                <div class="form-control">
+                                    <label for="registrationPurpose">Registration Purpose</label>
+                                    <select id="registrationPurpose" class="w-full p-2">
+                                        <option value="private">Private</option>
+                                        <option value="commercial">Commercial</option>
+                                        <option value="public">Public Transport</option>
+                                        <option value="government">Government</option>
+                                    </select>
+                                </div>
+                                <div class="form-control">
+                                    <label for="insuranceProvider">Insurance Provider</label>
+                                    <select id="insuranceProvider" class="w-full p-2">
+                                        <option value="provider1">Provider 1</option>
+                                        <option value="provider2">Provider 2</option>
+                                        <option value="provider3">Provider 3</option>
+                                    </select>
+                                </div>
+                                <div class="form-control">
+                                    <label for="policyNumber">Insurance Policy Number</label>
+                                    <input type="text" id="policyNumber" placeholder="Enter policy number" class="w-full p-2">
+                                </div>
+                                <div class="form-control">
+                                    <label for="insuranceExpiryDate">Insurance Expiry Date</label>
+                                    <input type="date" id="insuranceExpiryDate" class="w-full p-2">
+                                </div>
+                                <div class="form-control">
+                                    <label for="previousRegistrationNumber">Previous Registration Number</label>
+                                    <input type="text" id="previousRegistrationNumber" placeholder="Enter previous registration number (if any)"
+                                        class="w-full p-2">
+                                </div>
+                                <div class="form-control">
+                                    <label for="preferredPlateNumber">Preferred Plate Number</label>
+                                    <input type="text" id="preferredPlateNumber" placeholder="Enter preferred plate number (optional)"
+                                        class="w-full p-2">
+                                </div>
+                                <div class="md:col-span-2 form-control">
+                                    <label for="additionalDocuments">Additional Documents</label>
+                                    <div class="file-upload p-4">
+                                        <div class="sec-color text-[14px] underline m-0 font-bold">Upload files</div>
+                                        <p class="text-[#72767F] text-[10px] m-0">(JPG, PNG, PDF Max 5MB)</p>
+                                        <input type="file" name="other_documents" id="other_documents" class="file-input" multiple>
+                                    </div>
+                                    <ul class="file-names">
+                                    </ul>
                                 </div>
                             </div>
                         </div>
@@ -286,9 +315,109 @@
     </div>
 
     <script>
+        // Mobile menu toggle
         function toggleMobileMenu() {
             const mobileMenu = document.getElementById('mobile-menu');
             mobileMenu.classList.toggle('active');
+        }
+
+        // Collapsible sections
+        function toggleCollapsible(element) {
+            // Toggle active class on header
+            element.classList.toggle('active');
+
+            // Toggle active class on content
+            const content = element.nextElementSibling;
+            content.classList.toggle('active');
+
+            // Toggle arrow icon
+            const arrow = element.querySelector('.arrow-icon');
+            arrow.classList.toggle('active');
+
+            // If we're opening this section, scroll to it
+            if (content.classList.contains('active')) {
+                setTimeout(() => {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            }
+        }
+
+        // File upload handling
+        document.addEventListener('DOMContentLoaded', function () {
+            // Find all file upload inputs on the page
+            const fileInputs = document.querySelectorAll('.file-input');
+
+            fileInputs.forEach(input => {
+                // Get parent container to find the associated file-names list
+                const formControl = input.closest('.form-control');
+                const fileNamesList = formControl.querySelector('.file-names');
+
+                // Create one if it doesn't exist
+                if (!fileNamesList) {
+                    const newList = document.createElement('ul');
+                    newList.className = 'file-names';
+                    formControl.appendChild(newList);
+                }
+
+                // Add event listener for file selection
+                input.addEventListener('change', function (event) {
+                    const files = event.target.files;
+                    const list = formControl.querySelector('.file-names');
+
+                    // Add each selected file to the list
+                    for (let i = 0; i < files.length; i++) {
+                        addFileToList(files[ i ], list, input);
+                    }
+
+                    // Clear the input so the same file can be selected again if needed
+                    input.value = '';
+                });
+            });
+
+            // Event delegation for delete buttons
+            document.addEventListener('click', function (event) {
+                if (event.target.classList.contains('delete')) {
+                    const listItem = event.target.closest('li');
+                    const list = listItem.parentElement;
+
+                    // Remove the list item
+                    listItem.remove();
+
+                    // If that was the last item, hide the list (optional)
+                    if (list.children.length === 0) {
+                        list.style.display = 'none';
+                    }
+                }
+            });
+        });
+
+        // Function to add a file to the list
+        function addFileToList(file, list, inputElement) {
+            // Show the list if it was hidden
+            list.style.display = 'block';
+
+            // Create a new list item
+            const listItem = document.createElement('li');
+            listItem.className = 'flex-div justify-between';
+
+            // Add the file name
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = file.name;
+
+            // Add the delete button
+            const deleteSpan = document.createElement('span');
+            deleteSpan.className = 'delete';
+            deleteSpan.title = 'delete';
+            deleteSpan.innerHTML = '&times;';
+
+            // Assemble and add to the list
+            listItem.appendChild(nameSpan);
+            listItem.appendChild(deleteSpan);
+            list.appendChild(listItem);
+
+            // Store the file in a data attribute or a FileList object
+            // This is useful if you need to actually upload these files later
+            listItem.dataset.fileName = file.name;
         }
     </script>
 </body>
