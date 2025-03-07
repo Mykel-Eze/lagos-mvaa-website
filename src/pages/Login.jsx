@@ -1,20 +1,27 @@
+// src/pages/Login.jsx
 import React, { useState } from 'react';
 import { Form, Input, Button, Radio, Select } from 'antd';
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
+import { login } from '../services/api';
+import { toast } from 'react-toastify';
 
 const Login = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [portalType, setPortalType] = useState('user');
 
-  const handleSubmit = (values) => {
-    console.log('Login form values:', values);
-    if (portalType === 'user') {
+  const handleSubmit = async (values) => {
+    try {
+      const { email, password } = values;
+      const response = await login(email, password);
+      localStorage.setItem('access_token', response.access_token);
+      localStorage.setItem('refresh_token', response.refresh_token);
+      toast.success('Login successful!');
       navigate('/dashboard');
-    } else {
-      navigate('/admin-dashboard');
+    } catch (error) {
+      toast.error(error.error || 'Login failed. Please check your credentials.');
     }
   };
 
