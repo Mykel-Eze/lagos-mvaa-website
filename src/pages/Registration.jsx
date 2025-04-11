@@ -21,10 +21,8 @@ const Registration = () => {
         phone: values.phone,
         address: {
           street: values.street,
-          city: values.city,
-          state: values.state,
-          postalCode: values.postalCode,
-          country: values.country,
+          lga: values.lga,
+          state: values.state
         },
         password: values.password,
       };
@@ -99,12 +97,12 @@ const Registration = () => {
         </Form.Item>
 
         <Form.Item
-          label="City"
-          name="city"
-          rules={[{ required: true, message: 'Please enter your city' }]}
+          label="LGA"
+          name="lga"
+          rules={[{ required: true, message: 'Please enter your LGA' }]}
           className="mb-6"
         >
-          <Input placeholder="Enter your city" size="large" />
+          <Input placeholder="Enter your LGA" size="large" />
         </Form.Item>
 
         <Form.Item
@@ -116,7 +114,7 @@ const Registration = () => {
           <Input placeholder="Enter your state" size="large" />
         </Form.Item>
 
-        <Form.Item
+        {/* <Form.Item
           label="Postal Code"
           name="postalCode"
           rules={[{ required: true, message: 'Please enter your postal code' }]}
@@ -132,7 +130,7 @@ const Registration = () => {
           className="mb-6"
         >
           <Input placeholder="Enter your country" size="large" />
-        </Form.Item>
+        </Form.Item> */}
 
         {/* Password */}
         <Form.Item
