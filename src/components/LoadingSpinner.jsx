@@ -9,8 +9,8 @@ import React from 'react';
  * @param {boolean} props.fullScreen - Whether the spinner should take the full screen
  */
 const LoadingSpinner = ({
-  size = 'medium',
-  color = '#3498db',
+  size = 'large',
+  color = '#108A00',
   thickness = '4px',
   text = '',
   fullScreen = false

@@ -6,13 +6,16 @@ import AuthLayout from '../components/AuthLayout';
 import { register } from '../services/api';
 import { toast } from 'react-toastify';
 import countryCodes from '../data/countryCodes.json';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const Registration = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (values) => {
+    setIsLoading(true);
     try {
       // Format the address object as required by the API
       const userData = {
@@ -34,6 +37,8 @@ const Registration = () => {
       navigate('/login'); // Redirect to the login page
     } catch (error) {
       toast.error(error.error || 'Registration failed. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -180,8 +185,9 @@ const Registration = () => {
             type="primary"
             htmlType="submit"
             className="w-full h-[43px] submit-btn text-white text-[12px] uppercase"
+            disabled={isLoading}
           >
-            CREATE ACCOUNT
+            {isLoading ? <LoadingSpinner size="small" color="#ffffff" className="mx-auto" /> : "CREATE ACCOUNT"}
           </Button>
         </Form.Item>
 

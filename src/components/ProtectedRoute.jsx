@@ -15,7 +15,7 @@ const ProtectedRoute = () => {
   }, []);
 
   if (isLoading) {
-    return <LoadingSpinner />; // Show a loading spinner while checking authentication
+    return <LoadingSpinner fullScreen="true" />; // Show a loading spinner while checking authentication
   }
 
   if (!isAuthenticated) {

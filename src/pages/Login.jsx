@@ -6,13 +6,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
 import { login } from '../services/api';
 import { toast } from 'react-toastify';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const Login = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [portalType, setPortalType] = useState('user');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (values) => {
+    setIsLoading(true);
     try {
       const { email, password } = values;
       const response = await login(email, password);
@@ -22,6 +25,8 @@ const Login = () => {
       navigate('/services');
     } catch (error) {
       toast.error(error.error || 'Login failed. Please check your credentials.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -108,8 +113,9 @@ const Login = () => {
             type="primary" 
             htmlType="submit" 
             className="w-full h-[43px] submit-btn text-white text-[12px] uppercase"
+            disabled={isLoading}
           >
-            Log In
+            {isLoading ? <LoadingSpinner size="small" color="#ffffff" className="mx-auto" /> : "LOG IN"}
           </Button>
         </Form.Item>
         
