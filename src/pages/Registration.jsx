@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Form, Input, Button } from 'antd';
+import { Form, Input, Select, Button } from 'antd';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
 import { register } from '../services/api';
 import { toast } from 'react-toastify';
+import countryCodes from '../data/countryCodes.json';
 
 const Registration = () => {
   const [form] = Form.useForm();
@@ -18,7 +19,7 @@ const Registration = () => {
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email,
-        phone: values.phone,
+        phone: values.countryCode + values.phoneNumber,
         address: {
           street: values.street,
           lga: values.lga,
@@ -77,13 +78,49 @@ const Registration = () => {
         </Form.Item>
 
         {/* Phone Number */}
-        <Form.Item
-          label="Phone Number"
-          name="phone"
-          rules={[{ required: true, message: 'Please enter your phone number' }]}
+        <Form.Item 
+          label="Phone Number" 
           className="mb-6"
         >
-          <Input placeholder="Enter your phone number" size="large" />
+          <div className="flex">
+            <Form.Item
+              name="countryCode"
+              noStyle
+              initialValue="+234"
+            >
+              <Select 
+                size="large" 
+                style={{ width: '100px', textAlign: 'center' }}
+                optionFilterProp="children"
+                filterOption={(input, option) => 
+                  (option?.data?.country?.toLowerCase() || '').includes(input.toLowerCase()) ||
+                  (option?.data?.code?.toLowerCase() || '').includes(input.toLowerCase())
+                }
+                optionLabelProp="label"
+              >
+                {countryCodes.countryCodes.map(country => (
+                  <Select.Option 
+                    key={country.code} 
+                    value={country.code}
+                    label={country.code}
+                    data={country}
+                  >
+                    <div className="flex items-center">
+                      <span>{country.code}</span>
+                      <span className="ml-2 text-gray-500 text-xs">{country.country}</span>
+                    </div>
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+            <Form.Item
+              name="phoneNumber"
+              noStyle
+              rules={[{ required: true, message: 'Please enter your phone number' }]}
+            >
+              <Input placeholder="8100000000" size="large" className="ml-2 flex-1" />
+            </Form.Item>
+          </div>
         </Form.Item>
 
         {/* Address Fields */}
@@ -113,24 +150,6 @@ const Registration = () => {
         >
           <Input placeholder="Enter your state" size="large" />
         </Form.Item>
-
-        {/* <Form.Item
-          label="Postal Code"
-          name="postalCode"
-          rules={[{ required: true, message: 'Please enter your postal code' }]}
-          className="mb-6"
-        >
-          <Input placeholder="Enter your postal code" size="large" />
-        </Form.Item>
-
-        <Form.Item
-          label="Country"
-          name="country"
-          rules={[{ required: true, message: 'Please enter your country' }]}
-          className="mb-6"
-        >
-          <Input placeholder="Enter your country" size="large" />
-        </Form.Item> */}
 
         {/* Password */}
         <Form.Item

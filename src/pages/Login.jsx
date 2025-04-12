@@ -19,7 +19,7 @@ const Login = () => {
       localStorage.setItem('access_token', response.access_token);
       localStorage.setItem('refresh_token', response.refresh_token);
       toast.success('Login successful!');
-      navigate('/dashboard');
+      navigate('/services');
     } catch (error) {
       toast.error(error.error || 'Login failed. Please check your credentials.');
     }
