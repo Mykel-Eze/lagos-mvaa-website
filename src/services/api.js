@@ -12,7 +12,7 @@ const api = axios.create({
 // API functions
 export const login = async (email, password) => {
   try {
-    const response = await api.post('/auth/portal/signin', { email, password });
+    const response = await api.post('/portal/auth/signin', { email, password });
     return response.data;
   } catch (error) {
     throw error.response.data;
@@ -21,7 +21,7 @@ export const login = async (email, password) => {
 
 export const register = async (userData) => {
   try {
-    const response = await api.post('/auth/portal/signup', userData);
+    const response = await api.post('/portal/auth/signup', userData);
     return response.data;
   } catch (error) {
     throw error.response.data;
@@ -30,7 +30,7 @@ export const register = async (userData) => {
 
 export const getProfile = async (token) => {
   try {
-    const response = await api.get('/auth/profile', {
+    const response = await api.get('/shared/profile', {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
@@ -41,7 +41,7 @@ export const getProfile = async (token) => {
 
 export const refreshToken = async (refreshToken) => {
   try {
-    const response = await api.post('/auth/refresh', {}, {
+    const response = await api.post('/portal/auth/refresh', {}, {
       headers: { Authorization: `Bearer ${refreshToken}` },
     });
     return response.data;
@@ -52,7 +52,7 @@ export const refreshToken = async (refreshToken) => {
 
 export const logout = async () => {
   try {
-    const response = await api.post('/auth/logout');
+    const response = await api.post('/portal/auth/logout');
     return response.data;
   } catch (error) {
     throw error.response.data;
@@ -74,7 +74,7 @@ api.interceptors.response.use(
       if (refreshTokenValue) {
         try {
           // Attempt to refresh the token
-          const response = await api.post('/auth/refresh', {}, {
+          const response = await api.post('/portal/auth/refresh', {}, {
             headers: { Authorization: `Bearer ${refreshTokenValue}` },
           });
           localStorage.setItem('access_token', response.data.access_token);
