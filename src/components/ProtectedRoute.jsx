@@ -1,11 +1,14 @@
 // src/components/ProtectedRoute.jsx
 import React, { useState, useEffect } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import LoadingSpinner from './LoadingSpinner'; // Create a loading spinner component
+import LoadingSpinner from './LoadingSpinner';
+import Cookies from 'js-cookie';
 
 const ProtectedRoute = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const isAuthenticated = localStorage.getItem('access_token');
+  
+  // Check if user is authenticated using cookies
+  const isAuthenticated = !!Cookies.get('portal_session_id');
 
   useEffect(() => {
     // Simulate a delay for checking authentication

@@ -1,5 +1,5 @@
 // src/pages/Login.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Radio, Select } from 'antd';
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
@@ -7,6 +7,7 @@ import AuthLayout from '../components/AuthLayout';
 import { login } from '../services/api';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../components/LoadingSpinner';
+import Cookies from 'js-cookie';
 
 const Login = () => {
   const [form] = Form.useForm();
@@ -14,13 +15,29 @@ const Login = () => {
   const [portalType, setPortalType] = useState('user');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Redirect if already logged in
+  useEffect(() => {
+    if (Cookies.get('portal_session_id')) {
+      navigate('/services');
+    }
+  }, [navigate]);
+
   const handleSubmit = async (values) => {
     setIsLoading(true);
     try {
       const { email, password } = values;
+      
+      // Set the service type cookie
+      Cookies.set('portal_app_id', portalType, { sameSite: 'strict' });
+      
       const response = await login(email, password);
-      localStorage.setItem('access_token', response.access_token);
-      localStorage.setItem('refresh_token', response.refresh_token);
+      
+      // The session cookie should be set by the server with HttpOnly flag
+      // If you need to store any user data, do it here
+      if (response.user) {
+        Cookies.set('user', JSON.stringify(response.user), { sameSite: 'strict' });
+      }
+      
       toast.success('Login successful!');
       navigate('/services');
     } catch (error) {

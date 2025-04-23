@@ -1,7 +1,10 @@
+// src/components/Header.jsx
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Logo from '../assets/images/full-mvaa-logo.png';
 import { toast } from 'react-toastify';
+import Cookies from 'js-cookie';
+import { logout } from '../services/api';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // State for mobile menu
@@ -25,16 +28,19 @@ const Header = () => {
   ];
 
   // Handle logout
-  const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('user');
-    toast.success('Logged out successfully');
-    window.location.href = '/login'; // Redirect to login page
+  const handleLogout = async () => {
+    try {
+      await logout(); // This will also clear cookies
+      toast.success('Logged out successfully');
+      window.location.href = '/login'; // Redirect to login page
+    } catch (error) {
+      toast.error('Logout failed, but session cleared');
+      window.location.href = '/login';
+    }
   };
 
-  // Check if the user is logged in
-  const isLoggedIn = localStorage.getItem('access_token');
+  // Check if the user is logged in by checking the session cookie
+  const isLoggedIn = !!Cookies.get('portal_session_id');
 
   return (
     <>

@@ -22,7 +22,8 @@ const Registration = () => {
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email,
-        phone: values.countryCode + values.phoneNumber,
+        // phone: values.countryCode + values.phoneNumber,
+        phone: values.phoneNumber,
         address: {
           street: values.street,
           lga: values.lga,
