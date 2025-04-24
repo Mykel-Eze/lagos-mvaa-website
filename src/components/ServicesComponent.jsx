@@ -5,15 +5,15 @@ import Cookies from 'js-cookie';
 
 // Mapping of app_id to service URLs
 const serviceUrlMap = {
-  NUMBER_PLATE_SERVICES: 'https://numberplate.module1url.com',
-  AUTO_DEALER_SPARE_PARTS: 'https://autodealer.module1url.com',
-  VEHICLE_REGISTRATION: 'https://registration.module1url.com',
-  DRIVING_LICENSE: 'https://drivinglicense.module1url.com',
-  HACKNEY_PERMIT: 'https://hackney.module1url.com',
-  ROAD_WORTHINESS: 'https://roadworthiness.module1url.com',
-  THIRD_PARTY_INSURANCE: 'https://insurance.module1url.com',
-  INTERNATIONAL_DRIVING_LICENSE: 'https://intldrivinglicense.module1url.com',
-  TINTED_PERMIT: 'https://tintedpermit.module1url.com',
+  NUMBER_PLATE_SERVICES: 'https://numberplate.module1url.com/',
+  AUTO_DEALER_SPARE_PARTS: 'https://mvatvtlagos.com/mvaa-app/verify-session?',
+  VEHICLE_REGISTRATION: 'https://registration.module1url.com/',
+  DRIVING_LICENSE: 'https://drivinglicense.module1url.com/',
+  HACKNEY_PERMIT: 'https://hackney.module1url.com/',
+  ROAD_WORTHINESS: 'https://roadworthiness.module1url.com/',
+  THIRD_PARTY_INSURANCE: 'https://insurance.module1url.com/',
+  INTERNATIONAL_DRIVING_LICENSE: 'https://intldrivinglicense.module1url.com/',
+  TINTED_PERMIT: 'https://tintedpermit.module1url.com/',
 };
 
 const ServicesComponent = () => {
@@ -31,10 +31,16 @@ const ServicesComponent = () => {
     const baseUrl = serviceUrlMap[appId] || 'https://default.module1url.com';
     
     // Construct the redirect URL
-    const redirectUrl = `${baseUrl}/?portal_session_id=${sessionId}&portal_app_id=${appId}`;
+    const redirectUrl = `${baseUrl}?portal_session_id=${sessionId}&portal_app_id=${appId}`;
     
     // Redirect to the service URL
     window.location.href = redirectUrl;
+
+
+    if (!sessionId) {
+        window.location.href = '/login';
+        return;
+    }
   };
 
   return (
