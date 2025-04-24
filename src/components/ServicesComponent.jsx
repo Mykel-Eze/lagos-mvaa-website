@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 // Mapping of app_id to service URLs
 const serviceUrlMap = {
   NUMBER_PLATE_SERVICES: 'https://numberplate.module1url.com/',
-  AUTO_DEALER_SPARE_PARTS: 'https://mvatvtlagos.com/mvaa-app/verify-session?',
+  AUTO_DEALER_SPARE_PARTS: 'https://mvatvtlagos.com/mvaa-app/verify-session',
   VEHICLE_REGISTRATION: 'https://registration.module1url.com/',
   DRIVING_LICENSE: 'https://drivinglicense.module1url.com/',
   HACKNEY_PERMIT: 'https://hackney.module1url.com/',
