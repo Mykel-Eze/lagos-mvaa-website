@@ -2,11 +2,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const ServiceCard = ({ title, icon, link = "/", gridSpan = "", description }) => {
+const ServiceCard = ({ title, icon, link = "/", gridSpan = "", description, app_id }) => {
     const navigate = useNavigate();
   
     return (
-        <div className={`service-card py-[36px] px-[44px] flex flex-col items-center hover:shadow-md cursor-pointer ${gridSpan}`}
+        <div app_id={app_id} className={`service-card py-[36px] px-[44px] flex flex-col items-center hover:shadow-md cursor-pointer ${gridSpan}`}
             onClick={() => navigate(link)}>
             <div className="mb-4">
                 <img 
