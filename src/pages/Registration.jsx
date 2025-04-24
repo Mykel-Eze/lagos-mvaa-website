@@ -6,7 +6,10 @@ import AuthLayout from '../components/AuthLayout';
 import { register } from '../services/api';
 import { toast } from 'react-toastify';
 import countryCodes from '../data/countryCodes.json';
+import lagosLGAs from '../data/lagosLGAs.json';
 import LoadingSpinner from '../components/LoadingSpinner';
+
+const { Option } = Select;
 
 const Registration = () => {
   const [form] = Form.useForm();
@@ -22,12 +25,11 @@ const Registration = () => {
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email,
-        // phone: values.countryCode + values.phoneNumber,
-        phone: values.phoneNumber,
+        phone: values.countryCode + values.phoneNumber,
         address: {
           street: values.street,
           lga: values.lga,
-          state: values.state
+          state: "Lagos",
         },
         password: values.password,
       };
@@ -37,7 +39,10 @@ const Registration = () => {
       toast.success('Registration successful!');
       navigate('/login'); // Redirect to the login page
     } catch (error) {
-      toast.error(error.error || 'Registration failed. Please try again.');
+      setIsLoading(false);
+      const msg = error.exception_message ? Array.isArray(error.exception_message) 
+      ? error.exception_message.join('\n') : error.exception_message : 'Registration failed. Please try again.';
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
@@ -142,19 +147,23 @@ const Registration = () => {
         <Form.Item
           label="LGA"
           name="lga"
-          rules={[{ required: true, message: 'Please enter your LGA' }]}
+          rules={[{ required: true, message: 'Please select your LGA' }]}
           className="mb-6"
         >
-          <Input placeholder="Enter your LGA" size="large" />
-        </Form.Item>
-
-        <Form.Item
-          label="State"
-          name="state"
-          rules={[{ required: true, message: 'Please enter your state' }]}
-          className="mb-6"
-        >
-          <Input placeholder="Enter your state" size="large" />
+          <Select
+            placeholder="Select your LGA"
+            size="large"
+            optionFilterProp="children"
+            filterOption={(input, option) =>
+              (option?.children || '').toLowerCase().includes(input.toLowerCase())
+            }
+          >
+            {lagosLGAs.lagosLGAs.map(lga => (
+              <Option key={lga} value={lga}>
+                {lga}
+              </Option>
+            ))}
+          </Select>
         </Form.Item>
 
         {/* Password */}
