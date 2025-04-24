@@ -32,8 +32,6 @@ const Login = () => {
       
       const response = await login(email, password);
       
-      // The session cookie should be set by the server with HttpOnly flag
-      // If you need to store any user data, do it here
       if (response.user) {
         Cookies.set('user', JSON.stringify(response.user), { sameSite: 'strict' });
       }
@@ -41,6 +39,7 @@ const Login = () => {
       toast.success('Login successful!');
       navigate('/services');
     } catch (error) {
+      setIsLoading(false);
       toast.error(error.error || 'Login failed. Please check your credentials.');
     } finally {
       setIsLoading(false);
