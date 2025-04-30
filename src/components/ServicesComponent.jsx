@@ -5,10 +5,10 @@ import Cookies from 'js-cookie';
 
 // Mapping of app_id to service URLs
 const serviceUrlMap = {
-  NUMBER_PLATE_SERVICES: 'https://numberplate.module1url.com/',
+  NUMBER_PLATE_SERVICES: 'https://mvaa-portal.netlify.app/auth/shared-user',
   AUTO_DEALER_SPARE_PARTS: 'https://mvatvtlagos.com/mvaa-app/verify-session',
   VEHICLE_REGISTRATION: 'https://registration.module1url.com/',
-  DRIVING_LICENSE: 'https://mvaa-portal.netlify.app/auth/shared-user',
+  DRIVING_LICENSE: 'https://drivinglicense.module1url.com/',
   HACKNEY_PERMIT: 'https://hackney.module1url.com/',
   ROAD_WORTHINESS: 'https://roadworthiness.module1url.com/',
   THIRD_PARTY_INSURANCE: 'https://insurance.module1url.com/',
