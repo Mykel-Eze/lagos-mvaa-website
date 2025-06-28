@@ -15,6 +15,7 @@ const Registration = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (values) => {
@@ -174,7 +175,7 @@ const Registration = () => {
             { required: true, message: 'Please create a password' },
             { min: 8, message: 'Password must be at least 8 characters' },
           ]}
-          className="mb-8"
+          className="mb-6"
         >
           <Input.Password
             placeholder="Create a password"
@@ -182,6 +183,37 @@ const Registration = () => {
             visibilityToggle={{
               visible: passwordVisible,
               onVisibleChange: setPasswordVisible,
+            }}
+            iconRender={(visible) =>
+              visible ? <EyeOutlined /> : <EyeInvisibleOutlined />
+            }
+          />
+        </Form.Item>
+
+        {/* Confirm Password */}
+        <Form.Item
+          label="Confirm Password"
+          name="confirmPassword"
+          dependencies={['password']}
+          rules={[
+            { required: true, message: 'Please confirm your password' },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue('password') === value) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(new Error('The passwords do not match'));
+              },
+            }),
+          ]}
+          className="mb-8"
+        >
+          <Input.Password
+            placeholder="Confirm your password"
+            size="large"
+            visibilityToggle={{
+              visible: confirmPasswordVisible,
+              onVisibleChange: setConfirmPasswordVisible,
             }}
             iconRender={(visible) =>
               visible ? <EyeOutlined /> : <EyeInvisibleOutlined />
