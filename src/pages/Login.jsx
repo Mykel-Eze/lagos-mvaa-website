@@ -49,7 +49,7 @@ const Login = () => {
   return (
     <AuthLayout title="Login">
       {/* Portal Selection */}
-      <div className="mb-8">
+      {/* <div className="mb-8">
         <Radio.Group 
           value={portalType} 
           onChange={(e) => setPortalType(e.target.value)}
@@ -71,7 +71,7 @@ const Login = () => {
             <span>ADMIN PORTAL</span>
           </Radio.Button>
         </Radio.Group>
-      </div>
+      </div> */}
       
       {/* Login Form */}
       <Form 
@@ -79,7 +79,7 @@ const Login = () => {
         layout="vertical"
         onFinish={handleSubmit}
       >
-        {portalType === 'admin' && (
+        {/* {portalType === 'admin' && (
           <Form.Item 
             label="Department" 
             name="department"
@@ -92,7 +92,7 @@ const Login = () => {
               <Select.Option value="enforcement">Enforcement</Select.Option>
             </Select>
           </Form.Item>
-        )}
+        )} */}
         
         <Form.Item 
           label="Email Address" 
