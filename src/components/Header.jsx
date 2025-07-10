@@ -1,7 +1,7 @@
 // src/components/Header.jsx
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import Logo from '../assets/images/full-mvaa-logo.png';
+import Logo from '../assets/images/full-mvaa-logo-3.png';
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
 import { logout } from '../services/api';
