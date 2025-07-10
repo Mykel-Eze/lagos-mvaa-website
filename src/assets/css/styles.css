@@ -229,9 +229,31 @@ a.btn {
 }
 .submit-btn {
     background-color: var(--sec-color) !important;
+    color: white !important;
+    border-color: var(--pry-color) !important;
 }
 .submit-btn:hover {
     background-color: var(--pry-color) !important;
+}
+.btn-hover-bold.submit-btn:hover {
+    font-weight: bold;  
+}
+.cancel-btn {
+    background-color: white !important;
+    color: black !important;
+    border: 1px solid rgba(0, 0, 0, 0.2) !important;
+}
+.cancel-btn:hover {
+    font-weight: bold;
+    border-width: 1.5px;
+}
+form.settings-wrapper {
+    border: 1px solid rgba(220, 220, 221, 1);
+    padding: 32px 24px;
+    border-radius: 6px;
+}
+.account-settings-container .agencies-link-header {
+    margin-bottom: 16px;
 }
 
 @media (max-width: 992px) {

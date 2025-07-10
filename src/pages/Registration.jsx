@@ -37,7 +37,7 @@ const Registration = () => {
 
       // Call the register API
       await register(userData);
-      toast.success('Registration successful!');
+      toast.success('Registration successful!... Verify your email to complete registration.');
       navigate('/login'); // Redirect to the login page
     } catch (error) {
       setIsLoading(false);

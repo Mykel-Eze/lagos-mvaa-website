@@ -20,6 +20,8 @@ import VehicleRegistration from './pages/VehicleRegistration';
 import OtherAgencyDepartments from './pages/OtherAgencyDepartments';
 import ProtectedRoute from './components/ProtectedRoute';
 
+import AccountSettings from './pages/AccountSettings';
+
 import './index.css';
 import './assets/css/fonts.css';
 import './assets/css/styles.css';
@@ -51,6 +53,8 @@ function App() {
             <Route path="/services/get-new-plate-id" element={<GetNewPlateId />} />
             <Route path="/services/vehicle-registration" element={<VehicleRegistration />} />
             <Route path="/services/other-agencies" element={<OtherAgencyDepartments />} />
+
+            <Route path="/account-settings" element={<AccountSettings />} />
           </Route>
         </Routes>
 
