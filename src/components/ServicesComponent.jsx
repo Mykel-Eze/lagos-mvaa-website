@@ -47,7 +47,7 @@ const ServicesComponent = () => {
     <section id="services-section">
       <div className="container rel">
         <div className="title-txts text-center mb-[62px]">
-          <h1>Motor Vehicle Services</h1>
+          <h1>Services</h1>
           <p>Lagos State VEHICLE services and information</p>
         </div>
 
