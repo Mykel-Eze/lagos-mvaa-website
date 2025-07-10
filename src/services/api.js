@@ -119,6 +119,26 @@ export const logout = async () => {
   }
 };
 
+export const forgotPassword = async (email) => {
+  try {
+    const response = await api.get(`/portal/accounts/forgot-password/${email}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
+export const resetPassword = async (token, password) => {
+  try {
+    const response = await api.patch(`/portal/accounts/reset-password/${token}`, {
+      password
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
 // Interceptor to handle token refresh
 // api.interceptors.response.use(
 //   (response) => response,

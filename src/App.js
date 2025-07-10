@@ -6,9 +6,12 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import Header from './components/Header';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import Registration from './pages/Registration';
+
 import Dashboard from './pages/Dashboard';
 import Services from './pages/Services';
-import Registration from './pages/Registration';
 import Home from './pages/Home';
 import NumberPlateServices from './pages/NumberPlateServices';
 import NewPlateIdSteps from './pages/NewPlateIdSteps';
@@ -36,6 +39,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Registration />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
