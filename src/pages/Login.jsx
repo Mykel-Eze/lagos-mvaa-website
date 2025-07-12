@@ -12,7 +12,7 @@ import Cookies from 'js-cookie';
 const Login = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const [portalType, setPortalType] = useState('user');
+  // const [portalType, setPortalType] = useState('user');
   const [isLoading, setIsLoading] = useState(false);
 
   // Redirect if already logged in
@@ -28,12 +28,13 @@ const Login = () => {
       const { email, password } = values;
       
       // Set the service type cookie
-      Cookies.set('portal_app_id', portalType, { sameSite: 'strict' });
+      // Cookies.set('portal_app_id', portalType, { sameSite: 'strict' });
       
       const response = await login(email, password);
       
       if (response.user) {
-        Cookies.set('user', JSON.stringify(response.user), { sameSite: 'strict' });
+        // Cookies.set('user', JSON.stringify(response.user), { sameSite: 'strict' });
+        console.log('Login response:', response);
       }
       
       toast.success('Login successful!');
@@ -135,14 +136,12 @@ const Login = () => {
           </Button>
         </Form.Item>
         
-        {portalType === 'user' && (
-          <div className="text-center mt-4 text-gray-600">
-            Don't have an account? 
-            <Link to="/register" className="font-bold sec-color hover:text-green-700 ml-1">
-              Sign Up
-            </Link>
-          </div>
-        )}
+        <div className="text-center mt-4 text-gray-600">
+          Don't have an account? 
+          <Link to="/register" className="font-bold sec-color hover:text-green-700 ml-1">
+            Sign Up
+          </Link>
+        </div>
       </Form>
     </AuthLayout>
   );

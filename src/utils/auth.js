@@ -5,6 +5,9 @@ import Cookies from 'js-cookie';
 export const isAuthenticated = () => {
   const token = Cookies.get('portal_session_id');
   const user = Cookies.get('user');
+
+  console.log('The Token is: ' + token);
+  console.log('The User is: ' + user);
   return !!(token && user);
 };
 
