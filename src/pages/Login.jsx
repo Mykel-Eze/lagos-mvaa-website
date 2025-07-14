@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Radio, Select } from 'antd';
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import AuthLayout from '../layouts/AuthLayout';
 import { login } from '../services/api';
 import { toast } from 'react-toastify';
@@ -12,8 +12,20 @@ import Cookies from 'js-cookie';
 const Login = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  // const [portalType, setPortalType] = useState('user');
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
+
+  // Check for email verification success
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const verified = urlParams.get('verified');
+    
+    if (verified === 'true') {
+      toast.success('Email verification successful! You can now log in.');
+      // Clean up the URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [location]);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -27,13 +39,9 @@ const Login = () => {
     try {
       const { email, password } = values;
       
-      // Set the service type cookie
-      // Cookies.set('portal_app_id', portalType, { sameSite: 'strict' });
-      
       const response = await login(email, password);
       
       if (response.user) {
-        // Cookies.set('user', JSON.stringify(response.user), { sameSite: 'strict' });
         console.log('Login response:', response);
       }
       
@@ -49,52 +57,12 @@ const Login = () => {
 
   return (
     <AuthLayout title="Login">
-      {/* Portal Selection */}
-      {/* <div className="mb-8">
-        <Radio.Group 
-          value={portalType} 
-          onChange={(e) => setPortalType(e.target.value)}
-          buttonStyle="solid"
-          className="flex-div gap-2 sm:gap-6"
-        >
-          <Radio.Button 
-            value="user" 
-            className={`portal-btn ${portalType === 'user' ? 'active-portal-btn' : 'inactive-portal-btn'}`}
-          >
-            <span className="dot"></span>
-            <span>USER PORTAL</span>
-          </Radio.Button>
-          <Radio.Button 
-            value="admin" 
-            className={`portal-btn ${portalType === 'admin' ? 'active-portal-btn' : 'inactive-portal-btn'}`}
-          >
-            <span className="dot"></span>
-            <span>ADMIN PORTAL</span>
-          </Radio.Button>
-        </Radio.Group>
-      </div> */}
-      
       {/* Login Form */}
       <Form 
         form={form}
         layout="vertical"
         onFinish={handleSubmit}
       >
-        {/* {portalType === 'admin' && (
-          <Form.Item 
-            label="Department" 
-            name="department"
-            rules={[{ required: true, message: 'Please select your department' }]}
-            className="mb-4"
-          >
-            <Select placeholder="Select department">
-              <Select.Option value="licensing">Licensing</Select.Option>
-              <Select.Option value="registration">Registration</Select.Option>
-              <Select.Option value="enforcement">Enforcement</Select.Option>
-            </Select>
-          </Form.Item>
-        )} */}
-        
         <Form.Item 
           label="Email Address" 
           name="email"
