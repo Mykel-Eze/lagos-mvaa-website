@@ -71,7 +71,7 @@ const Registration = () => {
     try {
       await resendVerificationEmail(userEmail);
       toast.success('Verification email sent! Please check your inbox.');
-      setResendTimer(45); // Reset timer
+      setResendTimer(59); // Reset timer
     } catch (error) {
       toast.error('Failed to resend verification email. Please try again.');
     } finally {
