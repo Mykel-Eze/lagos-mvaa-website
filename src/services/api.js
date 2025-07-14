@@ -33,18 +33,17 @@ export const login = async (email, password) => {
     // Store tokens in cookies instead of localStorage
     if (response.data.session_token) {
       Cookies.set('portal_session_id', response.data.session_token, { 
-        secure: window.location.protocol === 'https:' ? true : false,
+        secure: window.location.protocol === 'https:',
         // sameSite: 'strict'
-        sameSite: 'None',
+        sameSite: 'none',
       });
     }
     
     if (response.data.user) {
       Cookies.set('user', JSON.stringify(response.data.user), { 
-        // secure: window.location.protocol === 'https:',
+        secure: window.location.protocol === 'https:',
         // sameSite: 'strict' 
-        sameSite: 'None',
-        secure: true
+        sameSite: 'none',
       });
     }
 
@@ -85,13 +84,15 @@ export const getProfile = async () => {
     const response = await api.get('/shared/profile');
     
     console.log('Profile API response:', response.data);
+    console.log('document.cookie:', document.cookie);
+    console.log('Cookies.get:', Cookies.get('portal_session_id'));
     
     // Update the user cookie with fresh data from the server
     if (response.data.user) {
       Cookies.set('user', JSON.stringify(response.data.user), { 
         secure: window.location.protocol === 'https:' ? true : false,
         // sameSite: 'strict' 
-        sameSite: 'None',
+        sameSite: 'none',
       });
     }
     
