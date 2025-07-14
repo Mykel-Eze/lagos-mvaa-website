@@ -49,8 +49,8 @@ const Registration = () => {
       // Store email and show verification component
       setUserEmail(values.email);
       setShowVerification(true);
-      setResendTimer(45); // Start 45 second timer
-      
+      setResendTimer(59); // Start 59 seconds timer
+
       toast.success('Registration successful! Please check your email to verify your account.');
     } catch (error) {
       const msg = error.exception_message ? Array.isArray(error.exception_message) 
