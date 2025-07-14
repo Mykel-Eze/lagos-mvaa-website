@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Form, Input, Button } from 'antd';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import AuthLayout from '../components/AuthLayout';
+import AuthLayout from '../layouts/AuthLayout';
 import { resetPassword } from '../services/api';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../components/LoadingSpinner';

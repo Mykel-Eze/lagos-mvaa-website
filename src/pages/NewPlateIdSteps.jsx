@@ -1,5 +1,5 @@
 import React from 'react';
-import ServicesLayout from '../components/ServicesLayout';
+import ServicesLayout from '../layouts/ServicesLayout';
 import { Link } from 'react-router-dom';
 
 const NewPlateIdSteps = () => {

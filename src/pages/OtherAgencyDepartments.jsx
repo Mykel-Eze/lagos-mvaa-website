@@ -1,5 +1,5 @@
 import React from 'react';
-import ServicesLayout from '../components/ServicesLayout';
+import ServicesLayout from '../layouts/ServicesLayout';
 
 const OtherAgencyDepartments = () => {
   return (

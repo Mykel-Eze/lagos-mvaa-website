@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Form, Input, Button } from 'antd';
 import { Link } from 'react-router-dom';
-import AuthLayout from '../components/AuthLayout';
+import AuthLayout from '../layouts/AuthLayout';
 import { forgotPassword } from '../services/api';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../components/LoadingSpinner';

@@ -1,5 +1,5 @@
 import React from 'react';
-import ServicesLayout from '../components/ServicesLayout';
+import ServicesLayout from '../layouts/ServicesLayout';
 import { Form, Input, Select, Upload, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 

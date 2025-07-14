@@ -8,7 +8,7 @@ import countryCodes from '../data/countryCodes.json';
 import lagosLGAs from '../data/lagosLGAs.json';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Cookies from 'js-cookie';
-import ServicesLayout from '../components/ServicesLayout';
+import ServicesLayout from '../layouts/ServicesLayout';
 
 const { Option } = Select;
 

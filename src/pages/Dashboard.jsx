@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { getProfile } from '../services/api';
 import Cookies from 'js-cookie';
-import ServicesLayout from '../components/ServicesLayout';
+import ServicesLayout from '../layouts/ServicesLayout';
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);

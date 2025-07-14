@@ -238,6 +238,11 @@ a.btn {
 .btn-hover-bold.submit-btn:hover {
     font-weight: bold;  
 }
+.submit-btn:disabled {
+    background-color: rgba(16, 138, 0, 0.4) !important;
+    color: white !important;
+    border-color: rgba(16, 138, 0, 0.4) !important;
+}
 .cancel-btn {
     background-color: white !important;
     color: black !important;

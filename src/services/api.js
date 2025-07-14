@@ -29,24 +29,6 @@ const debugRequest = (config) => {
 export const login = async (email, password) => {
   try {
     const response = await api.post('/portal/auth/signin', { email, password });
-    
-    // Store tokens in cookies instead of localStorage
-    if (response.data.session_token) {
-      Cookies.set('portal_session_id', response.data.session_token, { 
-        secure: window.location.protocol === 'https:',
-        // sameSite: 'strict'
-        sameSite: 'none',
-      });
-    }
-    
-    if (response.data.user) {
-      Cookies.set('user', JSON.stringify(response.data.user), { 
-        secure: window.location.protocol === 'https:',
-        // sameSite: 'strict' 
-        sameSite: 'none',
-      });
-    }
-
 
     console.log('Login API response:', response.data);
 
@@ -167,6 +149,15 @@ export const updateAccount = async (email, userData) => {
     
     // Use cookie-based auth instead of Authorization header
     const response = await api.patch(`/portal/accounts/update-account/${email}`, userData);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
+export const resendVerificationEmail = async (email) => {
+  try {
+    const response = await api.get(`/portal/accounts/send-activation/${email}`);
     return response.data;
   } catch (error) {
     throw error.response?.data || { error: 'Network error' };

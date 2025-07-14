@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Button, Collapse } from 'antd';
 import { UpOutlined, DownOutlined } from '@ant-design/icons';
-import ServicesLayout from '../components/ServicesLayout';
+import ServicesLayout from '../layouts/ServicesLayout';
 import VehicleInformationForm from '../components/VehicleInformationForm';
 import OtherInformationForm from '../components/OtherInformationForm';
 import OwnerInformationForm from '../components/OwnerInformationForm';

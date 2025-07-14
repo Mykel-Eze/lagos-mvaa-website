@@ -1,6 +1,6 @@
 import React from 'react';
 import PlateServiceCard from '../components/PlateServiceCard';
-import ServicesLayout from '../components/ServicesLayout';
+import ServicesLayout from '../layouts/ServicesLayout';
 
 const NumberOfServices = () => {
   return (
