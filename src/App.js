@@ -9,6 +9,7 @@ import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Registration from './pages/Registration';
+import EmailVerificationSuccessful from './pages/EmailVerificationSuccessful';
 
 import Dashboard from './pages/Dashboard';
 import Services from './pages/Services';
@@ -31,6 +32,7 @@ import './assets/css/auth.css';
 import './assets/css/footer.css';
 import './assets/css/vehicle-registeration.css';
 
+
 function App() {
   return (
     <Router>
@@ -43,6 +45,7 @@ function App() {
           <Route path="/register" element={<Registration />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/verification-successful" element={<EmailVerificationSuccessful />} />
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
