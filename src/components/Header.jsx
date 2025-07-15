@@ -215,30 +215,33 @@ const Header = () => {
               </ul>
 
               {/* Mobile menu button */}
-              {isLoggedIn ? (
-                <div className="flex flex-row items-center space-x-2 visible-xs-sm">
-                  {/* Mobile User Avatar */}
-                  <button
-                    onClick={toggleMobileMenu}
-                    className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white font-semibold text-sm"
-                  >
-                    {getUserInitials(userData)}
-                  </button>
-                  {/* Mobile Hamburger Menu */}
+              <div className="flex flex-row items-center space-x-2 visible-xs-sm">
+                {isLoggedIn ? (
+                  /* Mobile User Avatar */
+                  <>
+                    <button
+                      onClick={toggleMobileMenu}
+                      className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white font-semibold text-sm"
+                    >
+                      {getUserInitials(userData)}
+                    </button>
+               
+                    <button className="white-txt focus:outline-none pointer" onClick={toggleMobileMenu}>
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" stroke="#108a00"></path>
+                      </svg>
+                    </button>
+                  </>
+                ) : 
+                  /* Mobile Hamburger Menu */
                   <button className="white-txt focus:outline-none pointer" onClick={toggleMobileMenu}>
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" stroke="#108a00"></path>
                     </svg>
                   </button>
-                </div>
-              ) : 
-                /* Mobile Hamburger Menu */
-                <button className="white-txt focus:outline-none pointer" onClick={toggleMobileMenu}>
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" stroke="#108a00"></path>
-                  </svg>
-                </button>
-              }
+                }
+              </div>
+              
             </nav>
           </div>
 
