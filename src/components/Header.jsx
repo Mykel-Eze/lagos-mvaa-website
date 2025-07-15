@@ -24,6 +24,23 @@ const Header = () => {
         console.error('Error parsing user cookie:', error);
       }
     }
+
+    const handleStorageChange = () => {
+      const userCookie = Cookies.get('user');
+      if (userCookie) {
+        try {
+          const parsedUser = JSON.parse(userCookie);
+          setUserData(parsedUser);
+        } catch (error) {
+          console.error('Error parsing user cookie:', error);
+        }
+      }
+    };
+
+    // Listen for cookie changes
+    const interval = setInterval(handleStorageChange, 500);
+    
+    return () => clearInterval(interval);
   }, []);
 
   // Close dropdown when clicking outside
