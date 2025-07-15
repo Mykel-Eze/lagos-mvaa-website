@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from 'antd';
 import { MailOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import LoadingSpinner from './LoadingSpinner';
 
 const EmailVerificationComponent = ({ 

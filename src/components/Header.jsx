@@ -231,7 +231,14 @@ const Header = () => {
                     </svg>
                   </button>
                 </div>
-              ) : null}
+              ) : 
+                /* Mobile Hamburger Menu */
+                <button className="white-txt focus:outline-none pointer" onClick={toggleMobileMenu}>
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" stroke="#108a00"></path>
+                  </svg>
+                </button>
+              }
             </nav>
           </div>
 
@@ -270,12 +277,12 @@ const Header = () => {
               {isLoggedIn ? (
                 <>
                   <li>
-                    <Link to="/account-settings" className="nav-btn" onClick={closeMobileMenu}>
+                    <Link to="/account-settings" className="pry-nav-btn" onClick={closeMobileMenu}>
                       Account Settings
                     </Link>
                   </li>
                   <li>
-                    <button onClick={handleLogout} className="nav-btn">Logout</button>
+                    <button onClick={handleLogout} className="nav-btn text-white">Logout</button>
                   </li>
                 </>
               ) : (

@@ -88,6 +88,11 @@ header {
     color: #000 !important;
     background-color: white;
 }
+.nav-btn.bg-red-600 {
+    background-color: #f56565 !important;
+    border: 1px solid #f56565 !important;
+    color: white !important;
+}
 .pry-nav-btn {
     color: #fff !important;
     background-color: var(--sec-color) !important;
