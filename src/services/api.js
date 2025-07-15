@@ -117,10 +117,11 @@ export const logout = async () => {
     // Make logout request
     const response = await api.post('/portal/auth/logout', {});
     
-    // Clear cookies
+    // Clear all cookies
     Cookies.remove('portal_session_id');
+    Cookies.remove('user'); // Also clear user cookie
     
-    console.log('Logout successful, cookies cleared');
+    console.log('Logout successful, all cookies cleared');
     
     return response.data;
   } catch (error) {
@@ -128,6 +129,7 @@ export const logout = async () => {
     
     // Clear cookies even if the server request fails
     Cookies.remove('portal_session_id');
+    Cookies.remove('user'); // Also clear user cookie
     
     throw error.response?.data || { error: 'Network error' };
   }

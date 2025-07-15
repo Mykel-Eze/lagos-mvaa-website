@@ -44,7 +44,7 @@ const Header = () => {
   const getUserInitials = (user) => {
     if (!user) return 'U';
     
-    const firstName = user.firstNname || user.firstName || '';
+    const firstName = user.firstName || user.firstName || '';
     const lastName = user.lastName || user.lastName || '';
     
     if (firstName && lastName) {
@@ -100,13 +100,25 @@ const Header = () => {
 
   // Handle logout
   const handleLogout = async () => {
+    console.log('Logout button clicked'); // Debug log
+    
     try {
+      console.log('Starting logout process...');
       await logout();
-      toast.success('Logged out successfully');
+      console.log('Logout API call successful');
+      
+      // toast.success('Logged out successfully');
+      
       window.location.href = '/login';
+      
     } catch (error) {
+      console.error('Logout error in handleLogout:', error);
       toast.error('Logout failed, but session cleared');
-      window.location.href = '/login';
+      
+      // Even if logout fails, redirect to login
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 1000);
     }
   };
 
