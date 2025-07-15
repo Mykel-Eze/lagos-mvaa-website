@@ -21,7 +21,7 @@ const debugRequest = (config) => {
   console.log('Headers:', config.headers);
   console.log('Base URL:', config.baseURL);
   console.log('Full URL:', `${config.baseURL}${config.url}`);
-  console.log('Cookies:', document.cookie); // Log cookies being sent
+  console.log('Cookies:', document.cookie);
   console.log('========================');
 };
 
@@ -29,9 +29,23 @@ const debugRequest = (config) => {
 export const login = async (email, password) => {
   try {
     const response = await api.post('/portal/auth/signin', { email, password });
-
-    console.log('Login API response:', response.data);
-
+    
+    if (response.data.session_token) {
+      // Set the session token cookie
+      Cookies.set('portal_session_id', response.data.session_token, { 
+        secure: window.location.protocol === 'https:',
+        sameSite: 'strict'
+      });
+      
+      // Fetch user profile and set user cookie
+      try {
+        await getProfile();
+      } catch (profileError) {
+        console.warn('Failed to fetch profile after login:', profileError);
+        // Don't throw here - login was successful even if profile fetch failed
+      }
+    }
+    
     return response.data;
   } catch (error) {
     throw error.response?.data || { error: 'Network error' };
@@ -54,29 +68,27 @@ export const getProfile = async () => {
       throw new Error('No authentication token found');
     }
     
-    // Debug the request - no Authorization header needed since we're using cookies
+    console.log('Making profile request with token:', token);
+    
+    // Debug the request
     debugRequest({
       url: '/shared/profile',
       method: 'GET',
-      headers: {}, // No auth header needed
+      headers: {},
       baseURL: API_BASE_URL
     });
     
-    // Make request without Authorization header - rely on cookies
+    // Make request - the cookie should be sent automatically with withCredentials: true
     const response = await api.get('/shared/profile');
     
     console.log('Profile API response:', response.data);
     console.log('document.cookie:', document.cookie);
-    console.log('Cookies.get:', Cookies.get('portal_session_id'));
-    
-    // Update the user cookie with fresh data from the server
-    if (response.data.user) {
-      Cookies.set('user', JSON.stringify(response.data.user), { 
-        secure: window.location.protocol === 'https:' ? true : false,
-        // sameSite: 'strict' 
-        sameSite: 'none',
-      });
-    }
+    console.log('Cookies.get portal_session_id:', Cookies.get('portal_session_id'));
+
+    Cookies.set('user', JSON.stringify(response.data), {
+      secure: window.location.protocol === 'https:',
+      sameSite: 'strict'
+    });
     
     return response.data;
   } catch (error) {
@@ -88,12 +100,11 @@ export const getProfile = async () => {
     });
     
     // If token is invalid or access denied, clear cookies
-    // if (error.response?.status === 401 || error.response?.status === 403) {
-    //   console.log('Authentication failed, clearing cookies');
-    //   Cookies.remove('portal_session_id');
-    //   Cookies.remove('portal_app_id');
-    //   Cookies.remove('user');
-    // }
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      console.log('Authentication failed, clearing cookies');
+      Cookies.remove('portal_session_id');
+    }
+    
     throw error.response?.data || { error: 'Network error' };
   }
 };
@@ -101,20 +112,22 @@ export const getProfile = async () => {
 export const logout = async () => {
   try {
     const token = Cookies.get('portal_session_id');
-    // Use cookie-based auth instead of Authorization header
+    console.log('Logging out with token:', token);
+    
+    // Make logout request
     const response = await api.post('/portal/auth/logout', {});
     
     // Clear cookies
     Cookies.remove('portal_session_id');
-    // Cookies.remove('portal_app_id');
-    Cookies.remove('user');
+    
+    console.log('Logout successful, cookies cleared');
     
     return response.data;
   } catch (error) {
+    console.error('Logout error:', error);
+    
     // Clear cookies even if the server request fails
     Cookies.remove('portal_session_id');
-    // Cookies.remove('portal_app_id');
-    Cookies.remove('user');
     
     throw error.response?.data || { error: 'Network error' };
   }

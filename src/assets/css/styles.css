@@ -67,7 +67,7 @@ h5, h6 {
     padding-right: 0 !important;
 }
 
-.hidden {
+.hide {
     display: none;
 }
 
@@ -270,6 +270,17 @@ form.settings-wrapper {
 .account-settings-container .agencies-link-header {
     margin-bottom: 16px;
 }
+#main-header nav .nav-dropdown-btn {
+    font-size: 12px;
+    font-family: var(--font-smbold);
+    background-color: transparent;
+}
+#main-header nav .nav-droppdown-style a, 
+#main-header nav .nav-droppdown-style button {
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 12px;
+}
 
 @media (max-width: 992px) {
     .visible-xs-sm {
@@ -278,6 +289,10 @@ form.settings-wrapper {
 
     .hidden-xs-sm {
         display: none !important;
+    }
+
+    .visible-xs-sm.flex {
+        display: flex !important;
     }
 }
 
