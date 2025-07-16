@@ -36,6 +36,12 @@ export const login = async (email, password) => {
         secure: window.location.protocol === 'https:',
         sameSite: 'strict'
       });
+
+      // Set the access token cookie
+      Cookies.set('user_access_token', response.data.access_token, { 
+        secure: window.location.protocol === 'https:',
+        sameSite: 'strict'
+      });
       
       // Fetch user profile and set user cookie
       try {
@@ -119,7 +125,9 @@ export const logout = async () => {
     
     // Clear all cookies
     Cookies.remove('portal_session_id');
-    Cookies.remove('user'); // Also clear user cookie
+    Cookies.remove('portal_app_id');
+    Cookies.remove('user_access_token');
+    Cookies.remove('user');
     
     console.log('Logout successful, all cookies cleared');
     
@@ -129,7 +137,9 @@ export const logout = async () => {
     
     // Clear cookies even if the server request fails
     Cookies.remove('portal_session_id');
-    Cookies.remove('user'); // Also clear user cookie
+    Cookies.remove('user_access_token');
+    Cookies.remove('portal_app_id');
+    Cookies.remove('user');
     
     throw error.response?.data || { error: 'Network error' };
   }
@@ -157,13 +167,32 @@ export const resetPassword = async (token, password) => {
 
 export const updateAccount = async (email, userData) => {
   try {
-    const token = Cookies.get('portal_session_id');
+    const token = Cookies.get('user_access_token');
     if (!token) {
       throw new Error('No authentication token found');
     }
     
-    // Use cookie-based auth instead of Authorization header
-    const response = await api.patch(`/portal/accounts/update-account/${email}`, userData);
+    // Create a separate axios instance for this request with token auth
+    const authApi = axios.create({
+      baseURL: API_BASE_URL,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      withCredentials: false // Don't send cookies
+    });
+    
+    const response = await authApi.patch(`/portal/accounts/update-account/${email}`, userData);
+    
+    // Update user cookie with new data
+    Cookies.set('user', JSON.stringify(response.data), {
+      secure: window.location.protocol === 'https:',
+      sameSite: 'strict'
+    });
+    
+    // Emit profile update event (if you're using the event system)
+    // emitAuthEvent('profile_updated', response.data);
+    
     return response.data;
   } catch (error) {
     throw error.response?.data || { error: 'Network error' };
