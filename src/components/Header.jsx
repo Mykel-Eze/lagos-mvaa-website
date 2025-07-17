@@ -116,15 +116,11 @@ const Header = () => {
   ];
 
   // Handle logout
-  const handleLogout = async () => {
-    console.log('Logout button clicked'); // Debug log
-    
+  const handleLogout = async () => {    
     try {
-      console.log('Starting logout process...');
       await logout();
-      console.log('Logout API call successful');
       
-      // toast.success('Logged out successfully');
+      toast.success('Logged out successfully');
       
       window.location.href = '/login';
       

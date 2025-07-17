@@ -6,8 +6,8 @@ export const isAuthenticated = () => {
   const token = Cookies.get('portal_session_id');
   const user = Cookies.get('user');
 
-  console.log('The Token is: ' + token);
-  console.log('The User is: ' + user);
+  // console.log('The Token is: ' + token);
+  // console.log('The User is: ' + user);
   return !!(token && user);
 };
 
@@ -57,13 +57,13 @@ export const debugAuthState = () => {
   const token = getSessionToken();
   const user = getCurrentUser();
   
-  console.log('=== Auth Debug Info ===');
-  console.log('Token exists:', !!token);
-  console.log('Token preview:', token ? `${token.substring(0, 20)}...` : 'null');
-  console.log('User exists:', !!user);
-  console.log('User data:', user);
-  console.log('Is authenticated:', isAuthenticated());
-  console.log('=====================');
+  // console.log('=== Auth Debug Info ===');
+  // console.log('Token exists:', !!token);
+  // console.log('Token preview:', token ? `${token.substring(0, 20)}...` : 'null');
+  // console.log('User exists:', !!user);
+  // console.log('User data:', user);
+  // console.log('Is authenticated:', isAuthenticated());
+  // console.log('=====================');
   
   return {
     hasToken: !!token,

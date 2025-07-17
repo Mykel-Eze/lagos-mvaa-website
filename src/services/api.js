@@ -14,16 +14,16 @@ const api = axios.create({
 });
 
 // Debug function to log request details
-const debugRequest = (config) => {
-  console.log('=== API Request Debug ===');
-  console.log('URL:', config.url);
-  console.log('Method:', config.method);
-  console.log('Headers:', config.headers);
-  console.log('Base URL:', config.baseURL);
-  console.log('Full URL:', `${config.baseURL}${config.url}`);
-  console.log('Cookies:', document.cookie);
-  console.log('========================');
-};
+// const debugRequest = (config) => {
+//   console.log('=== API Request Debug ===');
+//   console.log('URL:', config.url);
+//   console.log('Method:', config.method);
+//   console.log('Headers:', config.headers);
+//   console.log('Base URL:', config.baseURL);
+//   console.log('Full URL:', `${config.baseURL}${config.url}`);
+//   console.log('Cookies:', document.cookie);
+//   console.log('========================');
+// };
 
 // API functions
 export const login = async (email, password) => {
@@ -74,22 +74,22 @@ export const getProfile = async () => {
       throw new Error('No authentication token found');
     }
     
-    console.log('Making profile request with token:', token);
+    // console.log('Making profile request with token:', token);
     
     // Debug the request
-    debugRequest({
-      url: '/shared/profile',
-      method: 'GET',
-      headers: {},
-      baseURL: API_BASE_URL
-    });
+    // debugRequest({
+    //   url: '/shared/profile',
+    //   method: 'GET',
+    //   headers: {},
+    //   baseURL: API_BASE_URL
+    // });
     
     // Make request - the cookie should be sent automatically with withCredentials: true
     const response = await api.get('/shared/profile');
     
-    console.log('Profile API response:', response.data);
-    console.log('document.cookie:', document.cookie);
-    console.log('Cookies.get portal_session_id:', Cookies.get('portal_session_id'));
+    // console.log('Profile API response:', response.data);
+    // console.log('document.cookie:', document.cookie);
+    // console.log('Cookies.get portal_session_id:', Cookies.get('portal_session_id'));
 
     Cookies.set('user', JSON.stringify(response.data), {
       secure: window.location.protocol === 'https:',
@@ -108,7 +108,11 @@ export const getProfile = async () => {
     // If token is invalid or access denied, clear cookies
     if (error.response?.status === 401 || error.response?.status === 403) {
       console.log('Authentication failed, clearing cookies');
+      // Clear all cookies
       Cookies.remove('portal_session_id');
+      Cookies.remove('portal_app_id');
+      Cookies.remove('user_access_token');
+      Cookies.remove('user');
     }
     
     throw error.response?.data || { error: 'Network error' };
@@ -118,7 +122,7 @@ export const getProfile = async () => {
 export const logout = async () => {
   try {
     const token = Cookies.get('portal_session_id');
-    console.log('Logging out with token:', token);
+    // console.log('Logging out with token:', token);
     
     // Make logout request
     const response = await api.post('/portal/auth/logout', {});
@@ -129,7 +133,7 @@ export const logout = async () => {
     Cookies.remove('user_access_token');
     Cookies.remove('user');
     
-    console.log('Logout successful, all cookies cleared');
+    // console.log('Logout successful, all cookies cleared');
     
     return response.data;
   } catch (error) {

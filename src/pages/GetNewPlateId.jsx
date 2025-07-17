@@ -16,7 +16,7 @@ const GetNewPlateId = () => {
   
   const handleSubmit = (values) => {
     // Submit form data and navigate to vehicle registration page
-    console.log('Form values:', values);
+    // console.log('Form values:', values);
     navigate('/services/vehicle-registration');
   };
 

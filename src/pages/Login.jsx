@@ -41,9 +41,9 @@ const Login = () => {
       
       const response = await login(email, password);
       
-      if (response.user) {
-        console.log('Login response:', response);
-      }
+      // if (response.user) {
+      //   console.log('Login response:', response);
+      // }
       
       toast.success('Login successful!');
       navigate('/services');
