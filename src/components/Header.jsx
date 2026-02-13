@@ -7,9 +7,9 @@ import Cookies from 'js-cookie';
 import { logout } from '../services/api';
 
 const Header = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
-  const [userData, setUserData] = useState(null);
+  const [ isMobileMenuOpen, setIsMobileMenuOpen ] = useState(false);
+  const [ isUserDropdownOpen, setIsUserDropdownOpen ] = useState(false);
+  const [ userData, setUserData ] = useState(null);
   const location = useLocation();
   const dropdownRef = useRef(null);
 
@@ -39,7 +39,7 @@ const Header = () => {
 
     // Listen for cookie changes
     const interval = setInterval(handleStorageChange, 500);
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -60,36 +60,34 @@ const Header = () => {
   // Generate user initials for avatar
   const getUserInitials = (user) => {
     if (!user) return 'U';
-    
-    const firstName = user.firstName || user.firstName || '';
-    const lastName = user.lastName || user.lastName || '';
-    
+
+    const firstName = user.data.firstName || user.data.firstName || '';
+    const lastName = user.data.lastName || user.data.lastName || '';
+
     if (firstName && lastName) {
       return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
     } else if (firstName) {
       return firstName.charAt(0).toUpperCase();
-    } else if (user.email) {
-      return user.email.charAt(0).toUpperCase();
+    } else if (user.data.email) {
+      return user.data.email.charAt(0).toUpperCase();
     }
-    
+
     return 'U';
   };
 
   // Get user display name
   const getUserDisplayName = (user) => {
     if (!user) return 'User';
-    
-    const firstName = user.firstName || user.firstName || '';
-    const lastName = user.lastName || user.lastName || '';
-    
-    if (firstName && lastName) {
-      return `${firstName} ${lastName}`;
-    } else if (firstName) {
+
+    const firstName = user.data.firstName || user.data.firstName || '';
+    const lastName = user.data.lastName || user.data.lastName || '';
+
+    if (firstName) {
       return firstName;
-    } else if (user.email) {
-      return user.email;
+    } else if (user.data.email) {
+      return user.data.email;
     }
-    
+
     return 'User';
   };
 
@@ -116,18 +114,18 @@ const Header = () => {
   ];
 
   // Handle logout
-  const handleLogout = async () => {    
+  const handleLogout = async () => {
     try {
       await logout();
-      
+
       toast.success('Logged out successfully');
-      
+
       window.location.href = '/login';
-      
+
     } catch (error) {
       console.error('Logout error in handleLogout:', error);
       toast.error('Logout failed, but session cleared');
-      
+
       // Even if logout fails, redirect to login
       setTimeout(() => {
         window.location.href = '/login';
@@ -178,9 +176,8 @@ const Header = () => {
                         </span>
                         {/* Dropdown Arrow */}
                         <svg
-                          className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
-                            isUserDropdownOpen ? 'rotate-180' : ''
-                          }`}
+                          className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isUserDropdownOpen ? 'rotate-180' : ''
+                            }`}
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -250,14 +247,14 @@ const Header = () => {
                     >
                       {getUserInitials(userData)}
                     </button>
-               
+
                     <button className="white-txt focus:outline-none pointer" onClick={toggleMobileMenu}>
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" stroke="#108a00"></path>
                       </svg>
                     </button>
                   </>
-                ) : 
+                ) :
                   /* Mobile Hamburger Menu */
                   <button className="white-txt focus:outline-none pointer" onClick={toggleMobileMenu}>
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -266,7 +263,7 @@ const Header = () => {
                   </button>
                 }
               </div>
-              
+
             </nav>
           </div>
 
