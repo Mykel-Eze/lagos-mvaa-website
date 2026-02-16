@@ -47,22 +47,31 @@
 #app-wrapper .ant-form-item .ant-form-item-label>label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::before {
     display: none;
 }
+
 #app-wrapper .ant-form-item .ant-form-item-label>label {
     font-size: 14px;
     font-family: var(--font-bold);
 }
-#app-wrapper .ant-input, 
-#app-wrapper .ant-input-affix-wrapper, 
+
+#app-wrapper .ant-input,
+#app-wrapper .ant-input-affix-wrapper,
 #app-wrapper .ant-select-outlined:not(.ant-select-customize-input) .ant-select-selector,
 #app-wrapper .ant-select-selection-search-input,
 #app-wrapper .ant-select-single,
 #app-wrapper .ant-picker-outlined {
     background: #F9F9F9;
     height: 55px;
+    overflow: hidden;
 }
+
+#app-wrapper #phone-field span.ant-select-selection-wrap {
+    top: 8px;
+}
+
 #app-wrapper .ant-input-affix-wrapper .ant-input {
     height: auto;
 }
+
 #app-wrapper .ant-input-outlined:focus,
 #app-wrapper .ant-input-outlined:focus-within,
 #app-wrapper .ant-input-outlined:hover,
@@ -75,10 +84,12 @@
 .ant-form-item-explain-error {
     font-size: 11px;
 }
+
 #app-wrapper label.portal-btn {
     font-size: 10.5px;
     overflow: hidden;
 }
+
 #app-wrapper label.portal-btn {
     font-size: 10.5px;
     letter-spacing: 2px;
@@ -86,19 +97,23 @@
     border-radius: 5px;
     border: 1px solid #00000033;
 }
+
 #app-wrapper label.portal-btn:hover {
     color: #000000;
 }
+
 #app-wrapper label.portal-btn.active-portal-btn {
     border-color: var(--sec-color);
     background: #108A000D;
     color: #000000;
 }
+
 #app-wrapper label.portal-btn .ant-radio-button-label {
     display: flex;
     align-items: center;
     gap: 8px;
 }
+
 #app-wrapper label.portal-btn .ant-radio-button-label span.dot {
     display: inline-block;
     width: 14px;
@@ -107,10 +122,12 @@
     border-radius: 50%;
     position: relative;
 }
+
 #app-wrapper label.portal-btn.active-portal-btn .ant-radio-button-label span.dot {
     background-color: var(--sec-color);
     border-color: var(--sec-color);
 }
+
 #app-wrapper label.portal-btn.active-portal-btn .ant-radio-button-label span.dot::before {
     content: "";
     position: absolute;
@@ -122,6 +139,7 @@
     background-color: white;
     border-radius: 50%;
 }
+
 #app-wrapper .ant-upload-wrapper .ant-upload-drag:not(.ant-upload-disabled):hover {
     border-color: var(--sec-color);
 }

@@ -61,15 +61,16 @@ const Header = () => {
   const getUserInitials = (user) => {
     if (!user) return 'U';
 
-    const firstName = user.data.firstName || user.data.firstName || '';
-    const lastName = user.data.lastName || user.data.lastName || '';
+    const userData = user.data || user;
+    const firstName = userData.firstName || '';
+    const lastName = userData.lastName || '';
 
     if (firstName && lastName) {
       return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
     } else if (firstName) {
       return firstName.charAt(0).toUpperCase();
-    } else if (user.data.email) {
-      return user.data.email.charAt(0).toUpperCase();
+    } else if (userData.email) {
+      return userData.email.charAt(0).toUpperCase();
     }
 
     return 'U';
@@ -79,13 +80,14 @@ const Header = () => {
   const getUserDisplayName = (user) => {
     if (!user) return 'User';
 
-    const firstName = user.data.firstName || user.data.firstName || '';
-    const lastName = user.data.lastName || user.data.lastName || '';
+    const userData = user.data || user;
+    const firstName = userData.firstName || '';
+    // const lastName = userData.lastName || '';
 
     if (firstName) {
       return firstName;
-    } else if (user.data.email) {
-      return user.data.email;
+    } else if (userData.email) {
+      return userData.email;
     }
 
     return 'User';

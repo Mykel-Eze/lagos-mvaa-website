@@ -158,7 +158,9 @@ export const logout = async (manualToken = null) => {
   try {
     const token = manualToken || Cookies.get('user_access_token');
     const sessionId = Cookies.get('portal_session_id');
-    // console.log('Logging out with token:', token);
+
+    // Debug logging
+    console.log('Logout attempt:', { token: !!token, sessionId });
 
     const config = {
       headers: {}
@@ -181,8 +183,6 @@ export const logout = async (manualToken = null) => {
     Cookies.remove('user_access_token');
     Cookies.remove('user');
 
-    // console.log('Logout successful, all cookies cleared');
-
     return response.data;
   } catch (error) {
     console.error('Logout error:', error);
@@ -193,6 +193,15 @@ export const logout = async (manualToken = null) => {
     Cookies.remove('portal_app_id');
     Cookies.remove('user');
 
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
+export const registerCompany = async (companyData) => {
+  try {
+    const response = await api.post('/portal/auth/signup-entity', companyData);
+    return response.data;
+  } catch (error) {
     throw error.response?.data || { error: 'Network error' };
   }
 };
@@ -253,7 +262,9 @@ export const updateAccount = async (email, userData) => {
 
 export const resendVerificationEmail = async (email) => {
   try {
-    const response = await api.get(`/portal/accounts/send-activation/${email}`);
+    const response = await api.get('/portal/accounts/send-activation', {
+      params: { email }
+    });
     return response.data;
   } catch (error) {
     throw error.response?.data || { error: 'Network error' };
