@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import AuthLayout from '../layouts/AuthLayout';
 import IndividualRegistrationForm from '../components/IndividualRegistrationForm';
 import CompanyRegistrationForm from '../components/CompanyRegistrationForm';
