@@ -8,7 +8,7 @@ import { register, registerCompany, resendVerificationEmail } from '../services/
 import { toast } from 'react-toastify';
 
 const Registration = () => {
-  const navigate = useNavigate();
+  //   const navigate = useNavigate();
   const [ isLoading, setIsLoading ] = useState(false);
   const [ showVerification, setShowVerification ] = useState(false);
   const [ userEmail, setUserEmail ] = useState('');
@@ -151,8 +151,8 @@ const Registration = () => {
           <div className="flex border-b border-gray-200 mb-6">
             <button
               className={`flex-1 py-2 px-4 text-center font-medium focus:outline-none ${activeTab === 'individual'
-                  ? 'text-green-700 border-b-2 border-green-700'
-                  : 'text-gray-500 hover:text-gray-700'
+                ? 'text-green-700 border-b-2 border-green-700'
+                : 'text-gray-500 hover:text-gray-700'
                 }`}
               onClick={() => setActiveTab('individual')}
             >
@@ -160,8 +160,8 @@ const Registration = () => {
             </button>
             <button
               className={`flex-1 py-2 px-4 text-center font-medium focus:outline-none ${activeTab === 'company'
-                  ? 'text-green-700 border-b-2 border-green-700'
-                  : 'text-gray-500 hover:text-gray-700'
+                ? 'text-green-700 border-b-2 border-green-700'
+                : 'text-gray-500 hover:text-gray-700'
                 }`}
               onClick={() => setActiveTab('company')}
             >

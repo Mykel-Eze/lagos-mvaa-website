@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Form, Input, Select, Button, DatePicker, Steps } from 'antd';
 import { EyeOutlined, EyeInvisibleOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
-import countryCodes from '../data/countryCodes.json';
+// import countryCodes from '../data/countryCodes.json';
 import lagosLGAs from '../data/lagosLGAs.json';
 import LoadingSpinner from './LoadingSpinner';
 

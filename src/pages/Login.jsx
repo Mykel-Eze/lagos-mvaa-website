@@ -1,6 +1,6 @@
 // src/pages/Login.jsx
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Radio, Select } from 'antd';
+import { Form, Input, Button } from 'antd';
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import AuthLayout from '../layouts/AuthLayout';
@@ -39,7 +39,7 @@ const Login = () => {
     try {
       const { email, password } = values;
 
-      const response = await login(email, password);
+      await login(email, password);
 
       // if (response.user) {
       //   console.log('Login response:', response);
