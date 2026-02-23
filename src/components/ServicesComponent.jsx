@@ -37,7 +37,7 @@ const ServicesComponent = () => {
     const baseUrl = serviceUrlMap[ appName ] || 'https://default.module1url.com';
 
     // Construct the redirect URL and navigate
-    const redirectUrl = `${baseUrl}?portal_session_id=${sessionId}&${appId}`;
+    const redirectUrl = `${baseUrl}?portal_session_id=${sessionId}&portal_app_id=${appId}`;
     window.location.href = redirectUrl;
   };
 
