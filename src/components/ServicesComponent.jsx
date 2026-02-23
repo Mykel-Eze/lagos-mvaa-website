@@ -17,10 +17,16 @@ const serviceUrlMap = {
 };
 
 const ServicesComponent = () => {
-  const handleServiceClick = (appId) => {
+  const handleServiceClick = (appName, appId) => {
     // Get the session ID from cookies
     const sessionId = Cookies.get('portal_session_id');
-    
+
+    // Guard: redirect to login if not authenticated
+    if (!sessionId) {
+      window.location.href = '/login';
+      return;
+    }
+
     // Set the portal_app_id cookie
     Cookies.set('portal_app_id', appId, {
       secure: window.location.protocol === 'https:',
@@ -28,19 +34,11 @@ const ServicesComponent = () => {
     });
 
     // Get the base URL for the service
-    const baseUrl = serviceUrlMap[appId] || 'https://default.module1url.com';
-    
-    // Construct the redirect URL
-    const redirectUrl = `${baseUrl}?portal_session_id=${sessionId}&portal_app_id=${appId}`;
-    
-    // Redirect to the service URL
+    const baseUrl = serviceUrlMap[ appName ] || 'https://default.module1url.com';
+
+    // Construct the redirect URL and navigate
+    const redirectUrl = `${baseUrl}?portal_session_id=${sessionId}&${appId}`;
     window.location.href = redirectUrl;
-
-
-    if (!sessionId) {
-        window.location.href = '/login';
-        return;
-    }
   };
 
   return (
@@ -56,15 +54,15 @@ const ServicesComponent = () => {
             title="Number Plate Services"
             icon="plateNo.png"
             description="Find vehicle related services like verify VIN, pay VIS etc permit"
-            app_id="NUMBER_PLATE_SERVICES"
-            onClick={() => handleServiceClick('NUMBER_PLATE_SERVICES')}
+            app_id="e520d3f23008eba1fdb472898d918028c495"
+            onClick={() => handleServiceClick('NUMBER_PLATE_SERVICES', 'e520d3f23008eba1fdb472898d918028c495')}
           />
           <ServiceCard
             title="AutoDealer and Spare Part"
             icon="jacket.png"
             description="Find vehicle related services like verify VIN, pay VIS etc permit"
-            app_id="AUTO_DEALER_SPARE_PARTS"
-            onClick={() => handleServiceClick('AUTO_DEALER_SPARE_PARTS')}
+            app_id="9dd1dda32a635879fb7fdd617629189111b0"
+            onClick={() => handleServiceClick('AUTO_DEALER_SPARE_PARTS', '9dd1dda32a635879fb7fdd617629189111b0')}
           />
           {/* <ServiceCard
             title="Car Registration"
