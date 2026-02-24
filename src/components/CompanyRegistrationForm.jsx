@@ -85,7 +85,6 @@ const CompanyRegistrationForm = ({ onSubmit, isLoading }) => {
     const [ currentStep, setCurrentStep ] = useState(0);
     const [ passwordVisible, setPasswordVisible ] = useState(false);
     const [ confirmPasswordVisible, setConfirmPasswordVisible ] = useState(false);
-    const [ utilityBillFile, setUtilityBillFile ] = useState(null);
 
     // 4 steps with icons only
     const steps = [
