@@ -338,11 +338,7 @@ const CompanyRegistrationForm = ({ onSubmit, isLoading }) => {
                             name="utilityBill"
                             accept="image/*,.pdf"
                             maxCount={1}
-                            beforeUpload={(file) => {
-                                setUtilityBillFile(file);
-                                return false;
-                            }}
-                            onRemove={() => setUtilityBillFile(null)}
+                            beforeUpload={() => false}
                         >
                             <p className="ant-upload-drag-icon"><InboxOutlined /></p>
                             <p className="ant-upload-text" style={{ fontSize: 13 }}>Click or drag file here</p>
