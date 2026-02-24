@@ -91,9 +91,32 @@ const IndividualRegistrationForm = ({ onSubmit, isLoading }) => {
                     <Form.Item
                         name="phoneNumber"
                         noStyle
-                        rules={[ { required: true, message: 'Please enter your phone number' } ]}
+                        rules={[
+                            { required: true, message: 'Please enter your phone number' },
+                            ({ getFieldValue }) => ({
+                                validator(_, value) {
+                                    const code = getFieldValue('countryCode');
+                                    if (code === '+234' && value && value.startsWith('0')) {
+                                        return Promise.reject(new Error('Remove the leading 0 — not needed with +234'));
+                                    }
+                                    return Promise.resolve();
+                                },
+                            }),
+                        ]}
                     >
-                        <Input placeholder="8100000000" size="large" className="ml-2 flex-1" />
+                        <Input
+                            placeholder="8100000000"
+                            size="large"
+                            className="ml-2 flex-1"
+                            onBlur={(e) => {
+                                const code = form.getFieldValue('countryCode');
+                                const val = e.target.value;
+                                if (code === '+234' && val.startsWith('0')) {
+                                    form.setFieldsValue({ phoneNumber: val.slice(1) });
+                                    form.validateFields([ 'phoneNumber' ]);
+                                }
+                            }}
+                        />
                     </Form.Item>
                 </div>
             </Form.Item>
@@ -138,6 +161,10 @@ const IndividualRegistrationForm = ({ onSubmit, isLoading }) => {
                 rules={[
                     { required: true, message: 'Please create a password' },
                     { min: 8, message: 'Password must be at least 8 characters' },
+                    {
+                        pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/,
+                        message: 'Must include uppercase, lowercase, number, and symbol',
+                    },
                 ]}
                 className="mb-6"
             >

@@ -22,6 +22,8 @@ import OtherAgencyDepartments from './pages/OtherAgencyDepartments';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import AccountSettings from './pages/AccountSettings';
+import IndividualVerification from './pages/IndividualVerification';
+import CompanyVerification from './pages/CompanyVerification';
 
 import './index.css';
 import './assets/css/fonts.css';
@@ -31,6 +33,7 @@ import './assets/css/home.css';
 import './assets/css/auth.css';
 import './assets/css/footer.css';
 import './assets/css/vehicle-registeration.css';
+import './assets/css/verification.css';
 
 
 function App() {
@@ -58,6 +61,8 @@ function App() {
             <Route path="/services/other-agencies" element={<OtherAgencyDepartments />} />
 
             <Route path="/account-settings" element={<AccountSettings />} />
+            <Route path="/verify/individual" element={<IndividualVerification />} />
+            <Route path="/verify/company" element={<CompanyVerification />} />
           </Route>
         </Routes>
 

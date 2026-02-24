@@ -499,6 +499,8 @@ window.onload = function () {
                 "/api/v1/portal/accounts/update-account/{email}": {
                     "patch": {
                         "operationId": "AppController_updateUserAccount",
+                        "summary": "portal resource to update user account information",
+                        "description": "\n      This endpoint serves as a v1-authenticated with 'access token' —— portal use alone.\n\n      - The request has a body and a parameter with authentication via header.\n      - A successful header authentication will allow access account update — PATCH resource.\n      - This request payload and expected response is as shown below ↓.\n      - Clients can use a browser or some request client in Node.js.\n      \n        ```\n          Example: \n          access_token=abcd1234 \n          Authorization: Bearer {access_token} —— `credential signature`\n\n          Testing Example:\n          -X PATCH https://{baseurl}/api/v1/portal/accounts/update-account/{email}\n          -H 'Content-Type: application/json' \n          -H 'Authorization: Bearer {access_token}\n          \n      ```\n      ",
                         "parameters": [
                             {
                                 "name": "email",
@@ -521,11 +523,75 @@ window.onload = function () {
                         },
                         "responses": {
                             "200": {
-                                "description": "resource for user account updates",
+                                "description": "success request response resource",
                                 "content": {
                                     "application/json": {
                                         "schema": {
-                                            "example": {}
+                                            "example": {
+                                                "message": "account updated successfully",
+                                                "status": 200,
+                                                "success": "true",
+                                                "data": {
+                                                    "username": "flawedTomatoes",
+                                                    "firstName": "Phil",
+                                                    "lastName": "Foden",
+                                                    "email": "jonkbog+testdeveloper@gmail.com",
+                                                    "id": "398dbc78-1478-468e-b3ad-8ec0f013bb1d"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {
+                                "description": "bad request response",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "Bad Request Exception",
+                                                "timestamp": "2026-02-13T03:28:19.436Z",
+                                                "path": "/api/v1/portal/accounts/update-password/jonkbog+testdeveloper@gmail.com",
+                                                "status": 400,
+                                                "details": [
+                                                    "Password too weak. Must include uppercase, lowercase, number, and symbol.",
+                                                    "password should not be empty",
+                                                    "password must be a string"
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "401": {
+                                "description": "unauthorized request response",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "Unauthorized",
+                                                "timestamp": "2025-09-21T06:26:08.935Z",
+                                                "status": 401,
+                                                "details": "Unauthorized"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "403": {
+                                "description": "forbidden request response",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "credential access denied",
+                                                "timestamp": "2025-09-21T06:26:08.935Z",
+                                                "status": 403,
+                                                "details": "credential access denied"
+                                            }
                                         }
                                     }
                                 }
@@ -539,6 +605,8 @@ window.onload = function () {
                 "/api/v1/portal/accounts/update-password/{email}": {
                     "patch": {
                         "operationId": "AppController_updateAccountPassword",
+                        "summary": "portal resource to update user password",
+                        "description": "\n      This endpoint serves as a v1-authenticated with 'access token' —— portal use alone.\n\n      - The request has a body and a parameter with authentication via header.\n      - A successful header authentication will allow access account update — PATCH resource.\n      - This resource can only be used on Activated accounts.\n      - This request payload and expected response is as shown below ↓.\n      - Clients can use a browser or some request client in Node.js.\n      \n        ```\n          Example: \n          access_token=abcd1234 \n          Authorization: Bearer {access_token} —— `credential signature`\n\n          Testing Example:\n          -X PATCH https://{baseurl}/api/v1/portal/accounts/update-password/{email}\n          -H 'Content-Type: application/json' \n          -H 'Authorization: Bearer {access_token}\n          \n      ```\n      ",
                         "parameters": [
                             {
                                 "name": "email",
@@ -561,51 +629,69 @@ window.onload = function () {
                         },
                         "responses": {
                             "200": {
-                                "description": "resource for user password updates",
+                                "description": "success request response",
                                 "content": {
                                     "application/json": {
                                         "schema": {
-                                            "example": {}
+                                            "example": {
+                                                "message": "password changed successfully",
+                                                "status": 200,
+                                                "success": "true"
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        },
-                        "tags": [
-                            "Portal"
-                        ]
-                    }
-                },
-                "/api/v1/portal/accounts/reset-password/{token}": {
-                    "patch": {
-                        "operationId": "AppController_resetUserPassword",
-                        "parameters": [
-                            {
-                                "name": "token",
-                                "required": true,
-                                "in": "path",
-                                "schema": {
-                                    "type": "string"
-                                }
-                            }
-                        ],
-                        "requestBody": {
-                            "required": true,
-                            "content": {
-                                "application/json": {
-                                    "schema": {
-                                        "$ref": "#/components/schemas/PasswordResetDto"
-                                    }
-                                }
-                            }
-                        },
-                        "responses": {
-                            "200": {
-                                "description": "resource for password reset",
+                            },
+                            "400": {
+                                "description": "bad request response",
                                 "content": {
                                     "application/json": {
                                         "schema": {
-                                            "example": {}
+                                            "example": {
+                                                "success": "false",
+                                                "error": "Bad Request Exception",
+                                                "timestamp": "2026-02-13T03:28:19.436Z",
+                                                "path": "/api/v1/portal/accounts/update-password/jonkbog+testdeveloper@gmail.com",
+                                                "status": 400,
+                                                "details": [
+                                                    "Password too weak. Must include uppercase, lowercase, number, and symbol.",
+                                                    "password should not be empty",
+                                                    "password must be a string"
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "401": {
+                                "description": "unauthorized request response",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "Unauthorized",
+                                                "timestamp": "2025-09-21T06:26:08.935Z",
+                                                "status": 401,
+                                                "details": "Unauthorized"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "500": {
+                                "description": "internal server error request response - confirm user is activated",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "unable to perform operation on user!",
+                                                "timestamp": "2026-02-13T01:23:40.260Z",
+                                                "path": "/api/v1/portal/accounts/update-account/jnkbog+testdeveloper@gmail.com",
+                                                "status": 400,
+                                                "details": "unable to perform operation on user!"
+                                            }
                                         }
                                     }
                                 }
@@ -933,57 +1019,11 @@ window.onload = function () {
                         ]
                     }
                 },
-                "/api/v1/shared/retrieveuseridentification/{agency}": {
-                    "post": {
-                        "operationId": "SharedAppController_getIdentification",
-                        "parameters": [],
-                        "responses": {
-                            "200": {
-                                "description": "resource for agency identification (e.g NIMC, FRSC)",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {
-                                            "example": {
-                                                "success": true,
-                                                "status": 200
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "tags": [
-                            "Shared"
-                        ]
-                    }
-                },
-                "/api/v1/shared/registervehicle": {
-                    "post": {
-                        "operationId": "SharedAppController_registerVehicle",
-                        "parameters": [],
-                        "responses": {
-                            "200": {
-                                "description": "resource for vehicle registration",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {
-                                            "example": {
-                                                "success": true,
-                                                "status": 200
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "tags": [
-                            "Shared"
-                        ]
-                    }
-                },
                 "/api/v1/shared/profile": {
                     "get": {
                         "operationId": "SharedAppController_getUserCredentials",
+                        "summary": "resource to fetch an entity profile.",
+                        "description": "\n          This endpoint serves a v1 authentication endpoint for portal and module use.\n  \n          - The request has no body and no query parameters ——— only authentication cookie to share sessions.\n          - A successful cookie authentication will allow access to top-level resources like a simple profile fetch — GET or logout — POST but not higher order resources like 'payment and billing'.\n          - This request has no payload but the expected response is shown below shown below ↓.\n          - Clients can use a browser or some request client in Node.js.\n          \n          ```\n              Example: \n              session_token=abcd1234\n              portal_id=efgh5678\n  \n              portal_session_id=abcd1234&efgh5678 — `credential signature`\n  \n              Testing Example:\n              portal_session_id=e26a6046-b000-4c79-acb8-b42cbd820593%2675e6df2eba1c1875ef359fc95c0f5a1ce5b8; Expires=null; Path=/; Secure; HttpOnly; Domain=localhost\n          ```\n          ",
                         "parameters": [
                             {
                                 "name": "cookie",
@@ -997,7 +1037,7 @@ window.onload = function () {
                         ],
                         "responses": {
                             "200": {
-                                "description": "fetch user profile",
+                                "description": "successful fetch user response",
                                 "content": {
                                     "application/json": {
                                         "schema": {
@@ -1018,8 +1058,25 @@ window.onload = function () {
                                     }
                                 }
                             },
-                            "default": {
-                                "description": "cookie-based user authorization",
+                            "400": {
+                                "description": "cookie-based user authorization response",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "credential access denied: session expired",
+                                                "timestamp": "2025-09-21T06:26:08.935Z",
+                                                "path": "/api/v1/portal/auth/identification",
+                                                "status": 401,
+                                                "details": "credential access denied: session expired"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "401": {
+                                "description": "unauthorized",
                                 "content": {
                                     "application/json": {
                                         "schema": {
@@ -1043,6 +1100,208 @@ window.onload = function () {
                             {
                                 "portal_session_id": []
                             }
+                        ]
+                    }
+                },
+                "/api/v1/shared/verify/nin/{idNumber}": {
+                    "post": {
+                        "operationId": "SharedAppController_verifymeWithNIN",
+                        "summary": "resource to fetch/verify an entity national identification number — NIN.",
+                        "description": "\n        This endpoint serves a v1 authentication endpoint for portal and module use.\n\n        - The request has no body and no query parameters ——— only authentication cookie to share sessions.\n        - A successful cookie authentication will allow access to top-level resources like NIN and CAC.\n        - This request has a payload and the expected response is shown below shown below ↓.\n        - Clients can use a browser or some request client in Node.js.\n        \n        ```\n            Example: \n            session_token=abcd1234\n            portal_id=efgh5678\n\n            portal_session_id=abcd1234&efgh5678 — `credential signature`\n\n            Testing Example:\n            portal_session_id=e26a6046-b000-4c79-acb8-b42cbd820593%2675e6df2eba1c1875ef359fc95c0f5a1ce5b8; Expires=null; Path=/; Secure; HttpOnly; Domain=localhost\n        ```\n        ",
+                        "parameters": [
+                            {
+                                "name": "idNumber",
+                                "required": true,
+                                "in": "path",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        ],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/IVerifyWithNIN"
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "successful match for nin response",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "status": 200,
+                                                "success": "true",
+                                                "message": "EXACT_MATCH for 'Bunch Dillon' with id(NIN)}",
+                                                "data": {
+                                                    "nin": "63184876213",
+                                                    "firstname": "Bunch",
+                                                    "lastname": "Dillon",
+                                                    "middlename": "",
+                                                    "phone": "08000000000",
+                                                    "gender": "m",
+                                                    "photo": "_long_photo_base64_string_",
+                                                    "birthdate": "06-01-1974",
+                                                    "residence": {
+                                                        "address1": "1193 TOLA CRESENT",
+                                                        "town": "WUSE",
+                                                        "lga": "Abuja Municipal",
+                                                        "state": "FCT Abuja"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {
+                                "description": "bad request server response",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "Request failed with status code 400",
+                                                "timestamp": "2026-02-13T12:33:03.942Z",
+                                                "path": "/api/v1/shared/verify/nin",
+                                                "status": 500,
+                                                "details": "Request failed with status code 400"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "422": {
+                                "description": "bad request unprocessed entity response",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "NO_MATCH for 'firstname: string lastname: string' with id(NIN)}",
+                                                "timestamp": "2026-02-13T20:45:20.129Z",
+                                                "path": "/api/v1/shared/verify/nin/63184876213",
+                                                "status": 422,
+                                                "details": "NO_MATCH for 'firstname: string lastname: string' with id(NIN)}"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "500": {
+                                "description": "unauthorized authentication protocol response",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "Request failed with status code 401",
+                                                "timestamp": "2026-02-13T12:27:27.334Z",
+                                                "path": "/api/v1/shared/verify/nin",
+                                                "status": 500,
+                                                "details": "Request failed with status code 401"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tags": [
+                            "Shared"
+                        ]
+                    }
+                },
+                "/api/v1/shared/verify/cac": {
+                    "post": {
+                        "operationId": "SharedAppController_verifymeWithCAC",
+                        "summary": "resource to fetch/verify an entity company registration number — CAC.",
+                        "description": "\n        This endpoint serves a v1 authentication endpoint for portal and module use( means it uses cookies).\n        - The request has no body and no query parameters ——— only authentication cookie to share sessions.\n        - A successful cookie authentication will allow access to top-level resources like NIN and CAC.\n        - This request has a payload and the expected response is shown below shown below ↓.\n        - Clients can use a browser or some request client in Node.js.\n        \n        ```\n            Example: \n            session_token=abcd1234\n            portal_id=efgh5678\n\n            portal_session_id=abcd1234&efgh5678 — `credential signature`\n          \n            regNumber string required\n            Company's registration number. The registration number should be typed in this format. RC1234, BN1234, IT1234. etc.\n        ```\n        ",
+                        "parameters": [],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/IVerifyWithCAC"
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "successful match for cac response",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "status": 200,
+                                                "success": "true",
+                                                "message": "cac fetch successful",
+                                                "data": {
+                                                    "state": "",
+                                                    "headOfficeAddress": "Test Company Head Office Address",
+                                                    "status": "ACTIVE",
+                                                    "city": "",
+                                                    "companyEmail": "",
+                                                    "rcNumber": "100001",
+                                                    "classification": "Limited Company",
+                                                    "branchAddress": "",
+                                                    "registrationDate": "2013-02-19T00:00:00.000+00:00",
+                                                    "companyName": "TEST COMPANY   ",
+                                                    "lga": "",
+                                                    "companyType": "",
+                                                    "affiliates": 10,
+                                                    "shareCapital": 0,
+                                                    "shareCapitalInWords": "",
+                                                    "natureOfBusiness": ""
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {
+                                "description": "bad request server response",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "Request failed with status code 400",
+                                                "timestamp": "2026-02-13T12:33:03.942Z",
+                                                "path": "/api/v1/shared/verify/nin",
+                                                "status": 500,
+                                                "details": "Request failed with status code 400"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "500": {
+                                "description": "unauthorized authentication protocol response",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "Request failed with status code 401",
+                                                "timestamp": "2026-02-13T12:27:27.334Z",
+                                                "path": "/api/v1/shared/verify/nin",
+                                                "status": 500,
+                                                "details": "Request failed with status code 401"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tags": [
+                            "Shared"
                         ]
                     }
                 },
@@ -2112,6 +2371,45 @@ window.onload = function () {
                             "email"
                         ]
                     },
+                    "IVerifyWithNIN": {
+                        "type": "object",
+                        "properties": {
+                            "firstname": {
+                                "type": "string"
+                            },
+                            "lastname": {
+                                "type": "string"
+                            },
+                            "dob": {
+                                "format": "date-time",
+                                "type": "string"
+                            },
+                            "phone": {
+                                "type": "string"
+                            },
+                            "email": {
+                                "type": "string"
+                            },
+                            "gender": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "firstname",
+                            "lastname"
+                        ]
+                    },
+                    "IVerifyWithCAC": {
+                        "type": "object",
+                        "properties": {
+                            "regNumber": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "regNumber"
+                        ]
+                    },
                     "BillingRegistrationDto": {
                         "type": "object",
                         "properties": {
@@ -2274,33 +2572,70 @@ window.onload = function () {
                             "issueExpiryDate"
                         ]
                     },
-                    "EntityIdentification": {
+                    "Residence": {
                         "type": "object",
                         "properties": {
-                            "verificationId": {
+                            "address1": {
                                 "type": "string"
                             },
-                            "issuerId": {
+                            "town": {
                                 "type": "string"
                             },
-                            "issueType": {
+                            "lga": {
                                 "type": "string"
                             },
-                            "issueDate": {
-                                "format": "date-time",
-                                "type": "string"
-                            },
-                            "issueExpiryDate": {
-                                "format": "date-time",
+                            "state": {
                                 "type": "string"
                             }
                         },
                         "required": [
-                            "verificationId",
-                            "issuerId",
-                            "issueType",
-                            "issueDate",
-                            "issueExpiryDate"
+                            "address1",
+                            "town",
+                            "lga",
+                            "state"
+                        ]
+                    },
+                    "EntityIdentification": {
+                        "type": "object",
+                        "properties": {
+                            "nin": {
+                                "type": "string"
+                            },
+                            "firstname": {
+                                "type": "string"
+                            },
+                            "lastname": {
+                                "type": "string"
+                            },
+                            "middlename": {
+                                "type": "string"
+                            },
+                            "phone": {
+                                "type": "string"
+                            },
+                            "gender": {
+                                "type": "string"
+                            },
+                            "photo": {
+                                "type": "string"
+                            },
+                            "birthdate": {
+                                "type": "string"
+                            },
+                            "residence": {
+                                "$ref": "#/components/schemas/Residence"
+                            }
+                        },
+                        "required": [
+                            "nin",
+                            "firstname",
+                            "lastname",
+                            "middlename",
+                            "phone",
+                            "gender",
+                            "photo",
+                            "birthdate",
+                            "residence"
                         ]
                     },
                     "Address": {

@@ -271,4 +271,91 @@ export const resendVerificationEmail = async (email) => {
   }
 };
 
+// ─── Verification Functions ────────────────────────────────────────────────
+
+/**
+ * Verify NIN (National Identification Number).
+ * Endpoint: POST /api/v1/shared/verify/nin/{idNumber}
+ * Auth: cookie (portal_session_id)
+ * Body: { firstname, lastname } — matched against the NIN record
+ */
+export const verifyNIN = async (nin, firstname, lastname) => {
+  try {
+    const response = await api.post(`/shared/verify/nin/${nin}`, { firstname, lastname });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
+/**
+ * Verify CAC (Corporate Affairs Commission) registration number.
+ * Endpoint: POST /api/v1/shared/verify/cac
+ * Auth: cookie (portal_session_id)
+ * Body: { regNumber } — format: RC1234, BN1234, IT1234 etc.
+ */
+export const verifyCAC = async (regNumber) => {
+  try {
+    const response = await api.post('/shared/verify/cac', { regNumber });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
+/**
+ * Verify Payer ID (Tax Identification).
+ * Endpoint: GET /api/v2/shared/billing/identification?pid=
+ * Auth: Bearer user_access_token (v2 resource)
+ */
+export const verifyPayerId = async (pid) => {
+  try {
+    const token = Cookies.get('user_access_token');
+    const v2Api = axios.create({
+      baseURL: 'https://licensetest.permit.org.ng/api/v2',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      withCredentials: false,
+    });
+    const response = await v2Api.get('/shared/billing/identification', { params: { pid } });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
+/**
+ * Submit final verification — marks the user as verified on the backend.
+ * Uses the existing update-account endpoint with is_verified: true.
+ * Adjust the payload field name if your backend uses a different key.
+ */
+export const submitVerification = async (email) => {
+  try {
+    const token = Cookies.get('user_access_token');
+    const authApi = axios.create({
+      baseURL: API_BASE_URL,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      withCredentials: false,
+    });
+    const response = await authApi.patch(`/portal/accounts/update-account/${email}`, {
+      is_verified: true,
+    });
+    // Update user cookie to reflect verified status
+    const currentUser = JSON.parse(Cookies.get('user') || '{}');
+    Cookies.set('user', JSON.stringify({ ...currentUser, is_verified: true }), {
+      secure: window.location.protocol === 'https:',
+      sameSite: 'strict',
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
 export default api;
+

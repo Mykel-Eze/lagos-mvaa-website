@@ -54,9 +54,14 @@ const Registration = () => {
 
       toast.success('Registration successful! Please check your email to verify your account.');
     } catch (error) {
-      console.error(error)
-      const msg = error.exception_message ? Array.isArray(error.exception_message)
-        ? error.exception_message.join('\n') : error.exception_message : error.message || 'Registration failed. Please try again.';
+      console.error(error);
+      const { details, error: errField } = error || {};
+      let msg;
+      if (details) {
+        msg = Array.isArray(details) ? details.join(' · ') : details;
+      } else {
+        msg = errField || error?.message || 'Registration failed. Please try again.';
+      }
       toast.error(msg);
     } finally {
       setIsLoading(false);
@@ -71,7 +76,7 @@ const Registration = () => {
         companyRCNumber: values.companyRCNumber,
         companyTIN: values.companyTIN,
         companyRepName: values.companyRepName,
-        companyRepPhone: values.companyRepPhone,
+        companyRepPhone: values.repCountryCode + values.repPhone,
         companyRepEmail: values.companyRepEmail,
         address: {
           flatNumber: values.flatNumber,
@@ -80,9 +85,9 @@ const Registration = () => {
           landmark: values.landmark,
           lga: values.lga,
           state: "Lagos", // Defaulting to Lagos based on UI
-          contactPhone: values.contactPhone,
+          contactPhone: values.contactCountryCode + values.contactPhone,
           email: values.email,
-          utilityBillDescription: values.utilityBillDescription
+          utilityBill: values.utilityBillFile?.file || values.utilityBillFile,
         },
         companyOwner: {
           title: values.ownerTitle,
@@ -92,7 +97,6 @@ const Registration = () => {
           maritalStatus: values.ownerMaritalStatus,
           dob: values.ownerDob ? values.ownerDob.format('YYYY-MM-DD') : null,
           placeOfBirth: values.ownerPlaceOfBirth,
-          nationalIdentificationNumber: values.ownerNIN,
           driverLicenseNumber: values.ownerDriverLicense,
           passportNumber: values.ownerPassport
         },
@@ -109,9 +113,14 @@ const Registration = () => {
       toast.success('Company Registration successful! Please check email to verify.');
 
     } catch (error) {
-      console.error(error)
-      const msg = error.exception_message ? Array.isArray(error.exception_message)
-        ? error.exception_message.join('\n') : error.exception_message : error.message || 'Registration failed.';
+      console.error(error);
+      const { details, error: errField } = error || {};
+      let msg;
+      if (details) {
+        msg = Array.isArray(details) ? details.join(' · ') : details;
+      } else {
+        msg = errField || error?.message || 'Registration failed. Please try again.';
+      }
       toast.error(msg);
     } finally {
       setIsLoading(false);

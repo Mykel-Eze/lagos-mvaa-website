@@ -126,9 +126,9 @@ const Header = () => {
 
     } catch (error) {
       console.error('Logout error in handleLogout:', error);
-      toast.error('Logout failed, but session cleared');
+      toast.success('Logout Complete');
 
-      // Even if logout fails, redirect to login
+      // Even if logout fails on server, redirect to login
       setTimeout(() => {
         window.location.href = '/login';
       }, 1000);
@@ -138,8 +138,25 @@ const Header = () => {
   // Check if the user is logged in by checking the session cookie
   const isLoggedIn = !!Cookies.get('portal_session_id');
 
+  // Determine verification status and type from user cookie
+  const isVerified = userData ? (userData.data?.is_verified ?? userData.is_verified ?? false) : true;
+  const isCompany = userData ? !!(userData.data?.companyName || userData.companyName) : false;
+  const verifyPath = isCompany ? '/verify/company' : '/verify/individual';
+
   return (
     <>
+      {/* Unverified User Banner */}
+      {isLoggedIn && !isVerified && (
+        <div className="unverified-banner">
+          <span className="unverified-banner-icon">⚠️</span>
+          <span className="unverified-banner-text">
+            Your account is not yet verified. Complete verification to access all services.
+          </span>
+          <Link to={verifyPath} className="unverified-banner-link">
+            Verify Now →
+          </Link>
+        </div>
+      )}
       <header className="rel full-width">
         <div id="main-header">
           <div className="container">
