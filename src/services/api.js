@@ -62,12 +62,9 @@ export const login = async (email, password) => {
 
       console.log('Cookies set. Fetching profile...');
 
-      // Fetch user profile and set user cookie
       try {
-        // Extract user ID from token
         const decodedToken = parseJwt(accessToken);
-        const userId = decodedToken?.sub || decodedToken?.id; // strict checking on claim name might be needed
-
+        const userId = decodedToken?.sub || decodedToken?.id;
         if (userId) {
           await getProfile(userId, accessToken);
           console.log('Profile fetched successfully');
@@ -76,7 +73,6 @@ export const login = async (email, password) => {
         }
       } catch (profileError) {
         console.warn('Failed to fetch profile after login:', profileError);
-        // Don't throw here - login was successful even if profile fetch failed
       }
     } else {
       console.error('No session token found in response!');
@@ -85,6 +81,44 @@ export const login = async (email, password) => {
     return response.data;
   } catch (error) {
     console.error('Login error:', error);
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
+export const loginCompany = async (email, password) => {
+  try {
+    const response = await api.post('/portal/auth/signin-entity', { email, password });
+
+    const data = response.data.data || response.data;
+    const sessionToken = data.session_token || response.data.session_token;
+    const accessToken = data.access_token || response.data.access_token;
+
+    const app_id = '75e6df2eba1c1875ef359fc95c0f5a1ce5b8';
+
+    if (sessionToken) {
+      Cookies.set('portal_session_id', `${sessionToken}&${app_id}`, {
+        secure: window.location.protocol === 'https:',
+        sameSite: 'lax'
+      });
+      Cookies.set('user_access_token', accessToken, {
+        secure: window.location.protocol === 'https:',
+        sameSite: 'lax'
+      });
+
+      try {
+        const decodedToken = parseJwt(accessToken);
+        const userId = decodedToken?.sub || decodedToken?.id;
+        if (userId) {
+          await getProfile(userId, accessToken);
+        }
+      } catch (profileError) {
+        console.warn('Failed to fetch profile after company login:', profileError);
+      }
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error('Company login error:', error);
     throw error.response?.data || { error: 'Network error' };
   }
 };
@@ -117,16 +151,11 @@ export const getProfile = async (userId, manualToken = null) => {
       throw new Error('User ID not found');
     }
 
-    // Make request - explicitly attach Authorization header for robustness
     const response = await api.get(`/portal/accounts/${finalUserId}`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
-
-    // console.log('Profile API response:', response.data);
-    // console.log('document.cookie:', document.cookie);
-    // console.log('Cookies.get portal_session_id:', Cookies.get('portal_session_id'));
 
     Cookies.set('user', JSON.stringify(response.data), {
       secure: window.location.protocol === 'https:',
@@ -135,17 +164,9 @@ export const getProfile = async (userId, manualToken = null) => {
 
     return response.data;
   } catch (error) {
-    console.error('getProfile error details:', {
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data,
-      message: error.message
-    });
+    console.error('getProfile error:', error.response?.data || error.message);
 
-    // If token is invalid or access denied, clear cookies
     if (error.response?.status === 401 || error.response?.status === 403) {
-      console.log('Authentication failed, clearing cookies');
-      // Clear all cookies
       Cookies.remove('portal_session_id');
       Cookies.remove('portal_app_id');
       Cookies.remove('user_access_token');

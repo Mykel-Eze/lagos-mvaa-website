@@ -144,6 +144,20 @@
     border-color: var(--sec-color);
 }
 
+#app-wrapper .ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: var(--sec-color);
+    text-shadow: 0 0 0.25px var(--sec-color);
+}
+
+#app-wrapper .ant-tabs .ant-tabs-tab:hover {
+    color: var(--pry-color);
+    text-shadow: 0 0 0.25px var(--pry-color);
+}
+
+#app-wrapper .ant-tabs .ant-tabs-ink-bar {
+    background: var(--sec-color);
+}
+
 @media(max-width: 420px) {
     #app-wrapper label.portal-btn .ant-radio-button-label span.dot {
         display: none;

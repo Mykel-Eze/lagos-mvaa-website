@@ -87,7 +87,7 @@ const Registration = () => {
           state: "Lagos", // Defaulting to Lagos based on UI
           contactPhone: values.contactCountryCode + values.contactPhone,
           email: values.email,
-          utilityBill: values.utilityBillFile?.file || values.utilityBillFile,
+          utilityBill: 'Pending Utility Bill',
         },
         companyOwner: {
           title: values.ownerTitle,

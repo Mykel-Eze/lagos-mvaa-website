@@ -4,7 +4,6 @@ import { Form, Input, Select, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { getProfile, updateAccount } from '../services/api';
 import { toast } from 'react-toastify';
-import countryCodes from '../data/countryCodes.json';
 import lagosLGAs from '../data/lagosLGAs.json';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Cookies from 'js-cookie';
@@ -19,6 +18,7 @@ const AccountSettings = () => {
   const [ isPageLoading, setIsPageLoading ] = useState(true);
   const [ hasChanges, setHasChanges ] = useState(false);
   const [ initialValues, setInitialValues ] = useState({});
+  const [ isCompany, setIsCompany ] = useState(false);
 
   // Load user profile data
   useEffect(() => {
@@ -58,19 +58,20 @@ const AccountSettings = () => {
         }
 
         if (userData) {
-          // Parse phone number to separate country code and number
-          const phoneMatch = userData.phone?.match(/^(\+\d{1,4})(.*)$/);
-          const countryCode = phoneMatch ? phoneMatch[ 1 ] : '+234';
-          const phoneNumber = phoneMatch ? phoneMatch[ 2 ] : userData.phone || '';
+          const companyAccount = !!(userData.companyName || userData.data?.companyName);
+          setIsCompany(companyAccount);
 
           const formData = {
             firstName: userData.firstName || '',
             lastName: userData.lastName || '',
             email: userData.email || '',
-            countryCode: countryCode,
-            phoneNumber: phoneNumber,
+            phone: userData.phone || '',
             street: userData.address?.street || '',
             lga: userData.address?.lga || '',
+            // Company-specific
+            companyName: userData.companyName || '',
+            companyRCNumber: userData.companyRCNumber || '',
+            companyTIN: userData.companyTIN || '',
           };
 
           // console.log('Setting initial values:', formData);
@@ -109,7 +110,7 @@ const AccountSettings = () => {
         email: values.email,
         firstName: values.firstName,
         lastName: values.lastName,
-        phone: values.countryCode + values.phoneNumber,
+        phone: values.phone,
         address: {
           street: values.street,
           lga: values.lga,
@@ -222,51 +223,16 @@ const AccountSettings = () => {
               </Form.Item>
 
               {/* Phone Number */}
-              <Form.Item label="Phone Number">
-                <div className="flex">
-                  <Form.Item
-                    name="countryCode"
-                    noStyle
-                    initialValue="+234"
-                  >
-                    <Select
-                      size="large"
-                      style={{ width: '100px', textAlign: 'center' }}
-                      optionFilterProp="children"
-                      filterOption={(input, option) =>
-                        (option?.data?.country?.toLowerCase() || '').includes(input.toLowerCase()) ||
-                        (option?.data?.code?.toLowerCase() || '').includes(input.toLowerCase())
-                      }
-                      optionLabelProp="label"
-                      className="rounded-md"
-                    >
-                      {countryCodes.countryCodes.map(country => (
-                        <Select.Option
-                          key={country.code}
-                          value={country.code}
-                          label={country.code}
-                          data={country}
-                        >
-                          <div className="flex items-center">
-                            <span>{country.code}</span>
-                            <span className="ml-2 text-gray-500 text-xs">{country.country}</span>
-                          </div>
-                        </Select.Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                  <Form.Item
-                    name="phoneNumber"
-                    noStyle
-                    rules={[ { required: true, message: 'Please enter your phone number' } ]}
-                  >
-                    <Input
-                      placeholder="8100000000"
-                      size="large"
-                      className="ml-2 flex-1 rounded-md"
-                    />
-                  </Form.Item>
-                </div>
+              <Form.Item
+                label="Phone Number"
+                name="phone"
+                rules={[ { required: true, message: 'Please enter your phone number' } ]}
+              >
+                <Input
+                  placeholder="+2348100000000"
+                  size="large"
+                  className="rounded-md"
+                />
               </Form.Item>
 
               {/* Address Fields */}
@@ -304,6 +270,24 @@ const AccountSettings = () => {
                 </Select>
               </Form.Item>
             </div>
+
+            {/* Company-specific fields */}
+            {isCompany && (
+              <>
+                <h3 className="text-base font-semibold text-gray-700 mt-4 mb-2">Company Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-1 gap-x-10 max-w-4xl">
+                  <Form.Item label="Company Name" name="companyName">
+                    <Input size="large" disabled className="rounded-md" />
+                  </Form.Item>
+                  <Form.Item label="RC Number" name="companyRCNumber">
+                    <Input size="large" disabled className="rounded-md" />
+                  </Form.Item>
+                  <Form.Item label="TIN" name="companyTIN">
+                    <Input size="large" disabled className="rounded-md" />
+                  </Form.Item>
+                </div>
+              </>
+            )}
 
             <div className="settings-button-wrapper">
               {/* Action Buttons */}

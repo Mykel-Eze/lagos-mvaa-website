@@ -67,9 +67,16 @@ const ServicesComponent = () => {
             app_id="e520d3f23008eba1fdb472898d918028c495"
             onClick={() => handleServiceClick('NUMBER_PLATE_SERVICES', 'e520d3f23008eba1fdb472898d918028c495')}
           />
+          <ServiceCard
+            title="AutoDealer and Spare Part"
+            icon="jacket.png"
+            description="Find vehicle related services like verify VIN, pay VIS etc permit"
+            app_id="9dd1dda32a635879fb7fdd617629189111b0"
+            onClick={() => handleServiceClick('AUTO_DEALER_SPARE_PARTS', '9dd1dda32a635879fb7fdd617629189111b0')}
+          />
 
           {/* Auto Dealer card — only visible to company users */}
-          {isCompany && (
+          {/* {isCompany && (
             <ServiceCard
               title="AutoDealer and Spare Part"
               icon="jacket.png"
@@ -77,7 +84,7 @@ const ServicesComponent = () => {
               app_id="9dd1dda32a635879fb7fdd617629189111b0"
               onClick={() => handleServiceClick('AUTO_DEALER_SPARE_PARTS', '9dd1dda32a635879fb7fdd617629189111b0')}
             />
-          )}
+          )} */}
         </div>
       </div>
     </section>

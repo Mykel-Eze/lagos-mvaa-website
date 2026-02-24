@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import dayjs from 'dayjs';
-import { Form, Input, Select, Button, DatePicker, Steps, Upload } from 'antd';
+import { Form, Input, Select, Button, DatePicker, Steps } from 'antd';
 import {
-    EyeOutlined, EyeInvisibleOutlined, LeftOutlined, RightOutlined, InboxOutlined,
+    EyeOutlined, EyeInvisibleOutlined, LeftOutlined, RightOutlined,
     BankOutlined, UserOutlined, EnvironmentOutlined, IdcardOutlined,
 } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
@@ -104,7 +104,7 @@ const CompanyRegistrationForm = ({ onSubmit, isLoading }) => {
             } else if (currentStep === 2) {
                 fieldsToValidate = [
                     'flatNumber', 'blockNumber', 'street', 'landmark',
-                    'lga', 'state', 'utilityBillFile', 'contactPhone',
+                    'lga', 'state', 'contactPhone',
                 ];
             }
             await form.validateFields(fieldsToValidate);
@@ -326,24 +326,6 @@ const CompanyRegistrationForm = ({ onSubmit, isLoading }) => {
                         className="mb-4"
                     >
                         <PhoneField namePrefix="contact" form={form} />
-                    </Form.Item>
-
-                    <Form.Item
-                        label="Utility Bill"
-                        name="utilityBillFile"
-                        rules={[ { required: true, message: 'Please upload a utility bill' } ]}
-                        className="mb-4"
-                    >
-                        <Upload.Dragger
-                            name="utilityBill"
-                            accept="image/*,.pdf"
-                            maxCount={1}
-                            beforeUpload={() => false}
-                        >
-                            <p className="ant-upload-drag-icon"><InboxOutlined /></p>
-                            <p className="ant-upload-text" style={{ fontSize: 13 }}>Click or drag file here</p>
-                            <p className="ant-upload-hint" style={{ fontSize: 12 }}>PNG, JPG or PDF — max 5 MB</p>
-                        </Upload.Dragger>
                     </Form.Item>
                 </div>
 
