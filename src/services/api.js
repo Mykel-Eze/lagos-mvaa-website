@@ -45,9 +45,11 @@ export const login = async (email, password) => {
 
     console.log('Extracted tokens:', { sessionToken, accessToken });
 
+    const app_id = '75e6df2eba1c1875ef359fc95c0f5a1ce5b8'
+
     if (sessionToken) {
       // Set the session token cookie
-      Cookies.set('portal_session_id', sessionToken, {
+      Cookies.set('portal_session_id', `${sessionToken}&${app_id}`, {
         secure: window.location.protocol === 'https:',
         sameSite: 'lax'
       });
