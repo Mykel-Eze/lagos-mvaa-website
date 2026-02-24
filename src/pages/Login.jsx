@@ -9,7 +9,7 @@ import { toast } from 'react-toastify';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Cookies from 'js-cookie';
 
-const { TabPane } = Tabs;
+
 
 const LoginForm = ({ onSubmit, isLoading, emailLabel = 'Email Address' }) => {
   const [ form ] = Form.useForm();
