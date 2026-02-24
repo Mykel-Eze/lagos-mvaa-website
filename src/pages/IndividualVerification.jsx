@@ -82,9 +82,10 @@ export default function IndividualVerification() {
         const raw = Cookies.get('user');
         if (!raw) { navigate('/login'); return; }
         const parsed = JSON.parse(raw);
-        setUser(parsed);
+        const userData = parsed.data || parsed.user || parsed;
+        setUser(userData);
         // If already verified, go to services
-        if (parsed.is_verified) navigate('/services');
+        if (userData.is_verified) navigate('/services');
     }, [ navigate ]);
 
     const handleVerifyNIN = async () => {

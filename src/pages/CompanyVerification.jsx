@@ -82,8 +82,9 @@ export default function CompanyVerification() {
         const raw = Cookies.get('user');
         if (!raw) { navigate('/login'); return; }
         const parsed = JSON.parse(raw);
-        setUser(parsed);
-        if (parsed.is_verified) navigate('/services');
+        const userData = parsed.data || parsed.user || parsed;
+        setUser(userData);
+        if (userData.is_verified) navigate('/services');
     }, [ navigate ]);
 
     const handleVerifyNIN = async () => {
