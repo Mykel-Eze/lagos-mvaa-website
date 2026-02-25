@@ -1,7 +1,7 @@
 import React from 'react';
 import ServiceCard from './ServiceCard';
 import Cookies from 'js-cookie';
-import { toast } from 'react-toastify';
+// import { toast } from 'react-toastify';
 
 // Mapping of app names to service redirect URLs
 const serviceUrlMap = {
@@ -10,17 +10,8 @@ const serviceUrlMap = {
 };
 
 const ServicesComponent = () => {
-  // Read user profile from cookie
-  const userRaw = Cookies.get('user');
-  const userData = userRaw
-    ? (() => { try { return JSON.parse(userRaw); } catch { return {}; } })()
-    : {};
-  const profile = userData.data || userData;
-
-  // Determine verification status and user type
-  const isVerified = profile?.is_verified ?? false;
-  const isCompany = !!(profile?.companyName);
-  const verifyPath = isCompany ? '/verify/company' : '/verify/individual';
+  // Read user type from cookie set at login time
+  const isCompany = Cookies.get('user_type') === 'company';
 
   const handleServiceClick = (appName, appId) => {
     // Guard: redirect to login if not authenticated
@@ -30,14 +21,14 @@ const ServicesComponent = () => {
       return;
     }
 
-    // Guard: redirect to verification if not verified
-    if (!isVerified) {
-      toast.error('Please complete your account verification before accessing services.', {
-        autoClose: 4000,
-      });
-      setTimeout(() => { window.location.href = verifyPath; }, 1500);
-      return;
-    }
+    // TODO: re-enable verification enforcement when ready
+    // if (!isVerified) {
+    //   toast.error('Please complete your account verification before accessing services.', {
+    //     autoClose: 4000,
+    //   });
+    //   setTimeout(() => { window.location.href = verifyPath; }, 1500);
+    //   return;
+    // }
 
     // Set the portal_app_id cookie for downstream use
     Cookies.set('portal_app_id', appId, {
@@ -67,16 +58,16 @@ const ServicesComponent = () => {
             app_id="e520d3f23008eba1fdb472898d918028c495"
             onClick={() => handleServiceClick('NUMBER_PLATE_SERVICES', 'e520d3f23008eba1fdb472898d918028c495')}
           />
-          <ServiceCard
+          {/* <ServiceCard
             title="AutoDealer and Spare Part"
             icon="jacket.png"
             description="Find vehicle related services like verify VIN, pay VIS etc permit"
             app_id="9dd1dda32a635879fb7fdd617629189111b0"
             onClick={() => handleServiceClick('AUTO_DEALER_SPARE_PARTS', '9dd1dda32a635879fb7fdd617629189111b0')}
-          />
+          /> */}
 
           {/* Auto Dealer card — only visible to company users */}
-          {/* {isCompany && (
+          {isCompany && (
             <ServiceCard
               title="AutoDealer and Spare Part"
               icon="jacket.png"
@@ -84,7 +75,7 @@ const ServicesComponent = () => {
               app_id="9dd1dda32a635879fb7fdd617629189111b0"
               onClick={() => handleServiceClick('AUTO_DEALER_SPARE_PARTS', '9dd1dda32a635879fb7fdd617629189111b0')}
             />
-          )} */}
+          )}
         </div>
       </div>
     </section>

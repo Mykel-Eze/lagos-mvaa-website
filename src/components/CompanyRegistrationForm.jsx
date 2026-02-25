@@ -54,8 +54,12 @@ function PhoneField({ namePrefix, form }) {
                     ({ getFieldValue }) => ({
                         validator(_, value) {
                             const code = getFieldValue(codeField);
-                            if (code === '+234' && value && value.startsWith('0')) {
+                            if (!value) return Promise.resolve();
+                            if (code === '+234' && value.startsWith('0')) {
                                 return Promise.reject(new Error('Remove the leading 0 — not needed with +234'));
+                            }
+                            if (code === '+234' && value.replace(/\D/g, '').length !== 10) {
+                                return Promise.reject(new Error('Nigerian numbers must be exactly 10 digits'));
                             }
                             return Promise.resolve();
                         },
@@ -273,9 +277,9 @@ const CompanyRegistrationForm = ({ onSubmit, isLoading }) => {
                     </Form.Item>
 
                     <Form.Item
-                        label="Block Number"
+                        label="Block Number (Optional)"
                         name="blockNumber"
-                        rules={[ { required: true, message: 'Required' } ]}
+                        rules={[ { required: false } ]}
                         className="mb-4"
                     >
                         <Input placeholder="Block No." size="large" />

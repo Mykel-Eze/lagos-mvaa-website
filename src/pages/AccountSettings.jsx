@@ -58,23 +58,39 @@ const AccountSettings = () => {
         }
 
         if (userData) {
-          const companyAccount = !!(userData.companyName || userData.data?.companyName);
+          // Merge localStorage company details as fallback for company-specific fields
+          const companyRaw = localStorage.getItem('company_profile');
+          if (companyRaw) {
+            try {
+              const localCompany = JSON.parse(companyRaw);
+              // localStorage fields fill in gaps; server data takes precedence
+              userData = { ...localCompany, ...userData };
+            } catch { /* ignore */ }
+          }
+
+          // Detect company account via user_type cookie (most reliable) or profile fields
+          const userType = Cookies.get('user_type');
+          const companyAccount = userType === 'company' || !!(userData.companyName);
           setIsCompany(companyAccount);
 
+          // For company accounts, companyRepName/companyRepPhone fill the name+phone fields
+          const repNameParts = (userData.companyRepName || '').trim().split(/\s+/);
+          const repFirstName = repNameParts[ 0 ] || '';
+          const repLastName = repNameParts.slice(1).join(' ') || '';
+
           const formData = {
-            firstName: userData.firstName || '',
-            lastName: userData.lastName || '',
+            firstName: userData.firstName || repFirstName,
+            lastName: userData.lastName || repLastName,
             email: userData.email || '',
-            phone: userData.phone || '',
+            phone: userData.phone || userData.companyRepPhone || '',
             street: userData.address?.street || '',
             lga: userData.address?.lga || '',
-            // Company-specific
+            // Company-specific (read-only)
             companyName: userData.companyName || '',
             companyRCNumber: userData.companyRCNumber || '',
             companyTIN: userData.companyTIN || '',
           };
 
-          // console.log('Setting initial values:', formData);
           setInitialValues(formData);
           form.setFieldsValue(formData);
         } else {

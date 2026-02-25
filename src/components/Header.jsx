@@ -13,33 +13,27 @@ const Header = () => {
   const location = useLocation();
   const dropdownRef = useRef(null);
 
-  // Get user data from cookies
+  // Get user data from cookies (plus localStorage company fallback)
   useEffect(() => {
-    const userCookie = Cookies.get('user');
-    if (userCookie) {
-      try {
-        const parsedUser = JSON.parse(userCookie);
-        setUserData(parsedUser);
-      } catch (error) {
-        console.error('Error parsing user cookie:', error);
-      }
-    }
-
-    const handleStorageChange = () => {
+    const loadUser = () => {
       const userCookie = Cookies.get('user');
+      let parsed = {};
       if (userCookie) {
-        try {
-          const parsedUser = JSON.parse(userCookie);
-          setUserData(parsedUser);
-        } catch (error) {
-          console.error('Error parsing user cookie:', error);
-        }
+        try { parsed = JSON.parse(userCookie); } catch { /* ignore */ }
       }
+      // Merge company details from localStorage if present (fallback for company profile)
+      const companyRaw = localStorage.getItem('company_profile');
+      if (companyRaw) {
+        try {
+          const company = JSON.parse(companyRaw);
+          parsed = { ...company, ...parsed }; // cookie fields win if they exist
+        } catch { /* ignore */ }
+      }
+      setUserData(parsed);
     };
 
-    // Listen for cookie changes
-    const interval = setInterval(handleStorageChange, 500);
-
+    loadUser();
+    const interval = setInterval(loadUser, 500);
     return () => clearInterval(interval);
   }, []);
 
@@ -79,18 +73,11 @@ const Header = () => {
   // Get user display name
   const getUserDisplayName = (user) => {
     if (!user) return 'User';
-
     const userData = user.data || user;
     const firstName = userData.firstName || '';
-    // const lastName = userData.lastName || '';
-
-    if (firstName) {
-      return firstName;
-    } else if (userData.email) {
-      return userData.email;
-    }
-
-    return 'User';
+    const companyName = userData.companyName || '';
+    const rawName = firstName || companyName || userData.email || 'User';
+    return rawName.length > 16 ? rawName.slice(0, 16) + '…' : rawName;
   };
 
   // Toggle mobile menu

@@ -45,11 +45,20 @@ export const login = async (email, password) => {
 
     console.log('Extracted tokens:', { sessionToken, accessToken });
 
-    const app_id = '75e6df2eba1c1875ef359fc95c0f5a1ce5b8'
+    // const app_id = '75e6df2eba1c1875ef359fc95c0f5a1ce5b8'
 
     if (sessionToken) {
       // Set the session token cookie
-      Cookies.set('portal_session_id', `${sessionToken}&${app_id}`, {
+      // Cookies.set('portal_session_id', `${sessionToken}&${app_id}`, {
+      //   secure: window.location.protocol === 'https:',
+      //   sameSite: 'lax'
+      // });
+
+      Cookies.set('portal_session_id', `${sessionToken}`, {
+        secure: window.location.protocol === 'https:',
+        sameSite: 'lax'
+      });
+      Cookies.set('user_type', 'individual', {
         secure: window.location.protocol === 'https:',
         sameSite: 'lax'
       });
@@ -97,6 +106,10 @@ export const loginCompany = async (email, password) => {
 
     if (sessionToken) {
       Cookies.set('portal_session_id', `${sessionToken}&${app_id}`, {
+        secure: window.location.protocol === 'https:',
+        sameSite: 'lax'
+      });
+      Cookies.set('user_type', 'company', {
         secure: window.location.protocol === 'https:',
         sameSite: 'lax'
       });
@@ -205,6 +218,8 @@ export const logout = async (manualToken = null) => {
     Cookies.remove('portal_app_id');
     Cookies.remove('user_access_token');
     Cookies.remove('user');
+    Cookies.remove('user_type');
+    localStorage.removeItem('company_profile');
 
     return response.data;
   } catch (error) {
@@ -215,6 +230,8 @@ export const logout = async (manualToken = null) => {
     Cookies.remove('user_access_token');
     Cookies.remove('portal_app_id');
     Cookies.remove('user');
+    Cookies.remove('user_type');
+    localStorage.removeItem('company_profile');
 
     throw error.response?.data || { error: 'Network error' };
   }

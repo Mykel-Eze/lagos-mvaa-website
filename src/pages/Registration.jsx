@@ -80,14 +80,15 @@ const Registration = () => {
         companyRepEmail: values.companyRepEmail,
         address: {
           flatNumber: values.flatNumber,
-          blockNumber: values.blockNumber,
+          blockNumber: values.blockNumber || 'N/A',
           street: values.street,
           landmark: values.landmark,
           lga: values.lga,
-          state: "Lagos", // Defaulting to Lagos based on UI
+          state: "Lagos",
           contactPhone: values.contactCountryCode + values.contactPhone,
           email: values.email,
           utilityBill: 'Pending Utility Bill',
+          utilityBillDescription: 'Pending Utility Bill',
         },
         companyOwner: {
           title: values.ownerTitle,
@@ -105,6 +106,41 @@ const Registration = () => {
       };
 
       await registerCompany(companyData);
+
+      // Save full company details locally as a fallback for profile display
+      localStorage.setItem('company_profile', JSON.stringify({
+        // Company info
+        companyName: values.companyName,
+        companyRCNumber: values.companyRCNumber,
+        companyTIN: values.companyTIN,
+        email: values.email,
+        // Rep details
+        companyRepName: values.companyRepName,
+        companyRepPhone: values.repCountryCode + values.repPhone,
+        companyRepEmail: values.companyRepEmail,
+        // Address
+        address: {
+          flatNumber: values.flatNumber,
+          blockNumber: values.blockNumber || 'N/A',
+          street: values.street,
+          landmark: values.landmark,
+          lga: values.lga,
+          state: 'Lagos',
+          contactPhone: values.contactCountryCode + values.contactPhone,
+        },
+        // Owner details
+        companyOwner: {
+          title: values.ownerTitle,
+          surname: values.ownerSurname,
+          otherName: values.ownerOtherName,
+          sex: values.ownerSex,
+          maritalStatus: values.ownerMaritalStatus,
+          dob: values.ownerDob ? values.ownerDob.format('YYYY-MM-DD') : null,
+          placeOfBirth: values.ownerPlaceOfBirth,
+          driverLicenseNumber: values.ownerDriverLicense,
+          passportNumber: values.ownerPassport,
+        },
+      }));
 
       setUserEmail(values.email);
       setShowVerification(true);
