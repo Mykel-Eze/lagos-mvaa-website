@@ -219,7 +219,6 @@ export const logout = async (manualToken = null) => {
     Cookies.remove('user_access_token');
     Cookies.remove('user');
     Cookies.remove('user_type');
-    localStorage.removeItem('company_profile');
 
     return response.data;
   } catch (error) {
@@ -231,7 +230,6 @@ export const logout = async (manualToken = null) => {
     Cookies.remove('portal_app_id');
     Cookies.remove('user');
     Cookies.remove('user_type');
-    localStorage.removeItem('company_profile');
 
     throw error.response?.data || { error: 'Network error' };
   }
