@@ -58,37 +58,38 @@ const AccountSettings = () => {
         }
 
         if (userData) {
-          // Merge localStorage company details as fallback for company-specific fields
-          const companyRaw = localStorage.getItem('company_profile');
-          if (companyRaw) {
-            try {
-              const localCompany = JSON.parse(companyRaw);
-              // localStorage fields fill in gaps; server data takes precedence
-              userData = { ...localCompany, ...userData };
-            } catch { /* ignore */ }
-          }
-
-          // Detect company account via user_type cookie (most reliable) or profile fields
+          // Detect company account via user_type cookie (most reliable)
           const userType = Cookies.get('user_type');
-          const companyAccount = userType === 'company' || !!(userData.companyName);
+          const companyAccount = userType === 'company';
           setIsCompany(companyAccount);
 
-          // For company accounts, companyRepName/companyRepPhone fill the name+phone fields
+          // Only merge localStorage company details for company accounts
+          if (companyAccount) {
+            const companyRaw = localStorage.getItem('company_profile');
+            if (companyRaw) {
+              try {
+                const localCompany = JSON.parse(companyRaw);
+                userData = { ...localCompany, ...userData };
+              } catch { /* ignore */ }
+            }
+          }
+
+          // For company accounts, rep name/phone fill the personal fields
           const repNameParts = (userData.companyRepName || '').trim().split(/\s+/);
           const repFirstName = repNameParts[ 0 ] || '';
           const repLastName = repNameParts.slice(1).join(' ') || '';
 
           const formData = {
-            firstName: userData.firstName || repFirstName,
-            lastName: userData.lastName || repLastName,
+            firstName: userData.firstName || (companyAccount ? repFirstName : ''),
+            lastName: userData.lastName || (companyAccount ? repLastName : ''),
             email: userData.email || '',
-            phone: userData.phone || userData.companyRepPhone || '',
+            phone: userData.phone || (companyAccount ? userData.companyRepPhone : '') || '',
             street: userData.address?.street || '',
             lga: userData.address?.lga || '',
-            // Company-specific (read-only)
-            companyName: userData.companyName || '',
-            companyRCNumber: userData.companyRCNumber || '',
-            companyTIN: userData.companyTIN || '',
+            // Company-specific (read-only, only set for company accounts)
+            companyName: companyAccount ? (userData.companyName || '') : '',
+            companyRCNumber: companyAccount ? (userData.companyRCNumber || '') : '',
+            companyTIN: companyAccount ? (userData.companyTIN || '') : '',
           };
 
           setInitialValues(formData);
