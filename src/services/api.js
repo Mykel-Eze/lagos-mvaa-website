@@ -2,94 +2,70 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://licensetest.permit.org.ng/api/v1';
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || 'https://licensetest.permit.org.ng/api/v1';
+const API_V2_BASE_URL =
+  process.env.REACT_APP_API_V2_BASE_URL || 'https://licensetest.permit.org.ng/api/v2';
 
-// Create axios instance with credentials for cookie-based auth
+// ─── Axios Instances ───────────────────────────────────────────────────────────
+
+// v1 — cookie-based auth (withCredentials sends portal_session_id automatically)
 const api = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true, // Enable cookies to be sent with requests
+  headers: { 'Content-Type': 'application/json' },
+  withCredentials: true,
 });
 
-// Debug function to log request details
-// const debugRequest = (config) => {
-//   console.log('=== API Request Debug ===');
-//   console.log('URL:', config.url);
-//   console.log('Method:', config.method);
-//   console.log('Headers:', config.headers);
-//   console.log('Base URL:', config.baseURL);
-//   console.log('Full URL:', `${config.baseURL}${config.url}`);
-//   console.log('Cookies:', document.cookie);
-//   console.log('========================');
-// };
+// v2 — Bearer token auth (portal uses user_access_token as bearer)
+// NOTE: The swagger describes v2 endpoints as requiring a "handshake_token".
+// That token is specifically for EXTERNAL MODULES that receive a redirect from
+// the portal via the issuetoken → connect handshake flow. The portal itself,
+// as the token issuer, uses user_access_token directly for v2 billing calls.
+const api_v2 = axios.create({
+  baseURL: API_V2_BASE_URL,
+  headers: { 'Content-Type': 'application/json' },
+  withCredentials: false,
+});
 
-// API functions
-// Helper to decode JWT
-const parseJwt = (token) => {
-  try {
-    return JSON.parse(atob(token.split('.')[ 1 ]));
-  } catch (e) {
-    return null;
-  }
+// Auto-inject Bearer token on every v2 request
+api_v2.interceptors.request.use((config) => {
+  const token = Cookies.get('user_access_token');
+  if (token) config.headers[ 'Authorization' ] = `Bearer ${token}`;
+  return config;
+});
+
+// ─── Cookie helpers ────────────────────────────────────────────────────────────
+
+const COOKIE_OPTS = {
+  secure: window.location.protocol === 'https:',
+  sameSite: 'lax',
 };
+
+const COOKIE_OPTS_STRICT = {
+  secure: window.location.protocol === 'https:',
+  sameSite: 'strict',
+};
+
+const AUTH_COOKIES = [ 'portal_session_id', 'portal_app_id', 'user_access_token', 'user', 'user_type' ];
+const clearAuthCookies = () => AUTH_COOKIES.forEach((k) => Cookies.remove(k));
+
+// ─── Auth ──────────────────────────────────────────────────────────────────────
 
 export const login = async (email, password) => {
   try {
     const response = await api.post('/portal/auth/signin', { email, password });
-
     const data = response.data.data || response.data;
-    const sessionToken = data.session_token || response.data.session_token;
-    const accessToken = data.access_token || response.data.access_token;
-
-    console.log('Extracted tokens:', { sessionToken, accessToken });
-
-    // const app_id = '75e6df2eba1c1875ef359fc95c0f5a1ce5b8'
+    const sessionToken = data.session_token;
+    const accessToken = data.access_token;
 
     if (sessionToken) {
-      // Set the session token cookie
-      // Cookies.set('portal_session_id', `${sessionToken}&${app_id}`, {
-      //   secure: window.location.protocol === 'https:',
-      //   sameSite: 'lax'
-      // });
-
-      Cookies.set('portal_session_id', `${sessionToken}`, {
-        secure: window.location.protocol === 'https:',
-        sameSite: 'lax'
-      });
-      Cookies.set('user_type', 'individual', {
-        secure: window.location.protocol === 'https:',
-        sameSite: 'lax'
-      });
-
-      // Set the access token cookie
-      Cookies.set('user_access_token', accessToken, {
-        secure: window.location.protocol === 'https:',
-        sameSite: 'lax'
-      });
-
-      console.log('Cookies set. Fetching profile...');
-
-      try {
-        const decodedToken = parseJwt(accessToken);
-        const userId = decodedToken?.sub || decodedToken?.id;
-        if (userId) {
-          await getProfile(userId, accessToken);
-          console.log('Profile fetched successfully');
-        } else {
-          console.error('Could not extract user ID from token');
-        }
-      } catch (profileError) {
-        console.warn('Failed to fetch profile after login:', profileError);
-      }
-    } else {
-      console.error('No session token found in response!');
+      Cookies.set('portal_session_id', sessionToken, COOKIE_OPTS);
+      Cookies.set('user_type', 'individual', COOKIE_OPTS);
+      Cookies.set('user_access_token', accessToken, COOKIE_OPTS);
+      try { await getProfile(); } catch (e) { console.warn('Profile fetch failed post-login:', e); }
     }
-
     return response.data;
   } catch (error) {
-    console.error('Login error:', error);
     throw error.response?.data || { error: 'Network error' };
   }
 };
@@ -97,41 +73,19 @@ export const login = async (email, password) => {
 export const loginCompany = async (email, password) => {
   try {
     const response = await api.post('/portal/auth/signin-entity', { email, password });
-
     const data = response.data.data || response.data;
-    const sessionToken = data.session_token || response.data.session_token;
-    const accessToken = data.access_token || response.data.access_token;
-
+    const sessionToken = data.session_token;
+    const accessToken = data.access_token;
     const app_id = '75e6df2eba1c1875ef359fc95c0f5a1ce5b8';
 
     if (sessionToken) {
-      Cookies.set('portal_session_id', `${sessionToken}&${app_id}`, {
-        secure: window.location.protocol === 'https:',
-        sameSite: 'lax'
-      });
-      Cookies.set('user_type', 'company', {
-        secure: window.location.protocol === 'https:',
-        sameSite: 'lax'
-      });
-      Cookies.set('user_access_token', accessToken, {
-        secure: window.location.protocol === 'https:',
-        sameSite: 'lax'
-      });
-
-      try {
-        const decodedToken = parseJwt(accessToken);
-        const userId = decodedToken?.sub || decodedToken?.id;
-        if (userId) {
-          await getProfile(userId, accessToken);
-        }
-      } catch (profileError) {
-        console.warn('Failed to fetch profile after company login:', profileError);
-      }
+      Cookies.set('portal_session_id', `${sessionToken}&${app_id}`, COOKIE_OPTS);
+      Cookies.set('user_type', 'company', COOKIE_OPTS);
+      Cookies.set('user_access_token', accessToken, COOKIE_OPTS);
+      try { await getProfile(); } catch (e) { console.warn('Profile fetch failed post-company-login:', e); }
     }
-
     return response.data;
   } catch (error) {
-    console.error('Company login error:', error);
     throw error.response?.data || { error: 'Network error' };
   }
 };
@@ -145,102 +99,59 @@ export const register = async (userData) => {
   }
 };
 
-export const getProfile = async (userId, manualToken = null) => {
-  try {
-    const token = manualToken || Cookies.get('user_access_token') || Cookies.get('portal_session_id');
-
-    // If no userId provided, try to extract from token (fallback)
-    let finalUserId = userId;
-    if (!finalUserId && token) {
-      const decoded = parseJwt(token);
-      finalUserId = decoded?.sub || decoded?.id;
-    }
-
-    if (!token) {
-      throw new Error('No authentication token found');
-    }
-
-    if (!finalUserId) {
-      throw new Error('User ID not found');
-    }
-
-    const response = await api.get(`/portal/accounts/${finalUserId}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    Cookies.set('user', JSON.stringify(response.data), {
-      secure: window.location.protocol === 'https:',
-      sameSite: 'lax'
-    });
-
-    return response.data;
-  } catch (error) {
-    console.error('getProfile error:', error.response?.data || error.message);
-
-    if (error.response?.status === 401 || error.response?.status === 403) {
-      Cookies.remove('portal_session_id');
-      Cookies.remove('portal_app_id');
-      Cookies.remove('user_access_token');
-      Cookies.remove('user');
-    }
-
-    throw error.response?.data || { error: 'Network error' };
-  }
-};
-
-export const logout = async (manualToken = null) => {
-  try {
-    const token = manualToken || Cookies.get('user_access_token');
-    const sessionId = Cookies.get('portal_session_id');
-
-    // Debug logging
-    console.log('Logout attempt:', { token: !!token, sessionId });
-
-    const config = {
-      headers: {}
-    };
-
-    if (token) {
-      config.headers[ 'Authorization' ] = `Bearer ${token}`;
-    }
-
-    if (sessionId) {
-      config.headers[ 'portal_session_id' ] = sessionId;
-    }
-
-    // Make logout request
-    const response = await api.post('/portal/auth/logout', {}, config);
-
-    // Clear all cookies
-    Cookies.remove('portal_session_id');
-    Cookies.remove('portal_app_id');
-    Cookies.remove('user_access_token');
-    Cookies.remove('user');
-    Cookies.remove('user_type');
-
-    return response.data;
-  } catch (error) {
-    console.error('Logout error:', error);
-
-    // Clear cookies even if the server request fails
-    Cookies.remove('portal_session_id');
-    Cookies.remove('user_access_token');
-    Cookies.remove('portal_app_id');
-    Cookies.remove('user');
-    Cookies.remove('user_type');
-
-    throw error.response?.data || { error: 'Network error' };
-  }
-};
-
 export const registerCompany = async (companyData) => {
   try {
     const response = await api.post('/portal/auth/signup-entity', companyData);
     return response.data;
   } catch (error) {
     throw error.response?.data || { error: 'Network error' };
+  }
+};
+
+/**
+ * Fetch the authenticated user's profile.
+ * Endpoint: GET /api/v1/shared/profile
+ * Auth: cookie (portal_session_id via withCredentials) + explicit header (swagger requirement).
+ *
+ * FIX: Previously called undocumented /portal/accounts/{userId}. Now uses the
+ * correct swagger-documented endpoint. Profile fields are merged with any existing
+ * cached user data so that locally-set fields (e.g. is_verified, companyName) are
+ * preserved across refreshes.
+ */
+export const getProfile = async () => {
+  try {
+    const sessionId = Cookies.get('portal_session_id');
+    if (!sessionId) throw new Error('No session found');
+
+    const response = await api.get('/shared/profile', {
+      headers: { 'portal_session_id': sessionId },
+    });
+
+    // Merge with existing cached user so locally-set fields (is_verified etc.) survive
+    const existing = (() => {
+      try { return JSON.parse(Cookies.get('user') || '{}'); } catch { return {}; }
+    })();
+
+    Cookies.set('user', JSON.stringify({ ...existing, ...response.data }), COOKIE_OPTS);
+    return response.data;
+  } catch (error) {
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      clearAuthCookies();
+    }
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
+export const logout = async () => {
+  try {
+    const sessionId = Cookies.get('portal_session_id');
+    await api.post('/portal/auth/logout', {}, {
+      headers: { 'portal_session_id': sessionId || '' },
+    });
+  } catch (error) {
+    console.error('Logout server error (clearing cookies anyway):', error);
+  } finally {
+    clearAuthCookies();
   }
 };
 
@@ -253,11 +164,19 @@ export const forgotPassword = async (email) => {
   }
 };
 
+/**
+ * Reset password via token from email link.
+ * Endpoint: PATCH /portal/accounts/reset-password/{token}
+ * Body: { password }  ← matches PasswordResetDto
+ *
+ * NOTE: This endpoint is not documented in the current swagger spec. It supports
+ * the email-based forgot-password flow. The swagger equivalent for logged-in users
+ * is PATCH /portal/accounts/update-password/{email}. If the backend team documents
+ * or changes this endpoint, update accordingly.
+ */
 export const resetPassword = async (token, password) => {
   try {
-    const response = await api.patch(`/portal/accounts/reset-password/${token}`, {
-      password
-    });
+    const response = await api.patch(`/portal/accounts/reset-password/${token}`, { password });
     return response.data;
   } catch (error) {
     throw error.response?.data || { error: 'Network error' };
@@ -267,56 +186,46 @@ export const resetPassword = async (token, password) => {
 export const updateAccount = async (email, userData) => {
   try {
     const token = Cookies.get('user_access_token');
-    if (!token) {
-      throw new Error('No authentication token found');
-    }
-
-    // Create a separate axios instance for this request with token auth
-    const authApi = axios.create({
-      baseURL: API_BASE_URL,
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      withCredentials: false // Don't send cookies
-    });
-
-    const response = await authApi.patch(`/portal/accounts/update-account/${email}`, userData);
-
-    // Update user cookie with new data
-    Cookies.set('user', JSON.stringify(response.data), {
-      secure: window.location.protocol === 'https:',
-      sameSite: 'strict'
-    });
-
-    // Emit profile update event (if you're using the event system)
-    // emitAuthEvent('profile_updated', response.data);
-
+    if (!token) throw new Error('No authentication token found');
+    const response = await api.patch(
+      `/portal/accounts/update-account/${email}`,
+      userData,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    Cookies.set('user', JSON.stringify(response.data), COOKIE_OPTS_STRICT);
     return response.data;
   } catch (error) {
     throw error.response?.data || { error: 'Network error' };
   }
 };
-
-export const resendVerificationEmail = async (email) => {
-  try {
-    const response = await api.get('/portal/accounts/send-activation', {
-      params: { email }
-    });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || { error: 'Network error' };
-  }
-};
-
-// ─── Verification Functions ────────────────────────────────────────────────
 
 /**
- * Verify NIN (National Identification Number).
- * Endpoint: POST /api/v1/shared/verify/nin/{idNumber}
- * Auth: cookie (portal_session_id)
- * Body: { firstname, lastname } — matched against the NIN record
+ * Resend account activation / verification email.
+ * Endpoint: GET /api/v1/portal/accounts/send-activation?email=
+ * Auth: Bearer access_token (swagger requirement).
+ *
+ * FIX: Previously called without auth header. Now sends Bearer token when
+ * available. This is called right after registration (before first login), so
+ * user_access_token may not exist yet — the token is sent if present and omitted
+ * otherwise. Adjust if the backend requires it unconditionally.
  */
+export const resendVerificationEmail = async (email) => {
+  try {
+    const token = Cookies.get('user_access_token');
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const response = await api.get('/portal/accounts/send-activation', {
+      params: { email },
+      headers,
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
+// ─── Verification ──────────────────────────────────────────────────────────────
+
+/** Verify individual NIN. POST /shared/verify/nin/{nin} */
 export const verifyNIN = async (nin, firstname, lastname) => {
   try {
     const response = await api.post(`/shared/verify/nin/${nin}`, { firstname, lastname });
@@ -326,12 +235,17 @@ export const verifyNIN = async (nin, firstname, lastname) => {
   }
 };
 
-/**
- * Verify CAC (Corporate Affairs Commission) registration number.
- * Endpoint: POST /api/v1/shared/verify/cac
- * Auth: cookie (portal_session_id)
- * Body: { regNumber } — format: RC1234, BN1234, IT1234 etc.
- */
+/** Verify business owner NIN. POST /shared/verify/businessNin/{nin} */
+export const verifyBusinessNIN = async (nin, firstname, lastname) => {
+  try {
+    const response = await api.post(`/shared/verify/businessNin/${nin}`, { firstname, lastname });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
+/** Verify CAC registration number. POST /shared/verify/cac */
 export const verifyCAC = async (regNumber) => {
   try {
     const response = await api.post('/shared/verify/cac', { regNumber });
@@ -342,22 +256,80 @@ export const verifyCAC = async (regNumber) => {
 };
 
 /**
- * Verify Payer ID (Tax Identification).
- * Endpoint: GET /api/v2/shared/billing/identification?pid=
- * Auth: Bearer user_access_token (v2 resource)
+ * Verify business TIN. POST /shared/verify/businessTin
+ * NOTE: swagger shows no requestBody for this endpoint. Sending { tin } based
+ * on the TIN response shape. Adjust key name if backend expects differently.
  */
+export const verifyBusinessTIN = async (tin) => {
+  try {
+    const response = await api.post('/shared/verify/businessTin', { tin });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
+/** Verify Payer ID. GET /v2/shared/billing/identification?pid= */
 export const verifyPayerId = async (pid) => {
   try {
+    const response = await api_v2.get('/shared/billing/identification', { params: { pid } });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
+/** Mark user as verified. PATCH /portal/accounts/update-account/{email} with is_verified:true */
+export const submitVerification = async (email) => {
+  try {
     const token = Cookies.get('user_access_token');
-    const v2Api = axios.create({
-      baseURL: 'https://licensetest.permit.org.ng/api/v2',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      withCredentials: false,
+    const response = await api.patch(
+      `/portal/accounts/update-account/${email}`,
+      { is_verified: true },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    const existing = (() => { try { return JSON.parse(Cookies.get('user') || '{}'); } catch { return {}; } })();
+    Cookies.set('user', JSON.stringify({ ...existing, is_verified: true }), COOKIE_OPTS_STRICT);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
+// ─── Session / Service Redirect ────────────────────────────────────────────────
+
+/**
+ * Issue a one-time handshake token for redirecting to an external service module.
+ * Endpoint: GET /api/v2/session/auth/issuetoken
+ *
+ * The external module then calls GET /session/auth/connect/{oht} to exchange
+ * the temp token for a proper handshake_token it uses for its own billing calls.
+ *
+ * Returns { oht, url, expiresIn } — `url` is the targetUrl with token appended,
+ * ready for window.location.href. Token expires in 180 seconds.
+ */
+export const issueServiceToken = async ({ email, sid, targetUrl, userType }) => {
+  try {
+    const response = await api_v2.get('/session/auth/issuetoken', {
+      params: { email, sid, redirect: true, url: targetUrl, userType },
     });
-    const response = await v2Api.get('/shared/billing/identification', { params: { pid } });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
+// ─── Billing / Payments ────────────────────────────────────────────────────────
+
+/**
+ * Generate a new billing order.
+ * Endpoint: POST /api/v2/shared/payment/generate
+ * Required DTO fields: pid, amount, agencyCode, revCode, assessmentReference,
+ *                      appliedDate, currency, country, state, gateway
+ */
+export const generateOrder = async (dto) => {
+  try {
+    const response = await api_v2.post('/shared/payment/generate', dto);
     return response.data;
   } catch (error) {
     throw error.response?.data || { error: 'Network error' };
@@ -365,30 +337,79 @@ export const verifyPayerId = async (pid) => {
 };
 
 /**
- * Submit final verification — marks the user as verified on the backend.
- * Uses the existing update-account endpoint with is_verified: true.
- * Adjust the payload field name if your backend uses a different key.
+ * Generate billing receipt — updates order status to CONFIRMED.
+ * Endpoint: POST /api/v2/shared/billing/receipt/{orderId}
  */
-export const submitVerification = async (email) => {
+export const generateBillingReceipt = async (orderId) => {
   try {
-    const token = Cookies.get('user_access_token');
-    const authApi = axios.create({
-      baseURL: API_BASE_URL,
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      withCredentials: false,
-    });
-    const response = await authApi.patch(`/portal/accounts/update-account/${email}`, {
-      is_verified: true,
-    });
-    // Update user cookie to reflect verified status
-    const currentUser = JSON.parse(Cookies.get('user') || '{}');
-    Cookies.set('user', JSON.stringify({ ...currentUser, is_verified: true }), {
-      secure: window.location.protocol === 'https:',
-      sameSite: 'strict',
-    });
+    const response = await api_v2.post(`/shared/billing/receipt/${orderId}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
+/**
+ * Initialize payment — returns authorizationUrl to redirect user to gateway.
+ * Endpoint: POST /api/v2/shared/payment/initialize
+ * Body: { order_id }
+ */
+export const initializePayment = async (orderId) => {
+  try {
+    const response = await api_v2.post('/shared/payment/initialize', { order_id: orderId });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
+/**
+ * Verify a completed transaction after payment gateway callback.
+ * Endpoint: POST /api/v2/shared/payment/transaction/verify
+ * Body: { ref } — order_id or payment reference from the gateway
+ */
+export const verifyTransaction = async (ref) => {
+  try {
+    const response = await api_v2.post('/shared/payment/transaction/verify', { ref });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
+/**
+ * Fetch all transactions for the authenticated user.
+ * Endpoint: GET /api/v2/shared/transaction
+ */
+export const fetchTransactions = async () => {
+  try {
+    const response = await api_v2.get('/shared/transaction');
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
+/**
+ * Fetch a single transaction by ID.
+ * Endpoint: GET /api/v2/shared/transaction/{id}
+ */
+export const fetchTransaction = async (id) => {
+  try {
+    const response = await api_v2.get(`/shared/transaction/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
+/**
+ * Create a new Payer ID (tax payer registration).
+ * Endpoint: POST /api/v2/shared/billing/identification
+ */
+export const createPayerId = async (dto) => {
+  try {
+    const response = await api_v2.post('/shared/billing/identification', dto);
     return response.data;
   } catch (error) {
     throw error.response?.data || { error: 'Network error' };
@@ -396,4 +417,3 @@ export const submitVerification = async (email) => {
 };
 
 export default api;
-

@@ -25,6 +25,11 @@ import AccountSettings from './pages/AccountSettings';
 import IndividualVerification from './pages/IndividualVerification';
 import CompanyVerification from './pages/CompanyVerification';
 
+// Billing pages
+import TransactionHistory from './pages/TransactionHistory';
+import TransactionDetail from './pages/TransactionDetail';
+import PaymentReturnHandler from './pages/PaymentReturnHandler';
+
 import './index.css';
 import './assets/css/fonts.css';
 import './assets/css/styles.css';
@@ -34,7 +39,7 @@ import './assets/css/auth.css';
 import './assets/css/footer.css';
 import './assets/css/vehicle-registeration.css';
 import './assets/css/verification.css';
-
+import './assets/css/billing.css';
 
 function App() {
   return (
@@ -42,7 +47,7 @@ function App() {
       <div id="app-wrapper" className="flex flex-col min-h-screen">
         <Header />
         <Routes>
-          {/* Public Routes */}
+          {/* ── Public Routes ──────────────────────────────────────── */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Registration />} />
@@ -50,7 +55,14 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/verification-successful" element={<EmailVerificationSuccessful />} />
 
-          {/* Protected Routes */}
+          {/*
+            Payment callback — intentionally public so gateways can redirect
+            here without an active cookie session. Auth state is validated
+            inside PaymentReturnHandler via the transaction reference.
+          */}
+          <Route path="/payment/callback" element={<PaymentReturnHandler />} />
+
+          {/* ── Protected Routes ───────────────────────────────────── */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/services" element={<Services />} />
@@ -63,10 +75,13 @@ function App() {
             <Route path="/account-settings" element={<AccountSettings />} />
             <Route path="/verify/individual" element={<IndividualVerification />} />
             <Route path="/verify/company" element={<CompanyVerification />} />
+
+            {/* Billing */}
+            <Route path="/transactions" element={<TransactionHistory />} />
+            <Route path="/transactions/:id" element={<TransactionDetail />} />
           </Route>
         </Routes>
 
-        {/* Toast Container */}
         <ToastContainer
           position="top-right"
           autoClose={5000}

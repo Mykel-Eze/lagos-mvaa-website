@@ -1,12 +1,16 @@
+// src/pages/CompanyVerification.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Spin } from 'antd';
 import { LoadingOutlined, CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
-import { verifyNIN, verifyCAC, verifyPayerId, submitVerification } from '../services/api';
+import { verifyCAC, verifyBusinessNIN, verifyBusinessTIN, verifyPayerId, submitVerification } from '../services/api';
 
+// ── Status constants ─────────────────────────────────────────────────────────
 const STATUS = { IDLE: 'idle', LOADING: 'loading', SUCCESS: 'success', ERROR: 'error' };
+
+// ── Shared sub-components (mirror IndividualVerification pattern) ────────────
 
 function InfoCard({ label, value }) {
     return (
@@ -44,12 +48,8 @@ function VerifyField({ id, label, placeholder, value, onChange, status, onVerify
                         'Verify'
                     )}
                 </button>
-                {status === STATUS.SUCCESS && (
-                    <CheckCircleFilled className="verification-status-icon success" />
-                )}
-                {status === STATUS.ERROR && (
-                    <CloseCircleFilled className="verification-status-icon error" />
-                )}
+                {status === STATUS.SUCCESS && <CheckCircleFilled className="verification-status-icon success" />}
+                {status === STATUS.ERROR && <CloseCircleFilled className="verification-status-icon error" />}
             </div>
             {hint && <p className="verification-field-hint">{hint}</p>}
             {children}
@@ -57,54 +57,111 @@ function VerifyField({ id, label, placeholder, value, onChange, status, onVerify
     );
 }
 
+// ── Progress tracker ─────────────────────────────────────────────────────────
+function ProgressTracker({ steps }) {
+    return (
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '12px' }}>
+            {steps.map(({ label, status }) => {
+                const colours = {
+                    [ STATUS.SUCCESS ]: { bg: '#f0fdf4', border: '#86efac', text: '#108A00', dot: '#108A00' },
+                    [ STATUS.ERROR ]: { bg: '#fff5f5', border: '#fca5a5', text: '#dc2626', dot: '#dc2626' },
+                    [ STATUS.LOADING ]: { bg: '#fffbeb', border: '#fcd34d', text: '#92400e', dot: '#f59e0b' },
+                    [ STATUS.IDLE ]: { bg: '#f9fafb', border: '#e5e7eb', text: '#6b7280', dot: '#d1d5db' },
+                };
+                const c = colours[ status ] || colours[ STATUS.IDLE ];
+                return (
+                    <div
+                        key={label}
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: '6px',
+                            padding: '6px 12px', borderRadius: '999px',
+                            border: `1.5px solid ${c.border}`, background: c.bg,
+                            fontSize: '12px', fontWeight: 600, color: c.text,
+                            fontFamily: 'Plus Jakarta Sans, sans-serif',
+                            transition: 'all 0.2s',
+                        }}
+                    >
+                        <span style={{
+                            width: '8px', height: '8px', borderRadius: '50%',
+                            background: c.dot, flexShrink: 0,
+                        }} />
+                        {status === STATUS.SUCCESS ? `✓ ${label}` : label}
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+
+// ── Result Card ──────────────────────────────────────────────────────────────
+function ResultCard({ rows, statusBadge }) {
+    return (
+        <div className="verification-result-card">
+            {rows.map(({ label, value, badge }) => (
+                <div className="verification-result-row" key={label}>
+                    <span>{label}</span>
+                    {badge
+                        ? <span className={`result-status-badge ${value === 'ACTIVE' || value === 'SUCCESS' ? 'active' : 'inactive'}`}>{value}</span>
+                        : <span>{value || '—'}</span>
+                    }
+                </div>
+            ))}
+        </div>
+    );
+}
+
+// ── Page ─────────────────────────────────────────────────────────────────────
 export default function CompanyVerification() {
     const navigate = useNavigate();
-    const [ user, setUser ] = useState(null);
+    const [ company, setCompany ] = useState(null);
 
-    const [ nin, setNin ] = useState('');
-    const [ ninStatus, setNinStatus ] = useState(STATUS.IDLE);
-    const [ ninResult, setNinResult ] = useState(null);
-
+    // CAC
     const [ cac, setCac ] = useState('');
     const [ cacStatus, setCacStatus ] = useState(STATUS.IDLE);
     const [ cacResult, setCacResult ] = useState(null);
 
+    // Business Owner NIN
+    const [ nin, setNin ] = useState('');
+    const [ ninStatus, setNinStatus ] = useState(STATUS.IDLE);
+    const [ ninResult, setNinResult ] = useState(null);
+
+    // TIN
+    const [ tin, setTin ] = useState('');
+    const [ tinStatus, setTinStatus ] = useState(STATUS.IDLE);
+    const [ tinResult, setTinResult ] = useState(null);
+
+    // Payer ID
     const [ payerId, setPayerId ] = useState('');
     const [ payerStatus, setPayerStatus ] = useState(STATUS.IDLE);
     const [ payerResult, setPayerResult ] = useState(null);
 
     const [ submitting, setSubmitting ] = useState(false);
 
-    // Placeholder URL — update to real Payer ID creation link when available
-    const CREATE_PAYER_ID_URL = '#';
-
     useEffect(() => {
         const raw = Cookies.get('user');
         if (!raw) { navigate('/login'); return; }
-        const parsed = JSON.parse(raw);
-        const userData = parsed.data || parsed.user || parsed;
-        setUser(userData);
-        if (userData.is_verified) navigate('/services');
+
+        let userData = (() => {
+            try {
+                const parsed = JSON.parse(raw);
+                return parsed.data || parsed.user || parsed;
+            } catch { return null; }
+        })();
+
+        if (!userData) { navigate('/login'); return; }
+
+        // Merge localStorage company profile (fallback, same pattern as AccountSettings)
+        const companyRaw = localStorage.getItem('company_profile');
+        if (companyRaw) {
+            try { userData = { ...JSON.parse(companyRaw), ...userData }; } catch { /* ignore */ }
+        }
+
+        if (userData.is_verified) { navigate('/services'); return; }
+
+        setCompany(userData);
     }, [ navigate ]);
 
-    const handleVerifyNIN = async () => {
-        if (!nin.trim()) return;
-        setNinStatus(STATUS.LOADING);
-        try {
-            const res = await verifyNIN(
-                nin.trim(),
-                user?.companyRepName?.split(' ')[ 0 ] || user?.firstName || user?.firstname || '',
-                user?.companyRepName?.split(' ').slice(1).join(' ') || user?.lastName || user?.lastname || ''
-            );
-            setNinResult(res.data);
-            setNinStatus(STATUS.SUCCESS);
-            toast.success('NIN verified successfully!');
-        } catch (err) {
-            setNinStatus(STATUS.ERROR);
-            const msg = err?.error || err?.message || err?.details || 'NIN verification failed.';
-            toast.error(msg);
-        }
-    };
+    // ── Handlers ────────────────────────────────────────────────────────────────
 
     const handleVerifyCAC = async () => {
         if (!cac.trim()) return;
@@ -116,8 +173,40 @@ export default function CompanyVerification() {
             toast.success('CAC verified successfully!');
         } catch (err) {
             setCacStatus(STATUS.ERROR);
-            const msg = err?.error || err?.message || err?.details || 'CAC verification failed.';
-            toast.error(msg);
+            toast.error(
+                err?.error || err?.details ||
+                'CAC verification failed. Check the registration number format (e.g. RC1234).'
+            );
+        }
+    };
+
+    const handleVerifyNIN = async () => {
+        if (!nin.trim()) return;
+        setNinStatus(STATUS.LOADING);
+        try {
+            const ownerFirstName = company?.companyOwner?.firstName || '';
+            const ownerLastName = company?.companyOwner?.surname || '';
+            const res = await verifyBusinessNIN(nin.trim(), ownerFirstName, ownerLastName);
+            setNinResult(res.data);
+            setNinStatus(STATUS.SUCCESS);
+            toast.success('Business owner NIN verified!');
+        } catch (err) {
+            setNinStatus(STATUS.ERROR);
+            toast.error(err?.error || err?.details || 'NIN verification failed.');
+        }
+    };
+
+    const handleVerifyTIN = async () => {
+        if (!tin.trim()) return;
+        setTinStatus(STATUS.LOADING);
+        try {
+            const res = await verifyBusinessTIN(tin.trim());
+            setTinResult(res.data);
+            setTinStatus(STATUS.SUCCESS);
+            toast.success('TIN verified successfully!');
+        } catch (err) {
+            setTinStatus(STATUS.ERROR);
+            toast.error(err?.error || err?.details || 'TIN verification failed.');
         }
     };
 
@@ -131,22 +220,22 @@ export default function CompanyVerification() {
             toast.success('Payer ID verified successfully!');
         } catch (err) {
             setPayerStatus(STATUS.ERROR);
-            const msg = err?.error || err?.message || err?.details || 'Payer ID verification failed.';
-            toast.error(msg);
+            toast.error(err?.error || err?.details || 'Payer ID verification failed.');
         }
     };
 
     const allVerified =
-        ninStatus === STATUS.SUCCESS &&
         cacStatus === STATUS.SUCCESS &&
+        ninStatus === STATUS.SUCCESS &&
+        tinStatus === STATUS.SUCCESS &&
         payerStatus === STATUS.SUCCESS;
 
     const handleSubmit = async () => {
         if (!allVerified) return;
         setSubmitting(true);
         try {
-            await submitVerification(user?.email);
-            toast.success('Account verified! Welcome.');
+            await submitVerification(company?.email);
+            toast.success('Company account verified! Welcome.');
             navigate('/services');
         } catch (err) {
             toast.error(err?.error || 'Could not complete verification. Please try again.');
@@ -155,83 +244,54 @@ export default function CompanyVerification() {
         }
     };
 
-    if (!user) return null;
+    if (!company) return null;
 
-    const companyName = user.companyName || '—';
-    const repName = user.companyRepName || '—';
-    const address = user.address
-        ? `${user.address.street || ''}, ${user.address.lga || ''}, ${user.address.state || ''}`.replace(/^,\s*/, '')
-        : '—';
+    const progressSteps = [
+        { label: 'CAC', status: cacStatus },
+        { label: 'Owner NIN', status: ninStatus },
+        { label: 'TIN', status: tinStatus },
+        { label: 'Payer ID', status: payerStatus },
+    ];
 
     return (
         <div className="verification-page">
             <div className="verification-container">
-                {/* Header */}
+
+                {/* ── Header ─────────────────────────────────────────────────────── */}
                 <div className="verification-header">
-                    <div className="verification-badge company">Company</div>
+                    <div className="verification-badge company">Corporate</div>
                     <h1 className="verification-title">Company Verification</h1>
                     <p className="verification-subtitle">
-                        Complete identity verification for your company to access all MVAA services. Details below are from your registration.
+                        Verify your company's identity to unlock all MVAA business services.
+                        Complete all four steps below — your registration details are shown for reference.
                     </p>
+                    <ProgressTracker steps={progressSteps} />
                 </div>
 
-                {/* Read-only profile info */}
+                {/* ── Company Profile Read-only ───────────────────────────────────── */}
                 <div className="verification-section">
                     <h2 className="verification-section-title">Company Details</h2>
+                    <p className="verification-section-desc">
+                        Details from your registration. Contact support if anything is incorrect.
+                    </p>
                     <div className="verification-info-grid">
-                        <InfoCard label="Company Name" value={companyName} />
-                        <InfoCard label="Representative" value={repName} />
-                        <InfoCard label="Email" value={user.email} />
-                        <InfoCard label="Address" value={address} />
+                        <InfoCard label="Company Name" value={company.companyName} />
+                        <InfoCard label="Email" value={company.email} />
+                        <InfoCard label="RC Number" value={company.companyRCNumber} />
+                        <InfoCard label="TIN" value={company.companyTIN} />
+                        <InfoCard label="Rep Name" value={company.companyRepName} />
+                        <InfoCard label="Rep Phone" value={company.companyRepPhone} />
                     </div>
                 </div>
 
-                {/* NIN Verification (Company Rep) */}
+                {/* ── Step 1: CAC ────────────────────────────────────────────────── */}
                 <div className="verification-section">
                     <h2 className="verification-section-title">
-                        Company Rep NIN
-                        {ninStatus === STATUS.SUCCESS && <CheckCircleFilled className="section-check" />}
-                    </h2>
-                    <p className="verification-section-desc">
-                        Enter the company representative's 11-digit NIN.
-                    </p>
-                    <VerifyField
-                        id="nin-input"
-                        label="NIN (Company Representative)"
-                        placeholder="Enter 11-digit NIN"
-                        value={nin}
-                        onChange={e => { setNin(e.target.value); if (ninStatus !== STATUS.IDLE) setNinStatus(STATUS.IDLE); }}
-                        status={ninStatus}
-                        onVerify={handleVerifyNIN}
-                    />
-                    {ninResult && ninStatus === STATUS.SUCCESS && (
-                        <div className="verification-result-card">
-                            <div className="verification-result-row">
-                                <span>Name</span>
-                                <span>{[ ninResult.firstname, ninResult.middlename, ninResult.lastname ].filter(Boolean).join(' ')}</span>
-                            </div>
-                            <div className="verification-result-row">
-                                <span>Date of Birth</span>
-                                <span>{ninResult.birthdate || '—'}</span>
-                            </div>
-                            {ninResult.residence && (
-                                <div className="verification-result-row">
-                                    <span>Registered Address</span>
-                                    <span>{[ ninResult.residence.address1, ninResult.residence.town, ninResult.residence.state ].filter(Boolean).join(', ')}</span>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                {/* CAC Verification */}
-                <div className="verification-section">
-                    <h2 className="verification-section-title">
-                        CAC Registration Number
+                        Step 1 — CAC Registration
                         {cacStatus === STATUS.SUCCESS && <CheckCircleFilled className="section-check" />}
                     </h2>
                     <p className="verification-section-desc">
-                        Enter your company's CAC registration number (e.g. RC1234, BN1234, IT1234).
+                        Enter your Corporate Affairs Commission registration number to confirm your company's legal standing.
                     </p>
                     <VerifyField
                         id="cac-input"
@@ -241,48 +301,95 @@ export default function CompanyVerification() {
                         onChange={e => { setCac(e.target.value); if (cacStatus !== STATUS.IDLE) setCacStatus(STATUS.IDLE); }}
                         status={cacStatus}
                         onVerify={handleVerifyCAC}
+                        hint="Accepted formats: RC1234, BN1234, IT1234, etc."
                     />
                     {cacResult && cacStatus === STATUS.SUCCESS && (
-                        <div className="verification-result-card">
-                            <div className="verification-result-row">
-                                <span>Company Name</span>
-                                <span>{cacResult.companyName?.trim() || '—'}</span>
-                            </div>
-                            <div className="verification-result-row">
-                                <span>RC Number</span>
-                                <span>{cacResult.rcNumber || '—'}</span>
-                            </div>
-                            <div className="verification-result-row">
-                                <span>Status</span>
-                                <span className={`result-status-badge ${cacResult.status === 'ACTIVE' ? 'active' : 'inactive'}`}>
-                                    {cacResult.status || '—'}
-                                </span>
-                            </div>
-                            <div className="verification-result-row">
-                                <span>Type</span>
-                                <span>{cacResult.classification || '—'}</span>
-                            </div>
-                            <div className="verification-result-row">
-                                <span>Address</span>
-                                <span>{cacResult.headOfficeAddress || '—'}</span>
-                            </div>
-                        </div>
+                        <ResultCard rows={[
+                            { label: 'Company Name', value: cacResult.companyName },
+                            { label: 'RC Number', value: cacResult.rcNumber },
+                            { label: 'Classification', value: cacResult.classification },
+                            {
+                                label: 'Registration Date', value: cacResult.registrationDate
+                                    ? new Date(cacResult.registrationDate).toLocaleDateString('en-NG', { day: 'numeric', month: 'long', year: 'numeric' })
+                                    : '—'
+                            },
+                            { label: 'Status', value: cacResult.status, badge: true },
+                        ]} />
                     )}
                 </div>
 
-                {/* Payer ID Verification */}
+                {/* ── Step 2: Business Owner NIN ─────────────────────────────────── */}
                 <div className="verification-section">
                     <h2 className="verification-section-title">
-                        Payer ID
+                        Step 2 — Business Owner NIN
+                        {ninStatus === STATUS.SUCCESS && <CheckCircleFilled className="section-check" />}
+                    </h2>
+                    <p className="verification-section-desc">
+                        Enter the 11-digit National Identification Number of the registered business owner.
+                        It will be matched against the owner name provided during registration.
+                    </p>
+                    <VerifyField
+                        id="nin-input"
+                        label="Owner NIN"
+                        placeholder="Enter 11-digit NIN"
+                        value={nin}
+                        onChange={e => { setNin(e.target.value); if (ninStatus !== STATUS.IDLE) setNinStatus(STATUS.IDLE); }}
+                        status={ninStatus}
+                        onVerify={handleVerifyNIN}
+                    />
+                    {ninResult && ninStatus === STATUS.SUCCESS && (
+                        <ResultCard rows={[
+                            { label: 'Name', value: [ ninResult.firstname, ninResult.middlename, ninResult.lastname ].filter(Boolean).join(' ') },
+                            { label: 'Date of Birth', value: ninResult.birthdate },
+                            { label: 'Phone', value: ninResult.phone },
+                            { label: 'LGA', value: ninResult.residence?.lga },
+                            { label: 'State', value: ninResult.residence?.state },
+                        ]} />
+                    )}
+                </div>
+
+                {/* ── Step 3: TIN ────────────────────────────────────────────────── */}
+                <div className="verification-section">
+                    <h2 className="verification-section-title">
+                        Step 3 — Tax Identification Number (TIN)
+                        {tinStatus === STATUS.SUCCESS && <CheckCircleFilled className="section-check" />}
+                    </h2>
+                    <p className="verification-section-desc">
+                        Enter your Federal Inland Revenue Service (FIRS) Tax Identification Number.
+                    </p>
+                    <VerifyField
+                        id="tin-input"
+                        label="TIN"
+                        placeholder="e.g. 08120451-1001"
+                        value={tin}
+                        onChange={e => { setTin(e.target.value); if (tinStatus !== STATUS.IDLE) setTinStatus(STATUS.IDLE); }}
+                        status={tinStatus}
+                        onVerify={handleVerifyTIN}
+                    />
+                    {tinResult && tinStatus === STATUS.SUCCESS && (
+                        <ResultCard rows={[
+                            { label: 'Taxpayer Name', value: tinResult.taxpayerName },
+                            { label: 'TIN', value: tinResult.tin },
+                            { label: 'CAC Reg No', value: tinResult.cacRegNo },
+                            { label: 'Tax Office', value: tinResult.taxOffice },
+                            { label: 'Entity Type', value: tinResult.entityType },
+                        ]} />
+                    )}
+                </div>
+
+                {/* ── Step 4: Payer ID ───────────────────────────────────────────── */}
+                <div className="verification-section">
+                    <h2 className="verification-section-title">
+                        Step 4 — Payer ID
                         {payerStatus === STATUS.SUCCESS && <CheckCircleFilled className="section-check" />}
                     </h2>
                     <p className="verification-section-desc">
-                        Enter your Lagos State Payer ID (e.g. C-191005) to link your company's tax profile.
+                        Enter your Lagos State Revenue Service Payer ID to link your company's tax profile.
                     </p>
                     <VerifyField
                         id="payer-id-input"
                         label="Payer ID"
-                        placeholder="e.g. C-191005"
+                        placeholder="e.g. N-191005"
                         value={payerId}
                         onChange={e => { setPayerId(e.target.value); if (payerStatus !== STATUS.IDLE) setPayerStatus(STATUS.IDLE); }}
                         status={payerStatus}
@@ -290,39 +397,25 @@ export default function CompanyVerification() {
                     >
                         <p className="create-payer-link">
                             Don't have a Payer ID?{' '}
-                            <a href={CREATE_PAYER_ID_URL} target="_blank" rel="noopener noreferrer">
-                                Create one here →
-                            </a>
+                            <a href="#" target="_blank" rel="noopener noreferrer">Create one here →</a>
                         </p>
                     </VerifyField>
                     {payerResult && payerStatus === STATUS.SUCCESS && (
-                        <div className="verification-result-card">
-                            <div className="verification-result-row">
-                                <span>Full Name</span>
-                                <span>{payerResult.Fullname || '—'}</span>
-                            </div>
-                            <div className="verification-result-row">
-                                <span>Payer ID</span>
-                                <span>{payerResult.Pid || '—'}</span>
-                            </div>
-                            <div className="verification-result-row">
-                                <span>State</span>
-                                <span>{payerResult.State || '—'}</span>
-                            </div>
-                            <div className="verification-result-row">
-                                <span>Status</span>
-                                <span className="result-status-badge">{payerResult.Status || '—'}</span>
-                            </div>
-                        </div>
+                        <ResultCard rows={[
+                            { label: 'Full Name', value: payerResult.Fullname },
+                            { label: 'Payer ID', value: payerResult.Pid },
+                            { label: 'State', value: payerResult.State },
+                            { label: 'Status', value: payerResult.Status, badge: true },
+                        ]} />
                     )}
                 </div>
 
-                {/* Complete Verification */}
+                {/* ── Complete Verification ──────────────────────────────────────── */}
                 {allVerified && (
                     <div className="verification-complete-section">
                         <div className="verification-complete-banner">
                             <CheckCircleFilled style={{ color: '#108A00', fontSize: 22, marginRight: 8 }} />
-                            All checks passed! You may now complete your verification.
+                            All four checks passed! You may now complete your company verification.
                         </div>
                         <button
                             onClick={handleSubmit}
@@ -332,11 +425,12 @@ export default function CompanyVerification() {
                             {submitting ? (
                                 <Spin indicator={<LoadingOutlined style={{ fontSize: 16, color: '#fff' }} spin />} />
                             ) : (
-                                'Complete Verification'
+                                'Complete Company Verification'
                             )}
                         </button>
                     </div>
                 )}
+
             </div>
         </div>
     );

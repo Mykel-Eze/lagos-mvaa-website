@@ -15,7 +15,7 @@ window.onload = function () {
                     "post": {
                         "operationId": "AppController_register",
                         "summary": "resource to register a single individual user.",
-                        "description": "\n        This endpoint serves as the entry point for a new user on the portal.\n\n        - The request includes a request body and no query parameters nor authentication cookie sessions.\n        - A successful connection will trigger an e-mail service to the respective registration email for account activation — open and click format.\n        - Clients can use a browser or some request client in Node.js.\n        - Each request payload has an identical shape as shown below ↓00000.\n      ",
+                        "description": "\n        This endpoint serves as the entry point for a new user on the portal.\n\n        - The request includes a request body and no query parameters nor authentication cookie sessions.\n        - A successful connection will trigger an e-mail service to the respective registration email for account activation — open and click format.\n        - Clients can use a browser or some request client in Node.js.\n        - Each request payload has an identical shape as shown below ↓00000.\n\n        {\n          \"firstName\": \"John\",\n          \"lastName\": \"Doe\",\n          \"email\": \"test@gmail.com\",\n          \"password\": \"_VeryStrongPassword20\",\n          \"phone\": \"+234703086XXXX\",\n          \"address\": {\n            \"street\": \"12 Boulevard Avenue\",\n            \"lga\": \"Adenakan Shomolu, Lagos Mainland\",\n          \"state\": \"Lagos State\"\n        }\n}\n      ",
                         "parameters": [],
                         "requestBody": {
                             "required": true,
@@ -244,11 +244,6 @@ window.onload = function () {
                         },
                         "tags": [
                             "Portal"
-                        ],
-                        "security": [
-                            {
-                                "portal_session_id": []
-                            }
                         ]
                     }
                 },
@@ -316,6 +311,27 @@ window.onload = function () {
                                                 "status": 403,
                                                 "details": "credential access denied"
                                             }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tags": [
+                            "Portal"
+                        ]
+                    }
+                },
+                "/api/v1/portal/accounts/upload": {
+                    "post": {
+                        "operationId": "AppController_uploadProfileImage",
+                        "parameters": [],
+                        "responses": {
+                            "200": {
+                                "description": "",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object"
                                         }
                                     }
                                 }
@@ -602,6 +618,46 @@ window.onload = function () {
                         ]
                     }
                 },
+                "/api/v1/portal/accounts/utility/{email}": {
+                    "patch": {
+                        "operationId": "AppController_updateCompanyUserAccount",
+                        "parameters": [
+                            {
+                                "name": "email",
+                                "required": true,
+                                "in": "path",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        ],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/CompanyUtilityBillUpdateDto"
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tags": [
+                            "Portal"
+                        ]
+                    }
+                },
                 "/api/v1/portal/accounts/update-password/{email}": {
                     "patch": {
                         "operationId": "AppController_updateAccountPassword",
@@ -770,7 +826,7 @@ window.onload = function () {
                             }
                         },
                         "tags": [
-                            "Company"
+                            "Portal"
                         ]
                     }
                 },
@@ -865,7 +921,7 @@ window.onload = function () {
                             }
                         },
                         "tags": [
-                            "Company"
+                            "Portal"
                         ]
                     }
                 },
@@ -906,7 +962,7 @@ window.onload = function () {
                     "get": {
                         "operationId": "SessionGatewayController_issueTemporaryToken",
                         "summary": "v2 resource that issues temporary token for server side validation (handshake)",
-                        "description": "\n        This endpoint serves as the original resource for authentication in v2.\n\n        - The request includes no request body and some query parameters(email, sessionId, redirect, url).\n        - The query parameters (url and redirect) will force a redirect automatically.\n        - In the absence of either the url or the redirect the response will remain on the client that initiated the request\n        - A successful connection will generate some token to be used up upon redirection (if redirection is true).\n        - Generated tokens will expire after 3mins or 180s.\n        - Clients can use a browser or some request client in Node.js.\n        - Each request payload has an identical shape as shown below ↓.\n\n        Example:\n        ```\n            http://localhost:3000/api/v2/session/auth/issuetoken?email=example@gmail.com&url=http://localhost:5200&sid=dbd77750-7fdf-4e83-8522-43cc47aaf09f&redirect=true\n        ```\n      ",
+                        "description": "\n        This endpoint serves as the original resource for authentication in v2.\n\n        - The request includes no request body and some query parameters(email, sessionId, redirect, url).\n        - The query parameters (url and redirect) will force a redirect automatically.\n        - In the absence of either the url or the redirect the response will remain on the client that initiated the request\n        - A successful connection will generate some token to be used up upon redirection (if redirection is true).\n        - Generated tokens will expire after 3mins or 180s.\n        - Clients can use a browser or some request client in Node.js.\n        - Each request payload has an identical shape as shown below ↓.\n\n        Example:\n        ```\n            {base_url}/api/v2/session/auth/issuetoken?email=jonkbog%2Bcompany3%40gmail.com&sid=5b6e36b1-e210-4628-a106-fa69f519d53b&url=https%3A%2F%2Fmvatvtlagos.com%2Fmvaa-app%2Fverify-session&userType=company\n        ```\n      ",
                         "parameters": [
                             {
                                 "name": "email",
@@ -934,6 +990,14 @@ window.onload = function () {
                             },
                             {
                                 "name": "url",
+                                "required": true,
+                                "in": "query",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            {
+                                "name": "userType",
                                 "required": true,
                                 "in": "query",
                                 "schema": {
@@ -999,7 +1063,7 @@ window.onload = function () {
                 "/api/v2/session/profile/me": {
                     "get": {
                         "operationId": "SessionGatewayController_getUserCredentials",
-                        "summary": "v2 resource for fetching user profile",
+                        "summary": "v2 resource for fetching user profile.",
                         "description": "",
                         "parameters": [],
                         "responses": {
@@ -1009,6 +1073,66 @@ window.onload = function () {
                                     "application/json": {
                                         "schema": {
                                             "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tags": [
+                            "Session"
+                        ]
+                    }
+                },
+                "/api/v2/session/auth/logout": {
+                    "post": {
+                        "operationId": "SessionGatewayController_logout",
+                        "summary": "resource to logout an entity with an open session.",
+                        "description": "\n            This endpoint serves as the original resource for authentication in v2.\n\n            - The request includes no request body or parameters.\n            - The query parameters (url and redirect) will force a redirect automatically.\n            - In the absence of either the url or the redirect the response will remain on the client that initiated the request\n            - A successful connection will generate some token to be used up upon redirection (if redirection is true).\n            - Generated tokens will expire after 3mins or 180s.\n            - Clients can use a browser or some request client in Node.js.\n            - Each request payload has an identical shape as shown below ↓.\n\n            Example:\n            ```\n                {base_url}/api/v2/session/auth/logout\n            ```\n        ",
+                        "parameters": [],
+                        "responses": {
+                            "200": {
+                                "description": "successful logout response",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "status": 200,
+                                                "success": "true",
+                                                "message": "logout successful",
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {
+                                "description": "guarded logout resource ",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "credential access denied",
+                                                "timestamp": "2025-09-21T06:26:08.935Z",
+                                                "status": 400,
+                                                "details": "credential access denied"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "500": {
+                                "description": "logout failure",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "e.message",
+                                                "timestamp": "2025-09-21T06:26:08.935Z",
+                                                "status": 500,
+                                                "details": "e.message"
+                                            }
                                         }
                                     }
                                 }
@@ -1094,7 +1218,7 @@ window.onload = function () {
                             }
                         },
                         "tags": [
-                            "Shared"
+                            "Portal"
                         ],
                         "security": [
                             {
@@ -1212,7 +1336,120 @@ window.onload = function () {
                             }
                         },
                         "tags": [
-                            "Shared"
+                            "Portal"
+                        ]
+                    }
+                },
+                "/api/v1/shared/verify/businessNin/{idNumber}": {
+                    "post": {
+                        "operationId": "SharedAppController_verifyBusinessWithNIN",
+                        "summary": "resource to fetch/verify an entity national identification number — NIN.",
+                        "description": "\n        This endpoint serves a v1 authentication endpoint for portal and module use.\n\n        - The request has no body and no query parameters ——— only authentication cookie to share sessions.\n        - A successful cookie authentication will allow access to top-level resources like NIN and CAC.\n        - This request has a payload and the expected response is shown below shown below ↓.\n        - Clients can use a browser or some request client in Node.js.\n        \n        ```\n            Example: \n            session_token=abcd1234\n            portal_id=efgh5678\n\n            portal_session_id=abcd1234&efgh5678 — `credential signature`\n\n            Testing Example:\n            portal_session_id=e26a6046-b000-4c79-acb8-b42cbd820593%2675e6df2eba1c1875ef359fc95c0f5a1ce5b8; Expires=null; Path=/; Secure; HttpOnly; Domain=localhost\n        ```\n        ",
+                        "parameters": [
+                            {
+                                "name": "idNumber",
+                                "required": true,
+                                "in": "path",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        ],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/IVerifyWithNIN"
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "successful match for nin response",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "status": 200,
+                                                "success": "true",
+                                                "message": "EXACT_MATCH for 'Bunch Dillon' with id(NIN)}",
+                                                "data": {
+                                                    "nin": "63184876213",
+                                                    "firstname": "Bunch",
+                                                    "lastname": "Dillon",
+                                                    "middlename": "",
+                                                    "phone": "08000000000",
+                                                    "gender": "m",
+                                                    "photo": "_long_photo_base64_string_",
+                                                    "birthdate": "06-01-1974",
+                                                    "residence": {
+                                                        "address1": "1193 TOLA CRESENT",
+                                                        "town": "WUSE",
+                                                        "lga": "Abuja Municipal",
+                                                        "state": "FCT Abuja"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {
+                                "description": "bad request server response",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "Request failed with status code 400",
+                                                "timestamp": "2026-02-13T12:33:03.942Z",
+                                                "path": "/api/v1/shared/verify/nin",
+                                                "status": 500,
+                                                "details": "Request failed with status code 400"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "422": {
+                                "description": "bad request unprocessed entity response",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "NO_MATCH for 'firstname: string lastname: string' with id(NIN)}",
+                                                "timestamp": "2026-02-13T20:45:20.129Z",
+                                                "path": "/api/v1/shared/verify/nin/63184876213",
+                                                "status": 422,
+                                                "details": "NO_MATCH for 'firstname: string lastname: string' with id(NIN)}"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "500": {
+                                "description": "unauthorized authentication protocol response",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "Request failed with status code 401",
+                                                "timestamp": "2026-02-13T12:27:27.334Z",
+                                                "path": "/api/v1/shared/verify/nin",
+                                                "status": 500,
+                                                "details": "Request failed with status code 401"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tags": [
+                            "Portal"
                         ]
                     }
                 },
@@ -1301,16 +1538,319 @@ window.onload = function () {
                             }
                         },
                         "tags": [
-                            "Shared"
+                            "Portal"
+                        ]
+                    }
+                },
+                "/api/v1/shared/verify/businessTin": {
+                    "post": {
+                        "operationId": "SharedAppController_verifymeWithTIN",
+                        "summary": "resource to fetch/verify an entity company registration number — CAC.",
+                        "description": "\n        This endpoint serves a v1 authentication endpoint for portal and module use( means it uses cookies).\n        - The request has no body and no query parameters ——— only authentication cookie to share sessions.\n        - A successful cookie authentication will allow access to top-level resources like NIN and CAC.\n        - This request has a payload and the expected response is shown below shown below ↓.\n        - Clients can use a browser or some request client in Node.js.\n        \n        ```\n            Example: \n            session_token=abcd1234\n            portal_id=efgh5678\n\n            portal_session_id=abcd1234&efgh5678 — `credential signature`\n          \n            regNumber string required\n            Company's registration TIN number. The registration number should be typed in this format. RC1234, BN1234, IT1234. etc.\n        ```\n        ",
+                        "parameters": [],
+                        "responses": {
+                            "200": {
+                                "description": "successful match for tin response",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "status": 200,
+                                                "success": "true",
+                                                "message": "verified",
+                                                "data": {
+                                                    "tin": "08120451-1001",
+                                                    "taxpayerName": "Bunch Dillon Limited",
+                                                    "cacRegNo": "01108909",
+                                                    "entityType": "TIN",
+                                                    "jittin": "33230189",
+                                                    "taxOffice": "Abule Egba",
+                                                    "phone": "08000000000",
+                                                    "email": "Colin.Schneider@gmail.com"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {
+                                "description": "bad request server response",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "Request failed with status code 400",
+                                                "timestamp": "2026-02-13T12:33:03.942Z",
+                                                "path": "/api/v1/shared/verify/nin",
+                                                "status": 500,
+                                                "details": "Request failed with status code 400"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "500": {
+                                "description": "unauthorized authentication protocol response",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "Request failed with status code 401",
+                                                "timestamp": "2026-02-13T12:27:27.334Z",
+                                                "path": "/api/v1/shared/verify/nin",
+                                                "status": 500,
+                                                "details": "Request failed with status code 401"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tags": [
+                            "Portal"
+                        ]
+                    }
+                },
+                "/api/v1/shared/transaction": {
+                    "get": {
+                        "operationId": "SharedAppController_fetchUserOrders",
+                        "summary": "resource to fetch all orders for a user",
+                        "description": "\n          This endpoint serves as the v1 resource for fetching orders.\n  \n          - The request includes a request body with all the necessary parameters.\n          - A successful connection will generate an order.\n          - Clients can use a browser or some request client in Node.js.\n          - Each request payload has an identical shape as shown below ↓.\n  \n          Example:\n          ```js\n            handshake_token=abcd1234 \n            Authorization: Bearer {handshake_token} —— `credential signature`\n  \n            Testing Example:\n            -X GET https://{baseurl}/api/v1/shared/transaction\n            -H 'Content-Type: application/json' \n            -H 'Authorization: Bearer {handshake_token}'\n          ```\n        ",
+                        "parameters": [],
+                        "responses": {
+                            "200": {
+                                "description": "successfully fetch orders",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "status": 200,
+                                                "message": "success",
+                                                "success": "true",
+                                                "data": [
+                                                    {
+                                                        "id": "31ec147e-4c90-4eb1-b3d5-a913aea11fff",
+                                                        "order_id": "BUS_1774912978756J3PTNG",
+                                                        "amount": "3100.00",
+                                                        "currency": "NGN",
+                                                        "payment_reference": null,
+                                                        "gateway_reference": null,
+                                                        "receipt_status": "PENDING",
+                                                        "receipt_callback_url": "https://lagosmvaa.ng/services",
+                                                        "userId": null,
+                                                        "companyId": "3596de37-baf6-4535-af02-53dfbb73c5d2",
+                                                        "gateway": "pay4it",
+                                                        "billing_metadata": {
+                                                            "pid": "N-191005",
+                                                            "billingClientId": "3596de37-baf6-4535-af02-53dfbb73c5d2",
+                                                            "appliedDate": "Test March 2026",
+                                                            "country": "Nigeria",
+                                                            "state": "Lagos State",
+                                                            "assessmentReference": "MVX-RevenueSlip-",
+                                                            "agencyCode": "4570000",
+                                                            "billingClientName": null,
+                                                            "billingClientType": "C"
+                                                        },
+                                                        "revenue_module_metadata": {
+                                                            "revenueCode": "4010002",
+                                                            "revenueClientName": "AUTO_DEALER_SPARE_PARTS",
+                                                            "revenueClientId": "9dd1dda32a635879fb7fdd617629189111b0"
+                                                        },
+                                                        "trans_metadata": null,
+                                                        "gateway_metadata": null,
+                                                        "is_gateway_processed": false,
+                                                        "is_processed_count": false,
+                                                        "createdAt": "2026-03-30T23:22:58.762Z",
+                                                        "updatedAt": "2026-03-30T23:22:58.762Z"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "401": {
+                                "description": "credential access denied",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "Unauthorized",
+                                                "timestamp": "2025-09-21T06:26:08.935Z",
+                                                "status": 401,
+                                                "details": "Unauthorized"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tags": [
+                            "Portal"
+                        ]
+                    }
+                },
+                "/api/v1/shared/transaction/{id}": {
+                    "get": {
+                        "operationId": "SharedAppController_fetchSingleOrder",
+                        "summary": "resource to fetch an orders for a user",
+                        "description": "\n        This endpoint serves as a v1 resource for fetching an order.\n\n        - The request includes a request body with all the necessary parameters.\n        - A successful connection will generate an order.\n        - Clients can use a browser or some request client in Node.js.\n        - Each request payload has an identical shape as shown below ↓.\n\n        Example:\n        ```js\n          handshake_token=abcd1234 \n          Authorization: Bearer {handshake_token} —— `credential signature`\n\n          Testing Example:\n          -X GET https://{baseurl}/api/v1/shared/transaction/{orderId}\n          -H 'Content-Type: application/json' \n          -H 'Authorization: Bearer {handshake_token}'\n        ```\n      ",
+                        "parameters": [
+                            {
+                                "name": "id",
+                                "required": true,
+                                "in": "path",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "successfully fetch orders",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "status": 200,
+                                                "message": "success",
+                                                "success": "true",
+                                                "data": {
+                                                    "id": "7921a40d-9217-41c2-bb1d-a2caed83a93e",
+                                                    "order_id": "BUS_17746119189282PETNG",
+                                                    "amount": "3100.00",
+                                                    "currency": "NGN",
+                                                    "payment_reference": "1910050-9621528-145",
+                                                    "gateway_reference": null,
+                                                    "receipt_status": "CONFIRMED",
+                                                    "receipt_callback_url": "https://lagosmvaa.ng/services",
+                                                    "userId": null,
+                                                    "companyId": "d9f1df25-97f6-445e-aea2-46c473269119",
+                                                    "gateway": "pay4it",
+                                                    "billing_metadata": {
+                                                        "pid": "N-191005",
+                                                        "billingClientId": "d9f1df25-97f6-445e-aea2-46c473269119",
+                                                        "appliedDate": "Test March 2026",
+                                                        "country": "Nigeria",
+                                                        "state": "Lagos State",
+                                                        "assessmentReference": "MVX-RevenueSlip-",
+                                                        "agencyCode": "4570000",
+                                                        "billingClientName": null,
+                                                        "billingClientType": "C"
+                                                    },
+                                                    "revenue_module_metadata": {
+                                                        "revenueCode": "4010002",
+                                                        "revenueClientName": "AUTO_DEALER_SPARE_PARTS",
+                                                        "revenueClientId": "9dd1dda32a635879fb7fdd617629189111b0"
+                                                    },
+                                                    "trans_metadata": null,
+                                                    "gateway_metadata": null,
+                                                    "is_gateway_processed": false,
+                                                    "is_processed_count": false,
+                                                    "createdAt": "2026-03-27T11:45:18.932Z",
+                                                    "updatedAt": "2026-03-27T11:46:55.189Z"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "401": {
+                                "description": "credential access denied",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "Unauthorized",
+                                                "timestamp": "2025-09-21T06:26:08.935Z",
+                                                "status": 401,
+                                                "details": "Unauthorized"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tags": [
+                            "Portal"
+                        ]
+                    }
+                },
+                "/api/v1/shared/payment/initialize": {
+                    "post": {
+                        "operationId": "SharedAppController_generateTransactionalOrder",
+                        "summary": "resource to process an order after billing",
+                        "description": "\n          This endpoint serves as the v1 portal resource for initializing an order for a checkout / authorization url.\n  \n          - The request includes a request body with all the necessary parameters.\n          - A successful connection will generate an order.\n          - Clients can use a browser or some request client in Node.js.\n          - Each request payload has an identical shape as shown below ↓.\n  \n          Example:\n          ```js\n            handshake_token=abcd1234 \n            Authorization: Bearer {handshake_token} —— `credential signature`\n  \n            Testing Example:\n            -X POST https://{baseurl}/api/v1/shared/payment/initialize\n            -H 'Content-Type: application/json' \n            -H 'Authorization: Bearer {handshake_token}'\n            {\n              order_id: \"BUS_XXXXXXXX\"\n            }\n          ```\n        ",
+                        "parameters": [],
+                        "responses": {
+                            "200": {
+                                "description": "successfully update order to processed",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "status": 200,
+                                                "message": "success",
+                                                "success": "true",
+                                                "data": {
+                                                    "status": 200,
+                                                    "message": "string",
+                                                    "data": {
+                                                        "authorizationUrl": "string",
+                                                        "reference": "string",
+                                                        "credoReference": "string",
+                                                        "crn": "string"
+                                                    },
+                                                    "execTime": 60,
+                                                    "error": []
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "401": {
+                                "description": "credential access denied",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "Unauthorized",
+                                                "timestamp": "2025-09-21T06:26:08.935Z",
+                                                "status": 401,
+                                                "details": "Unauthorized"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tags": [
+                            "Portal"
                         ]
                     }
                 },
                 "/api/v2/shared/payment/generate": {
                     "post": {
                         "operationId": "PaymentAppController_generateOrder",
-                        "summary": "resource to generate a billing order",
-                        "description": "\n        This endpoint serves as a v2 resource for creating orders post billing.\n\n        - The request includes a request body with all the necessary parameters.\n        - A successful connection will generate an order.\n        - Clients can use a browser or some request client in Node.js.\n        - Each request payload has an identical shape as shown below ↓.\n\n        Example:\n        ```js\n          handshake_token=abcd1234 \n          Authorization: Bearer {handshake_token} —— `credential signature`\n\n          Testing Example:\n          -X POST https://{baseurl}/api/v2/shared/payment/generate\n          -H 'Content-Type: application/json' \n          -H 'Authorization: Bearer {handshake_token}'\n            {\n                \"email\": \"customer@example.com\",\n                \"amount\": 5000,\n                \"reference\": \"unique_transaction_reference_1\"\n            }    \n        ```\n      ",
+                        "summary": "resource to generate an order for billing",
+                        "description": "\n        This endpoint serves as a v2 resource for creating orders.\n\n        - The request includes a request body with all the necessary parameters.\n        - A successful connection will generate an order.\n        - Clients can use a browser or some request client in Node.js.\n        - Each request payload has an identical shape as shown below ↓.\n\n        Example:\n        ```js\n          handshake_token=abcd1234 \n          Authorization: Bearer {handshake_token} —— `credential signature`\n\n          Testing Example:\n          -X POST https://{baseurl}/api/v2/shared/payment/generate\n          -H 'Content-Type: application/json' \n          -H 'Authorization: Bearer {handshake_token}'\n            {\n                \"amount\": \"31000.00\",\n                \"assessmentReference\": \"MVX-RevenueSlip-001\",\n                \"appliedDate\": \"Test March 2026\",\n                \"gateway\": \"pay4it\",\n                \"currency\": \"NGN\",\n                \"revCode\": \"4010002\"\n            }   \n        ```\n      ",
                         "parameters": [],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/GlobalBillingReceiptDto"
+                                    }
+                                }
+                            }
+                        },
                         "responses": {
                             "200": {
                                 "description": "generate a single client order",
@@ -1322,17 +1862,13 @@ window.onload = function () {
                                                 "message": "order generated",
                                                 "success": "true",
                                                 "data": {
-                                                    "order_id": "ord-mvaa1751274129065nguhysif",
-                                                    "amount": 5000,
-                                                    "client_id": "NUMBER_PLATE_SERVICES",
-                                                    "order_status": "PENDING",
-                                                    "client_name": "NUMBER_PLATE_SERVICES",
-                                                    "order_url": "https://checkout.paystack.com/h3q09ag0a4b0qd2",
-                                                    "accessCode": "h3q09ag0a4b0qd2",
-                                                    "user": "04aa0fcc-01cb-48d3-a8b2-39dd1a839f19",
-                                                    "id": "64a24443-df1d-4958-a880-47a08941ca7d",
-                                                    "createdAt": "2025-06-30T09:02:10.317Z",
-                                                    "updatedAt": "2025-06-30T09:02:10.317Z"
+                                                    "order_id": "BUS_177491893319852VFNG",
+                                                    "amount": "3100.00",
+                                                    "url": "https://lagosmvaa.ng/services",
+                                                    "status": "PENDING",
+                                                    "client": {
+                                                        "id": "3596de37-baf6-4535-af02-53dfbb73c5d2"
+                                                    }
                                                 }
                                             }
                                         }
@@ -1361,20 +1897,20 @@ window.onload = function () {
                             }
                         },
                         "tags": [
-                            "Shared—Billing"
+                            "Billing"
                         ]
                     }
                 },
-                "/api/v2/shared/billing/identification": {
-                    "get": {
-                        "operationId": "PaymentAppController_verifyTaxId",
-                        "summary": "v2 resource for identification of billing data",
-                        "description": "\n            This endpoint is a v2 resource for verification of billing numbers.\n\n            - The request includes no request body and a single query parameter.\n            - A successful connection will generate a billing receipt to confirm the pid.\n            - Clients can use a browser or some request client in Node.js.\n            - Each request payload has an identical shape as shown below ↓.\n\n            Example:\n            ```js\n            handshake_token=abcd1234 \n            Authorization: Bearer {handshake_token} —— `credential signature`\n            pid=N-191005\n\n            Testing Example:\n            -X POST https://{baseurl}/api/v2/shared/billing/identification?pid=N-191005\n            -H 'Content-Type: application/json' \n            -H 'Authorization: Bearer {handshake_token}'\n\n            ```\n      ",
+                "/api/v2/shared/billing/receipt/{orderId}": {
+                    "post": {
+                        "operationId": "PaymentAppController_generateBillingOrder",
+                        "summary": "resource to update an order via billing api",
+                        "description": "\n        This endpoint serves as a v2 resource for creating a revenue billing for each order.\n\n        - The request includes a request body with all the necessary parameters.\n        - A successful connection will generate an order.\n        - Clients can use a browser or some request client in Node.js.\n        - Each request payload has an identical shape as shown below ↓.\n\n        Example:\n        ```js\n          handshake_token=abcd1234 \n          Authorization: Bearer {handshake_token} —— `credential signature`\n\n          Testing Example:\n          -X GET https://{baseurl}/api/v2/shared/billing/receipt/:orderId\n          -H 'Content-Type: application/json' \n          -H 'Authorization: Bearer {handshake_token}'\n        ```\n      ",
                         "parameters": [
                             {
-                                "name": "pid",
+                                "name": "orderId",
                                 "required": true,
-                                "in": "query",
+                                "in": "path",
                                 "schema": {
                                     "type": "string"
                                 }
@@ -1382,23 +1918,19 @@ window.onload = function () {
                         ],
                         "responses": {
                             "200": {
-                                "description": "Success",
+                                "description": "generate a single billing with orderId",
                                 "content": {
                                     "application/json": {
                                         "schema": {
                                             "example": {
                                                 "status": 200,
-                                                "message": "Valid Pid",
+                                                "message": "payment reference generated — order updated successfully",
                                                 "success": "true",
                                                 "data": {
-                                                    "ResponseCode": "SUCCESS",
-                                                    "ResponseDesc": "Valid Pid",
-                                                    "State": "XXSG",
-                                                    "Pid": "N-191005",
-                                                    "Nin": null,
-                                                    "Fullname": "MR SUNDAY ADEROGBA ADEKOJO",
-                                                    "Status": "SUCCESS",
-                                                    "StatusMessage": "Valid Pid"
+                                                    "order_id": "BUS_177491893319852VFNG",
+                                                    "amount": "3100.00",
+                                                    "url": "https://lagosmvaa.ng/services",
+                                                    "status": "CONFIRMED"
                                                 }
                                             }
                                         }
@@ -1406,20 +1938,304 @@ window.onload = function () {
                                 }
                             },
                             "401": {
-                                "description": "Unauthorized",
+                                "description": "credential access denied",
                                 "content": {
                                     "application/json": {
                                         "schema": {
-                                            "example": {}
+                                            "example": {
+                                                "success": "false",
+                                                "error": "Unauthorized",
+                                                "timestamp": "2025-09-21T06:26:08.935Z",
+                                                "status": 401,
+                                                "details": "Unauthorized"
+                                            }
                                         }
                                     }
                                 }
                             }
                         },
                         "tags": [
-                            "Shared—Billing"
+                            "Billing"
                         ]
-                    },
+                    }
+                },
+                "/api/v2/shared/payment/initialize": {
+                    "post": {
+                        "operationId": "PaymentAppController_generateTransactionalOrder",
+                        "summary": "resource to process an order after billing",
+                        "description": "\n        This endpoint serves as a v2 resource for initializing an order for a checkout / authorization url.\n\n        - The request includes a request body with all the necessary parameters.\n        - A successful connection will generate an order.\n        - Clients can use a browser or some request client in Node.js.\n        - Each request payload has an identical shape as shown below ↓.\n\n        Example:\n        ```js\n          handshake_token=abcd1234 \n          Authorization: Bearer {handshake_token} —— `credential signature`\n\n          Testing Example:\n          -X POST https://{baseurl}/api/v2/shared/payment/initialize\n          -H 'Content-Type: application/json' \n          -H 'Authorization: Bearer {handshake_token}'\n          {\n            order_id: \"BUS_XXXXXXXX\"\n          }\n        ```\n      ",
+                        "parameters": [],
+                        "responses": {
+                            "200": {
+                                "description": "successfully update order to processed",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "status": 200,
+                                                "message": "success",
+                                                "success": "true",
+                                                "data": {
+                                                    "status": 200,
+                                                    "message": "string",
+                                                    "data": {
+                                                        "authorizationUrl": "string",
+                                                        "reference": "string",
+                                                        "credoReference": "string",
+                                                        "crn": "string"
+                                                    },
+                                                    "execTime": 60,
+                                                    "error": []
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "401": {
+                                "description": "credential access denied",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "Unauthorized",
+                                                "timestamp": "2025-09-21T06:26:08.935Z",
+                                                "status": 401,
+                                                "details": "Unauthorized"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tags": [
+                            "Billing"
+                        ]
+                    }
+                },
+                "/api/v2/shared/payment/transaction/verify": {
+                    "post": {
+                        "operationId": "PaymentAppController_verifyFulfilledOrder",
+                        "summary": "resource to verify an order status",
+                        "description": "\n        This endpoint serves as a v2 resource validating processed orders post-webhook dispatch.\n\n        - The request includes a request body with all the necessary parameters.\n        - A successful connection verify the reference orderId and confirm the state of the order.\n        - Clients can use a browser or some request client in Node.js.\n        - Each request payload has an identical shape as shown below ↓.\n\n        Example:\n        ```js\n          handshake_token=abcd1234 \n          Authorization: Bearer {handshake_token} —— `credential signature`\n\n          Testing Example:\n          -X POST https://{baseurl}/api/v2/shared/payment/transaction/verify'\n          -H 'Content-Type: application/json' \n          -H 'Authorization: Bearer {handshake_token}'\n          {\n            ref: \"BUS_XXXXXXXXX\"\n          }\n        ```\n      ",
+                        "parameters": [],
+                        "responses": {
+                            "200": {
+                                "description": "successfully fetch orders",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "status": 200,
+                                                "message": "Transaction fetched successfully",
+                                                "data": {
+                                                    "transRef": "vs_xxxxxxxxxxxx",
+                                                    "businessRef": "ORD-20260207-001",
+                                                    "debitedAmount": 153250,
+                                                    "transAmount": 150000,
+                                                    "transFeeAmount": 3250,
+                                                    "settlementAmount": 150000,
+                                                    "customerId": "customer@example.com",
+                                                    "transactionDate": "2026-02-07T14:30:00.000Z",
+                                                    "currencyCode": "NGN",
+                                                    "status": 0
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "401": {
+                                "description": "credential access denied",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "Unauthorized",
+                                                "timestamp": "2025-09-21T06:26:08.935Z",
+                                                "status": 401,
+                                                "details": "Unauthorized"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tags": [
+                            "Billing"
+                        ]
+                    }
+                },
+                "/api/v2/shared/transaction": {
+                    "get": {
+                        "operationId": "PaymentAppController_fetchUserOrders",
+                        "summary": "resource to fetch all user orders",
+                        "description": "\n        This endpoint serves as a v2 resource for fetching orders.\n\n        - The request includes a request body with all the necessary parameters.\n        - A successful connection will generate an order.\n        - Clients can use a browser or some request client in Node.js.\n        - Each request payload has an identical shape as shown below ↓.\n\n        Example:\n        ```js\n          handshake_token=abcd1234 \n          Authorization: Bearer {handshake_token} —— `credential signature`\n\n          Testing Example:\n          -X GET https://{baseurl}/api/v2/shared/transaction\n          -H 'Content-Type: application/json' \n          -H 'Authorization: Bearer {handshake_token}'\n        ```\n      ",
+                        "parameters": [],
+                        "responses": {
+                            "200": {
+                                "description": "successfully fetch orders",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "status": 200,
+                                                "message": "success",
+                                                "success": "true",
+                                                "data": [
+                                                    {
+                                                        "id": "31ec147e-4c90-4eb1-b3d5-a913aea11fff",
+                                                        "order_id": "BUS_1774912978756J3PTNG",
+                                                        "amount": "3100.00",
+                                                        "currency": "NGN",
+                                                        "payment_reference": null,
+                                                        "gateway_reference": null,
+                                                        "receipt_status": "PENDING",
+                                                        "receipt_callback_url": "https://lagosmvaa.ng/services",
+                                                        "userId": null,
+                                                        "companyId": "3596de37-baf6-4535-af02-53dfbb73c5d2",
+                                                        "gateway": "pay4it",
+                                                        "billing_metadata": {
+                                                            "pid": "N-191005",
+                                                            "billingClientId": "3596de37-baf6-4535-af02-53dfbb73c5d2",
+                                                            "appliedDate": "Test March 2026",
+                                                            "country": "Nigeria",
+                                                            "state": "Lagos State",
+                                                            "assessmentReference": "MVX-RevenueSlip-",
+                                                            "agencyCode": "4570000",
+                                                            "billingClientName": null,
+                                                            "billingClientType": "C"
+                                                        },
+                                                        "revenue_module_metadata": {
+                                                            "revenueCode": "4010002",
+                                                            "revenueClientName": "AUTO_DEALER_SPARE_PARTS",
+                                                            "revenueClientId": "9dd1dda32a635879fb7fdd617629189111b0"
+                                                        },
+                                                        "trans_metadata": null,
+                                                        "gateway_metadata": null,
+                                                        "is_gateway_processed": false,
+                                                        "is_processed_count": false,
+                                                        "createdAt": "2026-03-30T23:22:58.762Z",
+                                                        "updatedAt": "2026-03-30T23:22:58.762Z"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "401": {
+                                "description": "credential access denied",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "Unauthorized",
+                                                "timestamp": "2025-09-21T06:26:08.935Z",
+                                                "status": 401,
+                                                "details": "Unauthorized"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tags": [
+                            "Billing"
+                        ]
+                    }
+                },
+                "/api/v2/shared/transaction/{id}": {
+                    "get": {
+                        "operationId": "PaymentAppController_fetchSingleOrder",
+                        "summary": "resource to fetch an order for a user",
+                        "description": "\n             This endpoint serves as a v1 resource for fetching an order.\n    \n            - The request includes a request body with all the necessary parameters.\n            - A successful connection will generate an order.\n            - Clients can use a browser or some request client in Node.js.\n            - Each request payload has an identical shape as shown below ↓.\n    \n            Example:\n            ```js\n              handshake_token=abcd1234 \n              Authorization: Bearer {handshake_token} —— `credential signature`\n    \n              Testing Example:\n              -X GET https://{baseurl}/api/v2/shared/transaction/{orderId}\n              -H 'Content-Type: application/json' \n              -H 'Authorization: Bearer {handshake_token}'\n            ```\n          ",
+                        "parameters": [
+                            {
+                                "name": "id",
+                                "required": true,
+                                "in": "path",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "successfully fetch orders",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "status": 200,
+                                                "message": "success",
+                                                "success": "true",
+                                                "data": {
+                                                    "id": "7921a40d-9217-41c2-bb1d-a2caed83a93e",
+                                                    "order_id": "BUS_17746119189282PETNG",
+                                                    "amount": "3100.00",
+                                                    "currency": "NGN",
+                                                    "payment_reference": "1910050-9621528-145",
+                                                    "gateway_reference": null,
+                                                    "receipt_status": "CONFIRMED",
+                                                    "receipt_callback_url": "https://lagosmvaa.ng/services",
+                                                    "userId": null,
+                                                    "companyId": "d9f1df25-97f6-445e-aea2-46c473269119",
+                                                    "gateway": "pay4it",
+                                                    "billing_metadata": {
+                                                        "pid": "N-191005",
+                                                        "billingClientId": "d9f1df25-97f6-445e-aea2-46c473269119",
+                                                        "appliedDate": "Test March 2026",
+                                                        "country": "Nigeria",
+                                                        "state": "Lagos State",
+                                                        "assessmentReference": "MVX-RevenueSlip-",
+                                                        "agencyCode": "4570000",
+                                                        "billingClientName": null,
+                                                        "billingClientType": "C"
+                                                    },
+                                                    "revenue_module_metadata": {
+                                                        "revenueCode": "4010002",
+                                                        "revenueClientName": "AUTO_DEALER_SPARE_PARTS",
+                                                        "revenueClientId": "9dd1dda32a635879fb7fdd617629189111b0"
+                                                    },
+                                                    "trans_metadata": null,
+                                                    "gateway_metadata": null,
+                                                    "is_gateway_processed": false,
+                                                    "is_processed_count": false,
+                                                    "createdAt": "2026-03-27T11:45:18.932Z",
+                                                    "updatedAt": "2026-03-27T11:46:55.189Z"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "401": {
+                                "description": "credential access denied",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "Unauthorized",
+                                                "timestamp": "2025-09-21T06:26:08.935Z",
+                                                "status": 401,
+                                                "details": "Unauthorized"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tags": [
+                            "Billing"
+                        ]
+                    }
+                },
+                "/api/v2/shared/billing/identification": {
                     "post": {
                         "operationId": "PaymentAppController_createPayerId",
                         "summary": "v2 resource for creating a tax payer id",
@@ -1484,18 +2300,16 @@ window.onload = function () {
                             }
                         },
                         "tags": [
-                            "Shared—Billing"
+                            "Billing"
                         ]
-                    }
-                },
-                "/api/v2/shared/billing/confirmation-total": {
+                    },
                     "get": {
-                        "operationId": "PaymentAppController_paymentConfirmationTotal",
-                        "summary": "v2 resource for collecting total billing for a payer with reference",
-                        "description": "\n            This endpoint is a v2 resource for billing confirmation of payer with a guid reference.\n\n            - The request includes no request body and a single query parameter.\n            - A successful request will generate a billing receipt for the total pay.\n            - Clients can use a browser or some request client in Node.js.\n            - Each request payload has an identical shape as shown below ↓.\n\n            Example:\n            ```js\n            handshake_token=abcd1234 \n            Authorization: Bearer {handshake_token} —— `credential signature`\n            guid=64624450-9793087-295\n\n            Testing Example:\n            -X GET https://{baseurl}/api/v2/shared/billing/confirmation-total?guid=64624450-9793087-295\n            -H 'Content-Type: application/json' \n            -H 'Authorization: Bearer {handshake_token}'\n\n            ```\n      ",
+                        "operationId": "PaymentAppController_verifyTaxId",
+                        "summary": "v2 resource for identification of billing data",
+                        "description": "\n            This endpoint is a v2 resource for verification of billing numbers.\n\n            - The request includes no request body and a single query parameter.\n            - A successful connection will generate a billing receipt to confirm the pid.\n            - Clients can use a browser or some request client in Node.js.\n            - Each request payload has an identical shape as shown below ↓.\n\n            Example:\n            ```js\n            handshake_token=abcd1234 \n            Authorization: Bearer {handshake_token} —— `credential signature`\n            pid=N-191005\n\n            Testing Example:\n            -X POST https://{baseurl}/api/v2/shared/billing/identification?pid=N-191005\n            -H 'Content-Type: application/json' \n            -H 'Authorization: Bearer {handshake_token}'\n\n            ```\n      ",
                         "parameters": [
                             {
-                                "name": "guid",
+                                "name": "pid",
                                 "required": true,
                                 "in": "query",
                                 "schema": {
@@ -1511,11 +2325,17 @@ window.onload = function () {
                                         "schema": {
                                             "example": {
                                                 "status": 200,
-                                                "message": "Valid Receipt",
+                                                "message": "Valid Pid",
                                                 "success": "true",
                                                 "data": {
-                                                    "totalpay": "1,150.00",
-                                                    "status": "SUCCESS"
+                                                    "ResponseCode": "SUCCESS",
+                                                    "ResponseDesc": "Valid Pid",
+                                                    "State": "XXSG",
+                                                    "Pid": "N-191005",
+                                                    "Nin": null,
+                                                    "Fullname": "MR SUNDAY ADEROGBA ADEKOJO",
+                                                    "Status": "SUCCESS",
+                                                    "StatusMessage": "Valid Pid"
                                                 }
                                             }
                                         }
@@ -1534,20 +2354,81 @@ window.onload = function () {
                             }
                         },
                         "tags": [
-                            "Shared—Billing"
+                            "Billing"
                         ]
                     }
                 },
-                "/api/v2/shared/billing/confirmation": {
-                    "get": {
-                        "operationId": "PaymentAppController_paymentConfirmationByReference",
-                        "summary": "v2 resource for collecting a single billing for a payer with reference",
-                        "description": "\n            This endpoint is a v2 resource for billing confirmation of payer with a guid reference.\n\n            - The request includes no request body and a single query parameter.\n            - A successful request will generate a billing receipt.\n            - Clients can use a browser or some request client in Node.js.\n            - Each request payload has an identical shape as shown below ↓.\n\n            Example:\n            ```js\n            handshake_token=abcd1234 \n            Authorization: Bearer {handshake_token} —— `credential signature`\n            guid=64624450-9793087-295\n\n            Testing Example:\n            -X GET https://{baseurl}/api/v2/shared/billing/confirmation?guid=64624450-9793087-295\n            -H 'Content-Type: application/json' \n            -H 'Authorization: Bearer {handshake_token}'\n\n            ```\n      ",
+                "/api/v2/shared/payment/keys": {
+                    "post": {
+                        "operationId": "PaymentAppController_generatePay4itEncryptKeys",
+                        "parameters": [],
+                        "responses": {
+                            "200": {
+                                "description": "",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tags": [
+                            "Billing"
+                        ]
+                    }
+                },
+                "/api/v2/shared/payment/initializePay4it": {
+                    "post": {
+                        "operationId": "PaymentAppController_generatePay4itTransactionalOrder",
+                        "parameters": [],
+                        "responses": {
+                            "200": {
+                                "description": "",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tags": [
+                            "Billing"
+                        ]
+                    }
+                },
+                "/api/v2/shared/payment/verifyPay4it": {
+                    "post": {
+                        "operationId": "PaymentAppController_verifyPay4itTransactionalOrder",
+                        "parameters": [],
+                        "responses": {
+                            "200": {
+                                "description": "",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tags": [
+                            "Billing"
+                        ]
+                    }
+                },
+                "/api/v2/shared/payment/verifyPay4itPayment/{ref}": {
+                    "post": {
+                        "operationId": "PaymentAppController_verifyPay4itpayment",
                         "parameters": [
                             {
-                                "name": "guid",
+                                "name": "ref",
                                 "required": true,
-                                "in": "query",
+                                "in": "path",
                                 "schema": {
                                     "type": "string"
                                 }
@@ -1555,117 +2436,6 @@ window.onload = function () {
                         ],
                         "responses": {
                             "200": {
-                                "description": "Success",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {
-                                            "example": {
-                                                "status": 200,
-                                                "message": "Valid Receipt",
-                                                "success": "true",
-                                                "data": {
-                                                    "receipt": "250.00 paid on Aug 11 2025 12:00AM By Abc Dev Group <<C-1109166>> for 32101/PAYE (Pay As You Earn)",
-                                                    "amountpaid": "250.00",
-                                                    "status": "SUCCESS",
-                                                    "transId": "42034940",
-                                                    "transCode": "MQIWXFMQ",
-                                                    "statusmessage": "Valid Receipt"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            "401": {
-                                "description": "Unauthorized",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {
-                                            "example": {
-                                                "success": "false",
-                                                "error": "credential access denied: session expired",
-                                                "timestamp": "2025-09-21T06:26:08.935Z",
-                                                "path": "/api/v2/shared/billing/identification",
-                                                "status": 401,
-                                                "details": "credential access denied: session expired"
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "tags": [
-                            "Shared—Billing"
-                        ]
-                    }
-                },
-                "/api/v2/shared/billing/generateguid": {
-                    "post": {
-                        "operationId": "PaymentAppController_generatebillingGuid",
-                        "summary": "v2 resource for creating an order and billing reference",
-                        "description": "\n            This endpoint is a v2 resource for generating a \"reference\" web guid.\n\n            - The request includes no request body and a single query parameter.\n            - A successful request will generate a billing receipt.\n            - Clients can use a browser or some request client in Node.js.\n            - Each request payload has an identical shape as shown below ↓.\n\n            Example:\n            ```js\n            handshake_token=eyabcd1234.12345 \n            Authorization: Bearer {handshake_token} —— `credential signature`\n\n            Testing Example:\n            -X POST https://{baseurl}/api/v2/shared/billing/generateguid\n            -H 'Content-Type: application/json' \n            -H 'Authorization: Bearer {handshake_token}'\n            {\n                \"Pid\": \"N-191005\",\n                \"Amount\": \"21000\",\n                \"AgencyCode\": \"4250000\",\n                \"RevCode\": \"4010002\",\n                \"AppliedDate\":\"Test October 2025\",\n                \"AssessmentRef\":\"IF-DepositSlip-1100\"\n            }\n\n            ```\n        ",
-                        "parameters": [],
-                        "requestBody": {
-                            "required": true,
-                            "content": {
-                                "application/json": {
-                                    "schema": {
-                                        "$ref": "#/components/schemas/GlobalBillReferenceDto"
-                                    }
-                                }
-                            }
-                        },
-                        "responses": {
-                            "200": {
-                                "description": "successfully generates a guid",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {
-                                            "example": {
-                                                "status": 200,
-                                                "message": "WebGuid Created",
-                                                "success": "true",
-                                                "data": {
-                                                    "orderId": "ord-mvaa1759738115059ng5jeskt",
-                                                    "userId": "62a4d035-e62a-4e3d-89c0-9e05d346f76e",
-                                                    "paymentReference": "1910050-5717087-229",
-                                                    "amount": "21000",
-                                                    "pid": "N-191005",
-                                                    "agencyCode": "4250000",
-                                                    "appliedDate": "Test December 2025",
-                                                    "billingClientType": "N",
-                                                    "revenueCode": "4010002",
-                                                    "revenueClientId": "f7f6584da5fdeff261066d75ffac19e735ea",
-                                                    "revenueClientName": "THIRD_PARTY_INSURANCE",
-                                                    "receiptCallBackUrl": "https://lagos-mvaa-website.vercel.app/services",
-                                                    "user": {
-                                                        "id": "62a4d035-e62a-4e3d-89c0-9e05d346f76e"
-                                                    },
-                                                    "currency": null,
-                                                    "receiptStatus": "PENDING",
-                                                    "country": null,
-                                                    "state": null,
-                                                    "assessmentReference": null,
-                                                    "billingClientName": null,
-                                                    "billingClientId": null,
-                                                    "revenueProductId": null,
-                                                    "revenueProductDescription": null,
-                                                    "NIN": null,
-                                                    "mobilePhoneNumber": null,
-                                                    "walletName": null,
-                                                    "bankName": null,
-                                                    "bankAccountNumber": null,
-                                                    "bankCode": null,
-                                                    "id": "c0509326-5633-4b21-881a-c71619c2fbdd",
-                                                    "createdAt": "2025-10-06T08:08:35.067Z",
-                                                    "updatedAt": "2025-10-06T08:08:35.067Z"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            "201": {
                                 "description": "",
                                 "content": {
                                     "application/json": {
@@ -1674,33 +2444,16 @@ window.onload = function () {
                                         }
                                     }
                                 }
-                            },
-                            "401": {
-                                "description": "credential access denied",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {
-                                            "example": {
-                                                "success": "false",
-                                                "error": "credential access denied: session expired",
-                                                "timestamp": "2025-09-21T06:26:08.935Z",
-                                                "path": "/api/v2/shared/billing/identification",
-                                                "status": 401,
-                                                "details": "credential access denied: session expired"
-                                            }
-                                        }
-                                    }
-                                }
                             }
                         },
                         "tags": [
-                            "Shared—Billing"
+                            "Billing"
                         ]
                     }
                 },
-                "/api/v2/shared/payment/initialize": {
+                "/api/v2/shared/payment/initializeTranzact": {
                     "post": {
-                        "operationId": "PaymentAppController_generateTransactionalOrder",
+                        "operationId": "PaymentAppController_generateEtranzact",
                         "parameters": [],
                         "responses": {
                             "201": {
@@ -1715,31 +2468,7 @@ window.onload = function () {
                             }
                         },
                         "tags": [
-                            "Shared—Billing"
-                        ]
-                    }
-                },
-                "/api/v2/shared/payment/transaction/retrieve": {
-                    "post": {
-                        "operationId": "PaymentAppController_verifyFulfilledOrder",
-                        "parameters": [],
-                        "responses": {
-                            "200": {
-                                "description": "this resource aims to fetch and fulfil transactional orders",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {
-                                            "example": {
-                                                "success": true,
-                                                "status": 200
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "tags": [
-                            "Shared—Billing"
+                            "Billing"
                         ]
                     }
                 },
@@ -2025,7 +2754,7 @@ window.onload = function () {
                 },
                 "/api/v1/staff/profile/{id}": {
                     "get": {
-                        "operationId": "StaffAppController_getStaffProfile",
+                        "operationId": "StaffAppController_getOrders",
                         "parameters": [
                             {
                                 "name": "id",
@@ -2089,6 +2818,62 @@ window.onload = function () {
                         },
                         "tags": [
                             "Staff"
+                        ]
+                    }
+                },
+                "/api/v2/webhook/register": {
+                    "post": {
+                        "operationId": "WebhookAppController_handleRecipientRegistration",
+                        "summary": "resource to verify an order status",
+                        "description": "\n            This endpoint serves as an admin resource for registering module urls for message dispatch.\n    \n            - The request includes a request body with all the necessary parameters.\n            - A successful connection will create a secret for any module registered.\n            - Clients can use a browser or some request client in Node.js.\n            - Each request payload has an identical shape as shown below ↓.\n            \n            Example:\n            ```js\n              Testing Example:\n              -X POST https://{baseurl}/api/v2/webhook/register'\n              -H 'Content-Type: application/json' \n              {\n                \"url\": \"your_webhook_url\",\n                \"isPaymentFailed\": false,\n                \"isPaymentSuccess\": true\n              }\n            ```\n\n            - Consumer can verify central payload after payment response is sent and validate with request secret as shown below ↓.\n            - An admin registers the url above, the payload is sent to the url, consumer/module validates the payload is from central source with secret.\n\n            Example:\n            ```js\n              Testing Webhook Payload:\n              const hash = crypto\n                        .createHmac(\"sha256\", secret) // use secret to generate hash to enhance trust with payload\n                        .update(JSON.stringify(req.body))\n                        .digest(\"hex\");\n\n            if (hash !== req.headers[\"x-mvaa-signature-id\"]) {\n                    throw new Error(\"Invalid signature\");\n            }\n            ```\n          ",
+                        "parameters": [],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/CreateWebhookRequestDto"
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "successfully fetch orders",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "status": 200,
+                                                "message": "success",
+                                                "success": "true",
+                                                "data": {
+                                                    "secret": "MV_TESTcf5fe70c27cc2d2f38befef9dc8277f40811c151faf0bed26c1734609bbc1376"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "401": {
+                                "description": "credential access denied",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "example": {
+                                                "success": "false",
+                                                "error": "Unauthorized",
+                                                "timestamp": "2025-09-21T06:26:08.935Z",
+                                                "status": 401,
+                                                "details": "Unauthorized"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tags": [
+                            "Webhook"
                         ]
                     }
                 }
@@ -2155,6 +2940,12 @@ window.onload = function () {
                             "phone": {
                                 "type": "string"
                             },
+                            "placeOfBirth": {
+                                "type": "string"
+                            },
+                            "maritalStatus": {
+                                "type": "string"
+                            },
                             "address": {
                                 "$ref": "#/components/schemas/AddressUI"
                             },
@@ -2167,6 +2958,8 @@ window.onload = function () {
                             "lastName",
                             "email",
                             "phone",
+                            "placeOfBirth",
+                            "maritalStatus",
                             "address",
                             "password"
                         ]
@@ -2208,6 +3001,21 @@ window.onload = function () {
                                 "$ref": "#/components/schemas/AddressUI"
                             }
                         }
+                    },
+                    "CompanyUtilityBillUpdateDto": {
+                        "type": "object",
+                        "properties": {
+                            "url": {
+                                "type": "string"
+                            },
+                            "userType": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "url",
+                            "userType"
+                        ]
                     },
                     "PasswordResetDto": {
                         "type": "object",
@@ -2263,6 +3071,11 @@ window.onload = function () {
                                 "type": "string",
                                 "minLength": 2,
                                 "maxLength": 50
+                            },
+                            "utilityBill": {
+                                "type": "string",
+                                "minLength": 2,
+                                "maxLength": 50
                             }
                         },
                         "required": [
@@ -2274,7 +3087,8 @@ window.onload = function () {
                             "state",
                             "contactPhone",
                             "email",
-                            "utilityBillDescription"
+                            "utilityBillDescription",
+                            "utilityBill"
                         ]
                     },
                     "CompanyOwnerUI": {
@@ -2286,7 +3100,7 @@ window.onload = function () {
                             "surname": {
                                 "type": "string"
                             },
-                            "otherName": {
+                            "firstName": {
                                 "type": "string"
                             },
                             "sex": {
@@ -2314,7 +3128,7 @@ window.onload = function () {
                         "required": [
                             "title",
                             "surname",
-                            "otherName",
+                            "firstName",
                             "sex",
                             "maritalStatus",
                             "dob",
@@ -2410,6 +3224,53 @@ window.onload = function () {
                             "regNumber"
                         ]
                     },
+                    "GlobalBillingReceiptDto": {
+                        "type": "object",
+                        "properties": {
+                            "pid": {
+                                "type": "string"
+                            },
+                            "amount": {
+                                "type": "string"
+                            },
+                            "agencyCode": {
+                                "type": "string"
+                            },
+                            "revCode": {
+                                "type": "string"
+                            },
+                            "assessmentReference": {
+                                "type": "string"
+                            },
+                            "appliedDate": {
+                                "type": "string"
+                            },
+                            "currency": {
+                                "type": "string"
+                            },
+                            "country": {
+                                "type": "string"
+                            },
+                            "state": {
+                                "type": "string"
+                            },
+                            "gateway": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "pid",
+                            "amount",
+                            "agencyCode",
+                            "revCode",
+                            "assessmentReference",
+                            "appliedDate",
+                            "currency",
+                            "country",
+                            "state",
+                            "gateway"
+                        ]
+                    },
                     "BillingRegistrationDto": {
                         "type": "object",
                         "properties": {
@@ -2465,57 +3326,6 @@ window.onload = function () {
                             "ninNumber"
                         ]
                     },
-                    "GlobalBillReferenceDto": {
-                        "type": "object",
-                        "properties": {
-                            "Pid": {
-                                "type": "string"
-                            },
-                            "Amount": {
-                                "type": "string"
-                            },
-                            "AgencyCode": {
-                                "type": "string"
-                            },
-                            "RevCode": {
-                                "type": "string"
-                            },
-                            "AssessmentRef": {
-                                "type": "string"
-                            },
-                            "AppliedDate": {
-                                "type": "string"
-                            },
-                            "NIN": {
-                                "type": "string"
-                            },
-                            "currency": {
-                                "type": "string"
-                            },
-                            "productId": {
-                                "type": "string"
-                            },
-                            "mobilePhoneNumber": {
-                                "type": "string"
-                            },
-                            "productDescription": {
-                                "type": "string"
-                            }
-                        },
-                        "required": [
-                            "Pid",
-                            "Amount",
-                            "AgencyCode",
-                            "RevCode",
-                            "AssessmentRef",
-                            "AppliedDate",
-                            "NIN",
-                            "currency",
-                            "productId",
-                            "mobilePhoneNumber",
-                            "productDescription"
-                        ]
-                    },
                     "NewAdminDTO": {
                         "type": "object",
                         "properties": {
@@ -2541,6 +3351,25 @@ window.onload = function () {
                             "email",
                             "password",
                             "username"
+                        ]
+                    },
+                    "CreateWebhookRequestDto": {
+                        "type": "object",
+                        "properties": {
+                            "url": {
+                                "type": "string"
+                            },
+                            "isPaymentFailed": {
+                                "type": "boolean"
+                            },
+                            "isPaymentSuccess": {
+                                "type": "boolean"
+                            }
+                        },
+                        "required": [
+                            "url",
+                            "isPaymentFailed",
+                            "isPaymentSuccess"
                         ]
                     },
                     "PayerIdentification": {
@@ -2752,6 +3581,45 @@ window.onload = function () {
                             "updatedAt"
                         ]
                     },
+                    "CompanyTINEntityIdentification": {
+                        "type": "object",
+                        "properties": {
+                            "tin": {
+                                "type": "string"
+                            },
+                            "taxpayerName": {
+                                "type": "string"
+                            },
+                            "cacRegNo": {
+                                "type": "string"
+                            },
+                            "entityType": {
+                                "type": "string"
+                            },
+                            "jittin": {
+                                "type": "string"
+                            },
+                            "taxOffice": {
+                                "type": "string"
+                            },
+                            "phone": {
+                                "type": "string"
+                            },
+                            "email": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "tin",
+                            "taxpayerName",
+                            "cacRegNo",
+                            "entityType",
+                            "jittin",
+                            "taxOffice",
+                            "phone",
+                            "email"
+                        ]
+                    },
                     "OrderEntity": {
                         "type": "object",
                         "properties": {
@@ -2843,6 +3711,9 @@ window.onload = function () {
                             },
                             "utilityBillDescription": {
                                 "type": "string"
+                            },
+                            "utilityBill": {
+                                "type": "string"
                             }
                         },
                         "required": [
@@ -2857,7 +3728,51 @@ window.onload = function () {
                             "landmark",
                             "contactPhone",
                             "email",
-                            "utilityBillDescription"
+                            "utilityBillDescription",
+                            "utilityBill"
+                        ]
+                    },
+                    "UserEntityIdentification": {
+                        "type": "object",
+                        "properties": {
+                            "nin": {
+                                "type": "string"
+                            },
+                            "firstname": {
+                                "type": "string"
+                            },
+                            "lastname": {
+                                "type": "string"
+                            },
+                            "middlename": {
+                                "type": "string"
+                            },
+                            "phone": {
+                                "type": "string"
+                            },
+                            "gender": {
+                                "type": "string"
+                            },
+                            "photo": {
+                                "type": "string"
+                            },
+                            "birthdate": {
+                                "type": "string"
+                            },
+                            "residence": {
+                                "$ref": "#/components/schemas/Residence"
+                            }
+                        },
+                        "required": [
+                            "nin",
+                            "firstname",
+                            "lastname",
+                            "middlename",
+                            "phone",
+                            "gender",
+                            "photo",
+                            "birthdate",
+                            "residence"
                         ]
                     },
                     "CompanyOwner": {
@@ -2869,7 +3784,7 @@ window.onload = function () {
                             "surname": {
                                 "type": "string"
                             },
-                            "otherName": {
+                            "firstName": {
                                 "type": "string"
                             },
                             "sex": {
@@ -2892,19 +3807,23 @@ window.onload = function () {
                             },
                             "passportNumber": {
                                 "type": "string"
+                            },
+                            "entityId": {
+                                "$ref": "#/components/schemas/UserEntityIdentification"
                             }
                         },
                         "required": [
                             "title",
                             "surname",
-                            "otherName",
+                            "firstName",
                             "sex",
                             "maritalStatus",
                             "dob",
                             "placeOfBirth",
                             "nationalIdentificationNumber",
                             "driverLicenseNumber",
-                            "passportNumber"
+                            "passportNumber",
+                            "entityId"
                         ]
                     },
                     "CorporateEntity": {
@@ -2941,6 +3860,9 @@ window.onload = function () {
                             },
                             "entityId": {
                                 "$ref": "#/components/schemas/EntityIdentification"
+                            },
+                            "tinEntityId": {
+                                "$ref": "#/components/schemas/CompanyTINEntityIdentification"
                             },
                             "isVerified": {
                                 "type": "boolean"
@@ -3005,6 +3927,7 @@ window.onload = function () {
                             "isActivated",
                             "payerId",
                             "entityId",
+                            "tinEntityId",
                             "isVerified",
                             "role",
                             "userType",
@@ -3088,49 +4011,73 @@ window.onload = function () {
                             "createdAt"
                         ]
                     },
-                    "WeightedOrderEntity": {
+                    "GatewayEvents": {
                         "type": "object",
                         "properties": {
                             "id": {
                                 "type": "string"
                             },
-                            "orderId": {
+                            "payment_id": {
                                 "type": "string"
                             },
-                            "userId": {
+                            "order": {
+                                "$ref": "#/components/schemas/WeightedOrderEntity"
+                            },
+                            "payment_gateway": {
+                                "type": "string",
+                                "enum": [
+                                    "paystack",
+                                    "flutterwave",
+                                    "pay4it",
+                                    "credo"
+                                ]
+                            },
+                            "gateway_reference": {
                                 "type": "string"
                             },
-                            "user": {
-                                "$ref": "#/components/schemas/UserEntity"
-                            },
-                            "paymentReference": {
+                            "gateway_event": {
                                 "type": "string"
                             },
-                            "amount": {
+                            "processedAt": {
+                                "format": "date-time",
                                 "type": "string"
                             },
-                            "currency": {
+                            "payload": {
+                                "type": "object"
+                            },
+                            "is_module_webhook": {
+                                "type": "boolean"
+                            },
+                            "is_module_validate": {
+                                "type": "boolean"
+                            },
+                            "createdAt": {
+                                "format": "date-time",
                                 "type": "string"
                             },
-                            "receiptStatus": {
+                            "updatedAt": {
+                                "format": "date-time",
                                 "type": "string"
-                            },
-                            "country": {
-                                "type": "string"
-                            },
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "payment_id",
+                            "payment_gateway",
+                            "gateway_reference",
+                            "gateway_event",
+                            "processedAt",
+                            "payload",
+                            "is_module_webhook",
+                            "is_module_validate",
+                            "createdAt",
+                            "updatedAt"
+                        ]
+                    },
+                    "BillingClientMetaData": {
+                        "type": "object",
+                        "properties": {
                             "pid": {
-                                "type": "string"
-                            },
-                            "state": {
-                                "type": "string"
-                            },
-                            "agencyCode": {
-                                "type": "string"
-                            },
-                            "appliedDate": {
-                                "type": "string"
-                            },
-                            "assessmentReference": {
                                 "type": "string"
                             },
                             "billingClientType": {
@@ -3142,6 +4089,41 @@ window.onload = function () {
                             "billingClientId": {
                                 "type": "string"
                             },
+                            "agencyCode": {
+                                "type": "string"
+                            },
+                            "appliedDate": {
+                                "type": "string"
+                            },
+                            "assessmentReference": {
+                                "type": "string"
+                            },
+                            "guid_ref": {
+                                "type": "string"
+                            },
+                            "country": {
+                                "type": "string"
+                            },
+                            "state": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "pid",
+                            "billingClientType",
+                            "billingClientName",
+                            "billingClientId",
+                            "agencyCode",
+                            "appliedDate",
+                            "assessmentReference",
+                            "guid_ref",
+                            "country",
+                            "state"
+                        ]
+                    },
+                    "RevenueMetadata": {
+                        "type": "object",
+                        "properties": {
                             "revenueCode": {
                                 "type": "string"
                             },
@@ -3149,21 +4131,38 @@ window.onload = function () {
                                 "type": "string"
                             },
                             "revenueClientName": {
-                                "type": "string"
+                                "type": "string",
+                                "enum": [
+                                    "NUMBER_PLATE_SERVICES",
+                                    "DRIVING_LICENSE",
+                                    "VEHICLE_REGISTRATION",
+                                    "AUTO_DEALER_SPARE_PARTS",
+                                    "HACKNEY_PERMIT",
+                                    "ROAD_WORTHINESS",
+                                    "THIRD_PARTY_INSURANCE",
+                                    " INTERNATIONAL_DRIVING_LICENSE",
+                                    "TINTED_PERMIT"
+                                ]
                             },
                             "revenueProductId": {
                                 "type": "string"
                             },
                             "revenueProductDescription": {
                                 "type": "string"
-                            },
-                            "NIN": {
-                                "type": "string"
-                            },
+                            }
+                        },
+                        "required": [
+                            "revenueCode",
+                            "revenueClientId",
+                            "revenueClientName",
+                            "revenueProductId",
+                            "revenueProductDescription"
+                        ]
+                    },
+                    "TransactionMetadata": {
+                        "type": "object",
+                        "properties": {
                             "mobilePhoneNumber": {
-                                "type": "string"
-                            },
-                            "receiptCallBackUrl": {
                                 "type": "string"
                             },
                             "walletName": {
@@ -3178,6 +4177,100 @@ window.onload = function () {
                             "bankCode": {
                                 "type": "string"
                             },
+                            "NIN": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "mobilePhoneNumber",
+                            "walletName",
+                            "bankName",
+                            "bankAccountNumber",
+                            "bankCode",
+                            "NIN"
+                        ]
+                    },
+                    "ProcessedOrderMetadata": {
+                        "type": "object",
+                        "properties": {}
+                    },
+                    "WeightedOrderEntity": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "order_id": {
+                                "type": "string"
+                            },
+                            "amount": {
+                                "type": "string"
+                            },
+                            "currency": {
+                                "type": "string"
+                            },
+                            "payment_reference": {
+                                "type": "string"
+                            },
+                            "gateway_reference": {
+                                "type": "string"
+                            },
+                            "receipt_status": {
+                                "type": "string",
+                                "enum": [
+                                    "PENDING",
+                                    "CONFIRMED",
+                                    "FULFILLED",
+                                    "PROCESSED",
+                                    "FAILED",
+                                    "CANCELLED"
+                                ]
+                            },
+                            "receipt_callback_url": {
+                                "type": "string"
+                            },
+                            "userId": {
+                                "type": "string"
+                            },
+                            "companyId": {
+                                "type": "string"
+                            },
+                            "user": {
+                                "$ref": "#/components/schemas/UserEntity"
+                            },
+                            "company": {
+                                "$ref": "#/components/schemas/CorporateEntity"
+                            },
+                            "event": {
+                                "$ref": "#/components/schemas/GatewayEvents"
+                            },
+                            "gateway": {
+                                "type": "string",
+                                "enum": [
+                                    "paystack",
+                                    "flutterwave",
+                                    "pay4it",
+                                    "credo"
+                                ]
+                            },
+                            "billing_metadata": {
+                                "$ref": "#/components/schemas/BillingClientMetaData"
+                            },
+                            "revenue_module_metadata": {
+                                "$ref": "#/components/schemas/RevenueMetadata"
+                            },
+                            "trans_metadata": {
+                                "$ref": "#/components/schemas/TransactionMetadata"
+                            },
+                            "gateway_metadata": {
+                                "$ref": "#/components/schemas/ProcessedOrderMetadata"
+                            },
+                            "is_gateway_processed": {
+                                "type": "boolean"
+                            },
+                            "is_processed_count": {
+                                "type": "number"
+                            },
                             "createdAt": {
                                 "format": "date-time",
                                 "type": "string"
@@ -3189,33 +4282,22 @@ window.onload = function () {
                         },
                         "required": [
                             "id",
-                            "orderId",
-                            "userId",
-                            "paymentReference",
+                            "order_id",
                             "amount",
                             "currency",
-                            "receiptStatus",
-                            "country",
-                            "pid",
-                            "state",
-                            "agencyCode",
-                            "appliedDate",
-                            "assessmentReference",
-                            "billingClientType",
-                            "billingClientName",
-                            "billingClientId",
-                            "revenueCode",
-                            "revenueClientId",
-                            "revenueClientName",
-                            "revenueProductId",
-                            "revenueProductDescription",
-                            "NIN",
-                            "mobilePhoneNumber",
-                            "receiptCallBackUrl",
-                            "walletName",
-                            "bankName",
-                            "bankAccountNumber",
-                            "bankCode",
+                            "payment_reference",
+                            "gateway_reference",
+                            "receipt_status",
+                            "receipt_callback_url",
+                            "userId",
+                            "event",
+                            "gateway",
+                            "billing_metadata",
+                            "revenue_module_metadata",
+                            "trans_metadata",
+                            "gateway_metadata",
+                            "is_gateway_processed",
+                            "is_processed_count",
                             "createdAt",
                             "updatedAt"
                         ]
@@ -3267,6 +4349,18 @@ window.onload = function () {
                             },
                             "address": {
                                 "$ref": "#/components/schemas/Address"
+                            },
+                            "maritalStatus": {
+                                "type": "string"
+                            },
+                            "placeOfBirth": {
+                                "type": "string"
+                            },
+                            "driverLicenseNumber": {
+                                "type": "string"
+                            },
+                            "passportNumber": {
+                                "type": "string"
                             },
                             "image": {
                                 "type": "string"
@@ -3323,6 +4417,10 @@ window.onload = function () {
                             "isVerified",
                             "isActivated",
                             "address",
+                            "maritalStatus",
+                            "placeOfBirth",
+                            "driverLicenseNumber",
+                            "passportNumber",
                             "image",
                             "role",
                             "userType",
