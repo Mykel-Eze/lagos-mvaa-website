@@ -1,8 +1,7 @@
 // src/pages/TransactionHistory.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Spin } from 'antd';
-import { LoadingOutlined } from '@ant-design/icons';
+
 import { fetchTransactions } from '../services/api';
 import BillingLayout from '../layouts/BillingLayout';
 import OrderStatusBadge from '../components/OrderStatusBadge';

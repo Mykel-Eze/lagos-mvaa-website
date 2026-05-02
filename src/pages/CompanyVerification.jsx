@@ -397,7 +397,7 @@ export default function CompanyVerification() {
                     >
                         <p className="create-payer-link">
                             Don't have a Payer ID?{' '}
-                            <a href="#" target="_blank" rel="noopener noreferrer">Create one here →</a>
+                            <a href="https://lirs.lagosstate.gov.ng" target="_blank" rel="noopener noreferrer">Create one here →</a>
                         </p>
                     </VerifyField>
                     {payerResult && payerStatus === STATUS.SUCCESS && (

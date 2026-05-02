@@ -14,7 +14,6 @@ const SERVICE_URL_MAP = {
 };
 
 const ServicesComponent = () => {
-  const isCompany = Cookies.get('user_type') === 'company';
   const [ loadingService, setLoadingService ] = useState(null);
 
   const handleServiceClick = async (appName, appId) => {
