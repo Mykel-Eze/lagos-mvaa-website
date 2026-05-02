@@ -36,6 +36,8 @@ const Registration = () => {
         lastName: values.lastName,
         email: values.email,
         phone: values.countryCode + values.phoneNumber,
+        placeOfBirth: values.placeOfBirth,
+        maritalStatus: values.maritalStatus,
         address: {
           street: values.street,
           lga: values.lga,
@@ -92,12 +94,14 @@ const Registration = () => {
         },
         companyOwner: {
           title: values.ownerTitle,
+          firstName: values.ownerFirstName,
           surname: values.ownerSurname,
           otherName: values.ownerOtherName,
           sex: values.ownerSex,
           maritalStatus: values.ownerMaritalStatus,
-          dob: values.ownerDob ? values.ownerDob.format('YYYY-MM-DD') : null,
+          dob: values.ownerDob ? values.ownerDob.toDate().toISOString() : null,
           placeOfBirth: values.ownerPlaceOfBirth,
+          nationalIdentificationNumber: values.ownerNIN,
           driverLicenseNumber: values.ownerDriverLicense,
           passportNumber: values.ownerPassport
         },
@@ -131,12 +135,14 @@ const Registration = () => {
         // Owner details
         companyOwner: {
           title: values.ownerTitle,
+          firstName: values.ownerFirstName,
           surname: values.ownerSurname,
           otherName: values.ownerOtherName,
           sex: values.ownerSex,
           maritalStatus: values.ownerMaritalStatus,
           dob: values.ownerDob ? values.ownerDob.format('YYYY-MM-DD') : null,
           placeOfBirth: values.ownerPlaceOfBirth,
+          nationalIdentificationNumber: values.ownerNIN,
           driverLicenseNumber: values.ownerDriverLicense,
           passportNumber: values.ownerPassport,
         },

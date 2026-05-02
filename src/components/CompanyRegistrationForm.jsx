@@ -345,11 +345,15 @@ const CompanyRegistrationForm = ({ onSubmit, isLoading }) => {
                         </Select>
                     </Form.Item>
 
-                    <Form.Item name="ownerSurname" label="Surname" rules={[ { required: true } ]} className="mb-4">
+                    <Form.Item name="ownerFirstName" label="First Name" rules={[ { required: true, message: 'Please enter first name' } ]} className="mb-4">
+                        <Input placeholder="First Name" size="large" />
+                    </Form.Item>
+
+                    <Form.Item name="ownerSurname" label="Surname" rules={[ { required: true, message: 'Please enter surname' } ]} className="mb-4">
                         <Input placeholder="Surname" size="large" />
                     </Form.Item>
 
-                    <Form.Item name="ownerOtherName" label="Other Names" rules={[ { required: true } ]} className="mb-4">
+                    <Form.Item name="ownerOtherName" label="Other Names (Optional)" className="mb-4">
                         <Input placeholder="Other Names" size="large" />
                     </Form.Item>
 
@@ -399,6 +403,15 @@ const CompanyRegistrationForm = ({ onSubmit, isLoading }) => {
 
                     <Form.Item name="ownerPlaceOfBirth" label="Place of Birth" rules={[ { required: true } ]} className="mb-4">
                         <Input placeholder="City/State of Birth" size="large" />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="ownerNIN"
+                        label="National Identification Number (NIN)"
+                        rules={[ { required: true, message: 'Please enter NIN' } ]}
+                        className="mb-4"
+                    >
+                        <Input placeholder="Enter NIN" size="large" maxLength={11} />
                     </Form.Item>
 
                     <Form.Item name="ownerDriverLicense" label="Driving License" className="mb-4">

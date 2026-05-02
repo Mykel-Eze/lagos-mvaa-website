@@ -8,6 +8,13 @@ import LoadingSpinner from './LoadingSpinner';
 
 const { Option } = Select;
 
+const MARITAL_STATUSES = [
+    { value: 'single', label: 'Single' },
+    { value: 'married', label: 'Married' },
+    { value: 'divorced', label: 'Divorced' },
+    { value: 'widowed', label: 'Widowed' },
+];
+
 const IndividualRegistrationForm = ({ onSubmit, isLoading }) => {
     const [ form ] = Form.useForm();
     const [ passwordVisible, setPasswordVisible ] = useState(false);
@@ -121,7 +128,31 @@ const IndividualRegistrationForm = ({ onSubmit, isLoading }) => {
                 </div>
             </Form.Item>
 
-            {/* Address Fields */}
+            {/* Place of Birth */}
+            <Form.Item
+                label="Place of Birth"
+                name="placeOfBirth"
+                rules={[ { required: true, message: 'Please enter your place of birth' } ]}
+                className="mb-6"
+            >
+                <Input placeholder="e.g. Lagos, Nigeria" size="large" />
+            </Form.Item>
+
+            {/* Marital Status */}
+            <Form.Item
+                label="Marital Status"
+                name="maritalStatus"
+                rules={[ { required: true, message: 'Please select your marital status' } ]}
+                className="mb-6"
+            >
+                <Select placeholder="Select marital status" size="large">
+                    {MARITAL_STATUSES.map(s => (
+                        <Option key={s.value} value={s.value}>{s.label}</Option>
+                    ))}
+                </Select>
+            </Form.Item>
+
+            {/* Street */}
             <Form.Item
                 label="Street"
                 name="street"
@@ -131,6 +162,7 @@ const IndividualRegistrationForm = ({ onSubmit, isLoading }) => {
                 <Input placeholder="Enter your street address" size="large" />
             </Form.Item>
 
+            {/* LGA */}
             <Form.Item
                 label="LGA"
                 name="lga"
@@ -147,9 +179,7 @@ const IndividualRegistrationForm = ({ onSubmit, isLoading }) => {
                     }
                 >
                     {lagosLGAs.lagosLGAs.map(lga => (
-                        <Option key={lga} value={lga}>
-                            {lga}
-                        </Option>
+                        <Option key={lga} value={lga}>{lga}</Option>
                     ))}
                 </Select>
             </Form.Item>
@@ -212,7 +242,7 @@ const IndividualRegistrationForm = ({ onSubmit, isLoading }) => {
                 />
             </Form.Item>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <Form.Item>
                 <Button
                     type="primary"
@@ -220,16 +250,16 @@ const IndividualRegistrationForm = ({ onSubmit, isLoading }) => {
                     className="w-full h-[43px] submit-btn text-white text-[12px] uppercase"
                     disabled={isLoading}
                 >
-                    {isLoading ? <LoadingSpinner size="small" color="#ffffff" className="mx-auto" /> : "CREATE ACCOUNT"}
+                    {isLoading
+                        ? <LoadingSpinner size="small" color="#ffffff" className="mx-auto" />
+                        : 'CREATE ACCOUNT'}
                 </Button>
             </Form.Item>
 
-            {/* Login Link */}
+            {/* Login link */}
             <div className="mt-4 text-center">
                 <span className="text-gray-600">Already have an account? </span>
-                <Link to="/login" className="text-green-600 font-medium">
-                    Log In
-                </Link>
+                <Link to="/login" className="text-green-600 font-medium">Log In</Link>
             </div>
         </Form>
     );
