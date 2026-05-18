@@ -20,7 +20,6 @@
     flex-wrap: wrap;
     z-index: 9999;
     position: relative;
-    display: none;
 }
 
 .unverified-banner-icon {

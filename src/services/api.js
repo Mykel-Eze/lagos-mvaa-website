@@ -125,12 +125,17 @@ export const getProfile = async () => {
 
     const response = await api.get('/shared/profile');
 
-    // Merge with existing cached user so locally-set fields (is_verified etc.) survive
     const existing = (() => {
       try { return JSON.parse(Cookies.get('user') || '{}'); } catch { return {}; }
     })();
 
-    Cookies.set('user', JSON.stringify({ ...existing, ...response.data }), COOKIE_OPTS);
+    const merged = { ...existing, ...response.data };
+    // The swagger profile endpoint does not return is_verified. If we locally set it
+    // to true after submitVerification(), protect it from being wiped by future
+    // profile fetches in case the backend starts returning a stale false value.
+    if (existing.is_verified === true && !merged.is_verified) merged.is_verified = true;
+
+    Cookies.set('user', JSON.stringify(merged), COOKIE_OPTS);
     return response.data;
   } catch (error) {
     if (error.response?.status === 401 || error.response?.status === 403) {

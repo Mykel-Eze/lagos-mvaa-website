@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(\\(Get-Item \"c:\\\\Users\\\\mykel\\\\OneDrive\\\\Desktop\\\\Projects\\\\lagos-mvaa-website\\\\swagger-ui-init.js\"\\).length)"
+    ]
+  }
+}
