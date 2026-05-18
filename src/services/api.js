@@ -123,9 +123,7 @@ export const getProfile = async () => {
     const sessionId = Cookies.get('portal_session_id');
     if (!sessionId) throw new Error('No session found');
 
-    const response = await api.get('/shared/profile', {
-      headers: { 'portal_session_id': sessionId },
-    });
+    const response = await api.get('/shared/profile');
 
     // Merge with existing cached user so locally-set fields (is_verified etc.) survive
     const existing = (() => {
@@ -144,10 +142,7 @@ export const getProfile = async () => {
 
 export const logout = async () => {
   try {
-    const sessionId = Cookies.get('portal_session_id');
-    await api.post('/portal/auth/logout', {}, {
-      headers: { 'portal_session_id': sessionId || '' },
-    });
+    await api.post('/portal/auth/logout', {});
   } catch (error) {
     console.error('Logout server error (clearing cookies anyway):', error);
   } finally {
