@@ -111,7 +111,9 @@ export default function TransactionHistory() {
       // Sort newest first
       setOrders([ ...list ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
     } catch (err) {
-      setError(err?.error || err?.message || 'Failed to load transactions.');
+      const msg = err?.error || err?.message || '';
+      const isUserFacing = msg && msg.length < 120 && !/buffer|undefined|null|stack|at Object|at Array/i.test(msg);
+      setError(isUserFacing ? msg : 'Failed to load transactions. Please try again.');
     } finally {
       setIsLoading(false);
     }

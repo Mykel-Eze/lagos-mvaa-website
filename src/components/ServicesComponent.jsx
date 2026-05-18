@@ -123,15 +123,6 @@ const ServicesComponent = () => {
             />
           )} */}
 
-          {/* Transaction History — internal portal page, no external redirect */}
-          <ServiceCard
-            title="Transaction History"
-            icon="plateNo.png"
-            description="View and manage all your MVAA service payment records"
-            app_id="internal-transactions"
-            onClick={() => { window.location.href = '/transactions'; }}
-          />
-
         </div>
 
         {/* Redirect spinner overlay */}

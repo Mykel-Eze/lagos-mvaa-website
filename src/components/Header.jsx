@@ -212,6 +212,18 @@ const Header = () => {
                               Account Settings
                             </div>
                           </Link>
+                          <Link
+                            to="/transactions"
+                            className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                            onClick={() => setIsUserDropdownOpen(false)}
+                          >
+                            <div className="flex items-center">
+                              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                              </svg>
+                              Transaction History
+                            </div>
+                          </Link>
                           <button
                             onClick={handleLogout}
                             className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 transition-colors duration-200"
@@ -310,6 +322,11 @@ const Header = () => {
                   <li>
                     <Link to="/account-settings" className="pry-nav-btn" onClick={closeMobileMenu}>
                       Account Settings
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/transactions" className="pry-nav-btn" onClick={closeMobileMenu}>
+                      Transaction History
                     </Link>
                   </li>
                   <li>

@@ -377,6 +377,8 @@ export const verifyTransaction = async (ref) => {
  * Endpoint: GET /api/v2/shared/transaction
  */
 export const fetchTransactions = async () => {
+  const token = Cookies.get('user_access_token');
+  if (!token) throw { error: 'Session expired. Please log in again.' };
   try {
     const response = await api_v2.get('/shared/transaction');
     return response.data;
