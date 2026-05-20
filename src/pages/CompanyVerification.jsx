@@ -137,6 +137,9 @@ export default function CompanyVerification() {
 
     const [ showCreateForm, setShowCreateForm ] = useState(false);
     const [ createLoading, setCreateLoading ] = useState(false);
+    const [ createTitle, setCreateTitle ] = useState('');
+    const [ createMaritalStatus, setCreateMaritalStatus ] = useState('');
+    const [ createMiddleName, setCreateMiddleName ] = useState('');
 
     const [ submitting, setSubmitting ] = useState(false);
 
@@ -192,6 +195,7 @@ export default function CompanyVerification() {
             const res = await verifyBusinessNIN(nin.trim(), ownerFirstName, ownerLastName);
             setNinResult(res.data);
             setNinStatus(STATUS.SUCCESS);
+            setCreateMiddleName(res.data?.middlename || '');
             toast.success('Business owner NIN verified!');
         } catch (err) {
             setNinStatus(STATUS.ERROR);
@@ -227,24 +231,50 @@ export default function CompanyVerification() {
         }
     };
 
+    const mapSex = (gender) => {
+        if (!gender) return '';
+        const g = gender.toLowerCase();
+        if (g === 'm' || g === 'male') return 'Male';
+        if (g === 'f' || g === 'female') return 'Female';
+        return gender;
+    };
+
     const handleCreatePayerId = async () => {
+        if (!createTitle) { toast.error('Please select a title.'); return; }
+        if (!createMaritalStatus) { toast.error('Please select a marital status.'); return; }
+        if (!createMiddleName.trim()) { toast.error('Please enter the owner\'s middle name.'); return; }
+        if (ninStatus !== STATUS.SUCCESS) { toast.error('Please verify the business owner NIN first.'); return; }
+
         setCreateLoading(true);
         try {
+            const res_addr = ninResult?.residence;
+            const address = res_addr
+                ? [ res_addr.address1, res_addr.town, res_addr.lga, res_addr.state ].filter(Boolean).join(', ')
+                : '';
+
             const dto = {
-                Fullname: company?.companyName || '',
-                Email: company?.email || '',
-                Phone: company?.companyRepPhone || '',
-                State: 'Lagos',
-                RcNumber: company?.companyRCNumber || '',
-                Tin: company?.companyTIN || '',
+                type: 'Corporate',
+                title: createTitle,
+                sex: mapSex(ninResult?.gender),
+                maritalStatus: createMaritalStatus,
+                firstName: ninResult?.firstname || '',
+                lastName: ninResult?.lastname || '',
+                middleName: createMiddleName,
+                dateOfBirth: ninResult?.birthdate || '',
+                phoneNumber: ninResult?.phone || company?.companyRepPhone || '',
+                email: company?.email || '',
+                address,
+                ninNumber: nin.trim(),
             };
+
             const res = await createPayerId(dto);
             const pid = res.data?.Pid || res.data?.pid || res.data?.PID || res.data?.payerId || res.Pid || res.pid;
             if (!pid) throw new Error('No Payer ID returned from server.');
+
             toast.success('Payer ID created successfully!');
             setShowCreateForm(false);
             setPayerId(pid);
-            // Auto-verify the newly created Payer ID
+
             setPayerStatus(STATUS.LOADING);
             try {
                 const verifyRes = await verifyPayerId(pid);
@@ -256,7 +286,8 @@ export default function CompanyVerification() {
                 toast.info('Payer ID created — please click Verify to confirm it.');
             }
         } catch (err) {
-            toast.error(err?.error || err?.message || 'Failed to create Payer ID. Please try again.');
+            const details = Array.isArray(err?.details) ? err.details.join(', ') : null;
+            toast.error(details || err?.error || err?.message || 'Failed to create Payer ID. Please try again.');
         } finally {
             setCreateLoading(false);
         }
@@ -272,7 +303,8 @@ export default function CompanyVerification() {
         if (!allVerified) return;
         setSubmitting(true);
         try {
-            await submitVerification(company?.email);
+            const pid = payerResult?.Pid || payerResult?.pid || payerId;
+            await submitVerification(company?.email, { payerId: pid });
             toast.success('Company account verified! Welcome.');
             navigate('/services');
         } catch (err) {
@@ -435,25 +467,84 @@ export default function CompanyVerification() {
                     >
                         <div className="create-payer-link">
                             Don't have a Payer ID?{' '}
-                            <button
-                                type="button"
-                                className="create-payer-toggle"
-                                onClick={() => setShowCreateForm(v => !v)}
-                            >
-                                {showCreateForm ? 'Cancel' : 'Create one here →'}
-                            </button>
+                            {ninStatus !== STATUS.SUCCESS ? (
+                                <span style={{ color: '#9ca3af', fontSize: 12 }}>Verify the owner NIN first (Step 2) to create one.</span>
+                            ) : (
+                                <button
+                                    type="button"
+                                    className="create-payer-toggle"
+                                    onClick={() => setShowCreateForm(v => !v)}
+                                >
+                                    {showCreateForm ? 'Cancel' : 'Create one here →'}
+                                </button>
+                            )}
                         </div>
-                        {showCreateForm && (
+                        {showCreateForm && ninStatus === STATUS.SUCCESS && (
                             <div className="create-payer-form">
                                 <p className="create-payer-form-desc">
-                                    We'll register a Payer ID for your company using your account details. Review and confirm below.
+                                    The business owner's NIN details will be used to register the company Payer ID. Fill in the additional fields below.
                                 </p>
+                                <div className="create-payer-selects">
+                                    <div className="create-payer-select-group">
+                                        <label htmlFor="co-create-title">Owner Title <span style={{ color: '#ef4444' }}>*</span></label>
+                                        <select
+                                            id="co-create-title"
+                                            name="co-create-title"
+                                            value={createTitle}
+                                            onChange={e => setCreateTitle(e.target.value)}
+                                            className="verification-input"
+                                            style={{ height: 40, flex: 'auto' }}
+                                        >
+                                            <option value="">Select title</option>
+                                            <option value="Mr">Mr</option>
+                                            <option value="Mrs">Mrs</option>
+                                            <option value="Miss">Miss</option>
+                                            <option value="Dr">Dr</option>
+                                            <option value="Prof">Prof</option>
+                                            <option value="Engr">Engr</option>
+                                            <option value="Chief">Chief</option>
+                                        </select>
+                                    </div>
+                                    <div className="create-payer-select-group">
+                                        <label htmlFor="co-create-marital-status">Owner Marital Status <span style={{ color: '#ef4444' }}>*</span></label>
+                                        <select
+                                            id="co-create-marital-status"
+                                            name="co-create-marital-status"
+                                            value={createMaritalStatus}
+                                            onChange={e => setCreateMaritalStatus(e.target.value)}
+                                            className="verification-input"
+                                            style={{ height: 40, flex: 'auto' }}
+                                        >
+                                            <option value="">Select status</option>
+                                            <option value="Single">Single</option>
+                                            <option value="Married">Married</option>
+                                            <option value="Divorced">Divorced</option>
+                                            <option value="Widowed">Widowed</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                {!ninResult?.middlename && (
+                                    <div className="create-payer-select-group" style={{ marginBottom: 14 }}>
+                                        <label htmlFor="co-create-middle-name">Owner Middle Name <span style={{ color: '#ef4444' }}>*</span></label>
+                                        <input
+                                            id="co-create-middle-name"
+                                            name="co-create-middle-name"
+                                            type="text"
+                                            className="verification-input"
+                                            placeholder="Enter owner's middle name"
+                                            value={createMiddleName}
+                                            style={{ height: 40, flex: 'auto' }}
+                                            onChange={e => setCreateMiddleName(e.target.value)}
+                                        />
+                                    </div>
+                                )}
+
                                 <div className="create-payer-preview">
-                                    <div className="create-payer-row"><span>Company Name</span><span>{company?.companyName || '—'}</span></div>
+                                    <div className="create-payer-row"><span>Owner Name</span><span>{[ ninResult?.firstname, createMiddleName || ninResult?.middlename, ninResult?.lastname ].filter(Boolean).join(' ') || '—'}</span></div>
+                                    <div className="create-payer-row"><span>Date of Birth</span><span>{ninResult?.birthdate || '—'}</span></div>
+                                    <div className="create-payer-row"><span>Phone</span><span>{ninResult?.phone || company?.companyRepPhone || '—'}</span></div>
                                     <div className="create-payer-row"><span>Email</span><span>{company?.email || '—'}</span></div>
-                                    <div className="create-payer-row"><span>Phone</span><span>{company?.companyRepPhone || '—'}</span></div>
-                                    <div className="create-payer-row"><span>RC Number</span><span>{company?.companyRCNumber || '—'}</span></div>
-                                    <div className="create-payer-row"><span>TIN</span><span>{company?.companyTIN || '—'}</span></div>
+                                    <div className="create-payer-row"><span>NIN</span><span>{nin}</span></div>
                                 </div>
                                 <button
                                     type="button"

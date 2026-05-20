@@ -19,6 +19,7 @@ const AccountSettings = () => {
   const [ hasChanges, setHasChanges ] = useState(false);
   const [ initialValues, setInitialValues ] = useState({});
   const [ isCompany, setIsCompany ] = useState(false);
+  const [ verificationDetails, setVerificationDetails ] = useState({ nin: '', payerId: '', isVerified: false });
 
   // Load user profile data
   useEffect(() => {
@@ -91,6 +92,12 @@ const AccountSettings = () => {
             companyRCNumber: companyAccount ? (userData.companyRCNumber || '') : '',
             companyTIN: companyAccount ? (userData.companyTIN || '') : '',
           };
+
+          setVerificationDetails({
+            nin: userData.nin || '',
+            payerId: userData.payerId || '',
+            isVerified: !!(userData.data?.is_verified ?? userData.is_verified ?? false),
+          });
 
           setInitialValues(formData);
           form.setFieldsValue(formData);
@@ -287,6 +294,25 @@ const AccountSettings = () => {
                 </Select>
               </Form.Item>
             </div>
+
+            {/* Verification Details — read-only, only shown after verification */}
+            {verificationDetails.isVerified && (verificationDetails.nin || verificationDetails.payerId) && (
+              <>
+                <h3 className="text-base font-semibold text-gray-700 mt-4 mb-2">Verification Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-1 gap-x-10 max-w-4xl">
+                  {verificationDetails.nin && (
+                    <Form.Item label="NIN">
+                      <Input size="large" value={verificationDetails.nin} disabled className="rounded-md" />
+                    </Form.Item>
+                  )}
+                  {verificationDetails.payerId && (
+                    <Form.Item label="Payer ID">
+                      <Input size="large" value={verificationDetails.payerId} disabled className="rounded-md" />
+                    </Form.Item>
+                  )}
+                </div>
+              </>
+            )}
 
             {/* Company-specific fields */}
             {isCompany && (

@@ -10,6 +10,14 @@ import { verifyNIN, verifyPayerId, createPayerId, submitVerification } from '../
 
 const STATUS = { IDLE: 'idle', LOADING: 'loading', SUCCESS: 'success', ERROR: 'error' };
 
+const mapSex = (gender) => {
+    if (!gender) return '';
+    const g = gender.toLowerCase();
+    if (g === 'm' || g === 'male') return 'Male';
+    if (g === 'f' || g === 'female') return 'Female';
+    return gender;
+};
+
 function InfoCard({ label, value }) {
     return (
         <div className="verification-info-card">
@@ -75,6 +83,9 @@ export default function IndividualVerification() {
 
     const [ showCreateForm, setShowCreateForm ] = useState(false);
     const [ createLoading, setCreateLoading ] = useState(false);
+    const [ createTitle, setCreateTitle ] = useState('');
+    const [ createMaritalStatus, setCreateMaritalStatus ] = useState('');
+    const [ createMiddleName, setCreateMiddleName ] = useState('');
 
     const [ submitting, setSubmitting ] = useState(false);
 
@@ -98,11 +109,11 @@ export default function IndividualVerification() {
             );
             setNinResult(res.data);
             setNinStatus(STATUS.SUCCESS);
+            setCreateMiddleName(res.data?.middlename || '');
             toast.success('NIN verified successfully!');
         } catch (err) {
             setNinStatus(STATUS.ERROR);
-            const msg = err?.error || err?.message || err?.details || 'NIN verification failed. Please check and try again.';
-            toast.error(msg);
+            toast.error(err?.error || err?.message || err?.details || 'NIN verification failed. Please check and try again.');
         }
     };
 
@@ -116,27 +127,45 @@ export default function IndividualVerification() {
             toast.success('Payer ID verified successfully!');
         } catch (err) {
             setPayerStatus(STATUS.ERROR);
-            const msg = err?.error || err?.message || err?.details || 'Payer ID verification failed. Please check and try again.';
-            toast.error(msg);
+            toast.error(err?.error || err?.message || err?.details || 'Payer ID verification failed. Please check and try again.');
         }
     };
 
     const handleCreatePayerId = async () => {
+        if (!createTitle) { toast.error('Please select your title.'); return; }
+        if (!createMaritalStatus) { toast.error('Please select your marital status.'); return; }
+        if (!createMiddleName.trim()) { toast.error('Please enter your middle name.'); return; }
+
         setCreateLoading(true);
         try {
+            const res_addr = ninResult?.residence;
+            const address = res_addr
+                ? [ res_addr.address1, res_addr.town, res_addr.lga, res_addr.state ].filter(Boolean).join(', ')
+                : user?.address?.street || '';
+
             const dto = {
-                Fullname: [ user?.firstName || user?.firstname, user?.lastName || user?.lastname ].filter(Boolean).join(' '),
-                Email: user?.email || '',
-                Phone: user?.phone || '',
-                State: user?.address?.state || 'Lagos',
-                Lga: user?.address?.lga || '',
+                type: 'Individual',
+                title: createTitle,
+                sex: mapSex(ninResult?.gender),
+                maritalStatus: createMaritalStatus,
+                firstName: ninResult?.firstname || user?.firstName || user?.firstname || '',
+                lastName: ninResult?.lastname || user?.lastName || user?.lastname || '',
+                middleName: createMiddleName,
+                dateOfBirth: ninResult?.birthdate || '',
+                phoneNumber: ninResult?.phone || user?.phone || '',
+                email: user?.email || '',
+                address,
+                ninNumber: nin.trim(),
             };
+
             const res = await createPayerId(dto);
             const pid = res.data?.Pid || res.data?.pid || res.data?.PID || res.data?.payerId || res.Pid || res.pid;
             if (!pid) throw new Error('No Payer ID returned from server.');
+
             toast.success('Payer ID created successfully!');
             setShowCreateForm(false);
             setPayerId(pid);
+
             // Auto-verify the newly created Payer ID
             setPayerStatus(STATUS.LOADING);
             try {
@@ -149,7 +178,8 @@ export default function IndividualVerification() {
                 toast.info('Payer ID created — please click Verify to confirm it.');
             }
         } catch (err) {
-            toast.error(err?.error || err?.message || 'Failed to create Payer ID. Please try again.');
+            const details = Array.isArray(err?.details) ? err.details.join(', ') : null;
+            toast.error(details || err?.error || err?.message || 'Failed to create Payer ID. Please try again.');
         } finally {
             setCreateLoading(false);
         }
@@ -161,7 +191,11 @@ export default function IndividualVerification() {
         if (!allVerified) return;
         setSubmitting(true);
         try {
-            await submitVerification(user?.email);
+            const pid = payerResult?.Pid || payerResult?.pid || payerId;
+            await submitVerification(user?.email, {
+                nin: nin.trim(),
+                payerId: pid,
+            });
             toast.success('Account verified! Welcome.');
             navigate('/services');
         } catch (err) {
@@ -263,26 +297,89 @@ export default function IndividualVerification() {
                     >
                         <div className="create-payer-link">
                             Don't have a Payer ID?{' '}
-                            <button
-                                type="button"
-                                className="create-payer-toggle"
-                                onClick={() => setShowCreateForm(v => !v)}
-                            >
-                                {showCreateForm ? 'Cancel' : 'Create one here →'}
-                            </button>
+                            {ninStatus !== STATUS.SUCCESS ? (
+                                <span style={{ color: '#9ca3af', fontSize: 12 }}>Verify your NIN first to create one.</span>
+                            ) : (
+                                <button
+                                    type="button"
+                                    className="create-payer-toggle"
+                                    onClick={() => setShowCreateForm(v => !v)}
+                                >
+                                    {showCreateForm ? 'Cancel' : 'Create one here →'}
+                                </button>
+                            )}
                         </div>
-                        {showCreateForm && (
+
+                        {showCreateForm && ninStatus === STATUS.SUCCESS && (
                             <div className="create-payer-form">
                                 <p className="create-payer-form-desc">
-                                    We'll register a Payer ID using your account details. Review and confirm below.
+                                    Your NIN details will be used to register your Payer ID. Fill in the additional fields below.
                                 </p>
-                                <div className="create-payer-preview">
-                                    <div className="create-payer-row"><span>Name</span><span>{[ user?.firstName || user?.firstname, user?.lastName || user?.lastname ].filter(Boolean).join(' ') || '—'}</span></div>
-                                    <div className="create-payer-row"><span>Email</span><span>{user?.email || '—'}</span></div>
-                                    <div className="create-payer-row"><span>Phone</span><span>{user?.phone || '—'}</span></div>
-                                    <div className="create-payer-row"><span>State</span><span>{user?.address?.state || 'Lagos'}</span></div>
-                                    <div className="create-payer-row"><span>LGA</span><span>{user?.address?.lga || '—'}</span></div>
+
+                                <div className="create-payer-selects">
+                                    <div className="create-payer-select-group">
+                                        <label htmlFor="create-title">Title <span style={{ color: '#ef4444' }}>*</span></label>
+                                        <select
+                                            id="create-title"
+                                            name="create-title"
+                                            value={createTitle}
+                                            onChange={e => setCreateTitle(e.target.value)}
+                                            className="verification-input"
+                                            style={{ height: 40, flex: 'auto' }}
+                                        >
+                                            <option value="">Select title</option>
+                                            <option value="Mr">Mr</option>
+                                            <option value="Mrs">Mrs</option>
+                                            <option value="Miss">Miss</option>
+                                            <option value="Dr">Dr</option>
+                                            <option value="Prof">Prof</option>
+                                            <option value="Engr">Engr</option>
+                                            <option value="Chief">Chief</option>
+                                        </select>
+                                    </div>
+                                    <div className="create-payer-select-group">
+                                        <label htmlFor="create-marital-status">Marital Status <span style={{ color: '#ef4444' }}>*</span></label>
+                                        <select
+                                            id="create-marital-status"
+                                            name="create-marital-status"
+                                            value={createMaritalStatus}
+                                            onChange={e => setCreateMaritalStatus(e.target.value)}
+                                            className="verification-input"
+                                            style={{ height: 40, flex: 'auto' }}
+                                        >
+                                            <option value="">Select status</option>
+                                            <option value="Single">Single</option>
+                                            <option value="Married">Married</option>
+                                            <option value="Divorced">Divorced</option>
+                                            <option value="Widowed">Widowed</option>
+                                        </select>
+                                    </div>
                                 </div>
+
+                                {!ninResult?.middlename && (
+                                    <div className="create-payer-select-group" style={{ marginBottom: 14 }}>
+                                        <label htmlFor="create-middle-name">Middle Name <span style={{ color: '#ef4444' }}>*</span></label>
+                                        <input
+                                            id="create-middle-name"
+                                            name="create-middle-name"
+                                            type="text"
+                                            className="verification-input"
+                                            placeholder="Enter your middle name"
+                                            value={createMiddleName}
+                                            style={{ height: 40, flex: 'auto' }}
+                                            onChange={e => setCreateMiddleName(e.target.value)}
+                                        />
+                                    </div>
+                                )}
+
+                                <div className="create-payer-preview">
+                                    <div className="create-payer-row"><span>Name</span><span>{[ ninResult?.firstname, createMiddleName || ninResult?.middlename, ninResult?.lastname ].filter(Boolean).join(' ') || '—'}</span></div>
+                                    <div className="create-payer-row"><span>Date of Birth</span><span>{ninResult?.birthdate || '—'}</span></div>
+                                    <div className="create-payer-row"><span>Phone</span><span>{ninResult?.phone || user?.phone || '—'}</span></div>
+                                    <div className="create-payer-row"><span>Email</span><span>{user?.email || '—'}</span></div>
+                                    <div className="create-payer-row"><span>NIN</span><span>{nin}</span></div>
+                                </div>
+
                                 <button
                                     type="button"
                                     className="verification-complete-btn"
@@ -297,6 +394,7 @@ export default function IndividualVerification() {
                             </div>
                         )}
                     </VerifyField>
+
                     {payerResult && payerStatus === STATUS.SUCCESS && (
                         <div className="verification-result-card">
                             <div className="verification-result-row">

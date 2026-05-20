@@ -289,8 +289,8 @@ export const createPayerId = async (dto) => {
   }
 };
 
-/** Mark user as verified. PATCH /portal/accounts/update-account/{email} with is_verified:true */
-export const submitVerification = async (email) => {
+/** Mark user as verified. Persists is_verified, nin, and payerId to the user cookie. */
+export const submitVerification = async (email, extraFields = {}) => {
   try {
     const token = Cookies.get('user_access_token');
     const response = await api.patch(
@@ -299,7 +299,7 @@ export const submitVerification = async (email) => {
       { headers: { Authorization: `Bearer ${token}` } }
     );
     const existing = (() => { try { return JSON.parse(Cookies.get('user') || '{}'); } catch { return {}; } })();
-    Cookies.set('user', JSON.stringify({ ...existing, is_verified: true }), COOKIE_OPTS_STRICT);
+    Cookies.set('user', JSON.stringify({ ...existing, is_verified: true, ...extraFields }), COOKIE_OPTS_STRICT);
     return response.data;
   } catch (error) {
     throw error.response?.data || { error: 'Network error' };
