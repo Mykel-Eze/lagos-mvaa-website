@@ -269,10 +269,20 @@ export const verifyBusinessTIN = async (tin) => {
   }
 };
 
-/** Verify Payer ID. GET /v2/shared/billing/identification?pid= */
+/** Verify Payer ID. GET /v1/shared/billing/identification?pid= */
 export const verifyPayerId = async (pid) => {
   try {
-    const response = await api_v2.get('/shared/billing/identification', { params: { pid } });
+    const response = await api.get('/shared/billing/identification', { params: { pid } });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { error: 'Network error' };
+  }
+};
+
+/** Create a new Payer ID (tax payer registration). POST /api/v1/shared/billing/identification */
+export const createPayerId = async (dto) => {
+  try {
+    const response = await api.post('/shared/billing/identification', dto);
     return response.data;
   } catch (error) {
     throw error.response?.data || { error: 'Network error' };
@@ -385,7 +395,7 @@ export const fetchTransactions = async () => {
   const token = Cookies.get('user_access_token');
   if (!token) throw new Error('Session expired. Please log in again.');
   try {
-    const response = await api_v2.get('/shared/transaction');
+    const response = await api.get('/shared/transaction');
     return response.data;
   } catch (error) {
     throw error.response?.data || { error: 'Network error' };
@@ -398,24 +408,12 @@ export const fetchTransactions = async () => {
  */
 export const fetchTransaction = async (id) => {
   try {
-    const response = await api_v2.get(`/shared/transaction/${id}`);
+    const response = await api.get(`/shared/transaction/${id}`);
     return response.data;
   } catch (error) {
     throw error.response?.data || { error: 'Network error' };
   }
 };
 
-/**
- * Create a new Payer ID (tax payer registration).
- * Endpoint: POST /api/v2/shared/billing/identification
- */
-export const createPayerId = async (dto) => {
-  try {
-    const response = await api_v2.post('/shared/billing/identification', dto);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || { error: 'Network error' };
-  }
-};
 
 export default api;

@@ -5,7 +5,7 @@ import { Spin } from 'antd';
 import { LoadingOutlined, CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
-import { verifyCAC, verifyBusinessNIN, verifyBusinessTIN, verifyPayerId, submitVerification } from '../services/api';
+import { verifyCAC, verifyBusinessNIN, verifyBusinessTIN, verifyPayerId, createPayerId, submitVerification } from '../services/api';
 
 // ── Status constants ─────────────────────────────────────────────────────────
 const STATUS = { IDLE: 'idle', LOADING: 'loading', SUCCESS: 'success', ERROR: 'error' };
@@ -135,6 +135,9 @@ export default function CompanyVerification() {
     const [ payerStatus, setPayerStatus ] = useState(STATUS.IDLE);
     const [ payerResult, setPayerResult ] = useState(null);
 
+    const [ showCreateForm, setShowCreateForm ] = useState(false);
+    const [ createLoading, setCreateLoading ] = useState(false);
+
     const [ submitting, setSubmitting ] = useState(false);
 
     useEffect(() => {
@@ -221,6 +224,41 @@ export default function CompanyVerification() {
         } catch (err) {
             setPayerStatus(STATUS.ERROR);
             toast.error(err?.error || err?.details || 'Payer ID verification failed.');
+        }
+    };
+
+    const handleCreatePayerId = async () => {
+        setCreateLoading(true);
+        try {
+            const dto = {
+                Fullname: company?.companyName || '',
+                Email: company?.email || '',
+                Phone: company?.companyRepPhone || '',
+                State: 'Lagos',
+                RcNumber: company?.companyRCNumber || '',
+                Tin: company?.companyTIN || '',
+            };
+            const res = await createPayerId(dto);
+            const pid = res.data?.Pid || res.data?.pid || res.data?.PID || res.data?.payerId || res.Pid || res.pid;
+            if (!pid) throw new Error('No Payer ID returned from server.');
+            toast.success('Payer ID created successfully!');
+            setShowCreateForm(false);
+            setPayerId(pid);
+            // Auto-verify the newly created Payer ID
+            setPayerStatus(STATUS.LOADING);
+            try {
+                const verifyRes = await verifyPayerId(pid);
+                setPayerResult(verifyRes.data);
+                setPayerStatus(STATUS.SUCCESS);
+                toast.success('Payer ID verified!');
+            } catch {
+                setPayerStatus(STATUS.IDLE);
+                toast.info('Payer ID created — please click Verify to confirm it.');
+            }
+        } catch (err) {
+            toast.error(err?.error || err?.message || 'Failed to create Payer ID. Please try again.');
+        } finally {
+            setCreateLoading(false);
         }
     };
 
@@ -395,10 +433,41 @@ export default function CompanyVerification() {
                         status={payerStatus}
                         onVerify={handleVerifyPayerId}
                     >
-                        <p className="create-payer-link">
+                        <div className="create-payer-link">
                             Don't have a Payer ID?{' '}
-                            <a href="https://lirs.lagosstate.gov.ng" target="_blank" rel="noopener noreferrer">Create one here →</a>
-                        </p>
+                            <button
+                                type="button"
+                                className="create-payer-toggle"
+                                onClick={() => setShowCreateForm(v => !v)}
+                            >
+                                {showCreateForm ? 'Cancel' : 'Create one here →'}
+                            </button>
+                        </div>
+                        {showCreateForm && (
+                            <div className="create-payer-form">
+                                <p className="create-payer-form-desc">
+                                    We'll register a Payer ID for your company using your account details. Review and confirm below.
+                                </p>
+                                <div className="create-payer-preview">
+                                    <div className="create-payer-row"><span>Company Name</span><span>{company?.companyName || '—'}</span></div>
+                                    <div className="create-payer-row"><span>Email</span><span>{company?.email || '—'}</span></div>
+                                    <div className="create-payer-row"><span>Phone</span><span>{company?.companyRepPhone || '—'}</span></div>
+                                    <div className="create-payer-row"><span>RC Number</span><span>{company?.companyRCNumber || '—'}</span></div>
+                                    <div className="create-payer-row"><span>TIN</span><span>{company?.companyTIN || '—'}</span></div>
+                                </div>
+                                <button
+                                    type="button"
+                                    className="verification-complete-btn"
+                                    style={{ marginTop: 12, width: '100%' }}
+                                    onClick={handleCreatePayerId}
+                                    disabled={createLoading}
+                                >
+                                    {createLoading
+                                        ? <Spin indicator={<LoadingOutlined style={{ fontSize: 14, color: '#fff' }} spin />} />
+                                        : 'Create Payer ID'}
+                                </button>
+                            </div>
+                        )}
                     </VerifyField>
                     {payerResult && payerStatus === STATUS.SUCCESS && (
                         <ResultCard rows={[

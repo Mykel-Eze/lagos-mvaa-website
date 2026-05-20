@@ -4,7 +4,7 @@ import { Spin } from 'antd';
 import { LoadingOutlined, CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
-import { verifyNIN, verifyPayerId, submitVerification } from '../services/api';
+import { verifyNIN, verifyPayerId, createPayerId, submitVerification } from '../services/api';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -73,10 +73,10 @@ export default function IndividualVerification() {
     const [ payerStatus, setPayerStatus ] = useState(STATUS.IDLE);
     const [ payerResult, setPayerResult ] = useState(null);
 
-    const [ submitting, setSubmitting ] = useState(false);
+    const [ showCreateForm, setShowCreateForm ] = useState(false);
+    const [ createLoading, setCreateLoading ] = useState(false);
 
-    // Placeholder URL — update this to the real Payer ID creation link when available
-    const CREATE_PAYER_ID_URL = '#';
+    const [ submitting, setSubmitting ] = useState(false);
 
     useEffect(() => {
         const raw = Cookies.get('user');
@@ -84,7 +84,6 @@ export default function IndividualVerification() {
         const parsed = JSON.parse(raw);
         const userData = parsed.data || parsed.user || parsed;
         setUser(userData);
-        // If already verified, go to services
         if (userData.is_verified) navigate('/services');
     }, [ navigate ]);
 
@@ -119,6 +118,40 @@ export default function IndividualVerification() {
             setPayerStatus(STATUS.ERROR);
             const msg = err?.error || err?.message || err?.details || 'Payer ID verification failed. Please check and try again.';
             toast.error(msg);
+        }
+    };
+
+    const handleCreatePayerId = async () => {
+        setCreateLoading(true);
+        try {
+            const dto = {
+                Fullname: [ user?.firstName || user?.firstname, user?.lastName || user?.lastname ].filter(Boolean).join(' '),
+                Email: user?.email || '',
+                Phone: user?.phone || '',
+                State: user?.address?.state || 'Lagos',
+                Lga: user?.address?.lga || '',
+            };
+            const res = await createPayerId(dto);
+            const pid = res.data?.Pid || res.data?.pid || res.data?.PID || res.data?.payerId || res.Pid || res.pid;
+            if (!pid) throw new Error('No Payer ID returned from server.');
+            toast.success('Payer ID created successfully!');
+            setShowCreateForm(false);
+            setPayerId(pid);
+            // Auto-verify the newly created Payer ID
+            setPayerStatus(STATUS.LOADING);
+            try {
+                const verifyRes = await verifyPayerId(pid);
+                setPayerResult(verifyRes.data);
+                setPayerStatus(STATUS.SUCCESS);
+                toast.success('Payer ID verified!');
+            } catch {
+                setPayerStatus(STATUS.IDLE);
+                toast.info('Payer ID created — please click Verify to confirm it.');
+            }
+        } catch (err) {
+            toast.error(err?.error || err?.message || 'Failed to create Payer ID. Please try again.');
+        } finally {
+            setCreateLoading(false);
         }
     };
 
@@ -228,12 +261,41 @@ export default function IndividualVerification() {
                         status={payerStatus}
                         onVerify={handleVerifyPayerId}
                     >
-                        <p className="create-payer-link">
+                        <div className="create-payer-link">
                             Don't have a Payer ID?{' '}
-                            <a href={CREATE_PAYER_ID_URL} target="_blank" rel="noopener noreferrer">
-                                Create one here →
-                            </a>
-                        </p>
+                            <button
+                                type="button"
+                                className="create-payer-toggle"
+                                onClick={() => setShowCreateForm(v => !v)}
+                            >
+                                {showCreateForm ? 'Cancel' : 'Create one here →'}
+                            </button>
+                        </div>
+                        {showCreateForm && (
+                            <div className="create-payer-form">
+                                <p className="create-payer-form-desc">
+                                    We'll register a Payer ID using your account details. Review and confirm below.
+                                </p>
+                                <div className="create-payer-preview">
+                                    <div className="create-payer-row"><span>Name</span><span>{[ user?.firstName || user?.firstname, user?.lastName || user?.lastname ].filter(Boolean).join(' ') || '—'}</span></div>
+                                    <div className="create-payer-row"><span>Email</span><span>{user?.email || '—'}</span></div>
+                                    <div className="create-payer-row"><span>Phone</span><span>{user?.phone || '—'}</span></div>
+                                    <div className="create-payer-row"><span>State</span><span>{user?.address?.state || 'Lagos'}</span></div>
+                                    <div className="create-payer-row"><span>LGA</span><span>{user?.address?.lga || '—'}</span></div>
+                                </div>
+                                <button
+                                    type="button"
+                                    className="verification-complete-btn"
+                                    style={{ marginTop: 12, width: '100%' }}
+                                    onClick={handleCreatePayerId}
+                                    disabled={createLoading}
+                                >
+                                    {createLoading
+                                        ? <Spin indicator={<LoadingOutlined style={{ fontSize: 14, color: '#fff' }} spin />} />
+                                        : 'Create Payer ID'}
+                                </button>
+                            </div>
+                        )}
                     </VerifyField>
                     {payerResult && payerStatus === STATUS.SUCCESS && (
                         <div className="verification-result-card">
