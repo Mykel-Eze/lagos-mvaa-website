@@ -16,10 +16,6 @@ const SERVICE_URL_MAP = {
 const ServicesComponent = () => {
   const [ loadingService, setLoadingService ] = useState(null);
 
-  const getUserCookie = () => {
-    try { return JSON.parse(Cookies.get('user') || '{}'); } catch { return {}; }
-  };
-
   const handleServiceClick = async (appName, appId) => {
     // Guard: not authenticated
     const sessionId = Cookies.get('portal_session_id');
