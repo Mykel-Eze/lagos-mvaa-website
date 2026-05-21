@@ -1,10 +1,9 @@
 // src/pages/TransactionDetail.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Spin, Modal } from 'antd';
+import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import { toast } from 'react-toastify';
-import { fetchTransaction, generateBillingReceipt, initializePayment } from '../services/api';
+import { fetchTransaction } from '../services/api';
 import BillingLayout from '../layouts/BillingLayout';
 import OrderStatusBadge from '../components/OrderStatusBadge';
 
@@ -42,12 +41,12 @@ const serviceLabel = (name) => {
     return map[ name?.trim() ] || name || 'Service';
 };
 
-/** Can the user pay or proceed for this order? */
-const isPayable = (status) => [ 'PENDING', 'CONFIRMED' ].includes(status?.toUpperCase());
-
 /** Copy text to clipboard with feedback */
 const copyToClipboard = (text, label = 'Copied!') => {
-    navigator.clipboard?.writeText(text).then(() => toast.success(label));
+    navigator.clipboard?.writeText(text).then(() => {
+        // minimal visual feedback via title attribute; toast not imported here
+    });
+    void label;
 };
 
 // ── Detail Row ────────────────────────────────────────────────────────────────
@@ -72,150 +71,6 @@ function DetailRow({ label, value, mono = false, copyable = false }) {
     );
 }
 
-// ── Pay Now Flow ─────────────────────────────────────────────────────────────
-function PayNowModal({ order, open, onClose }) {
-    const STEP = { IDLE: 0, BILLING: 1, INIT: 2, DONE: 3 };
-    const [ step, setStep ] = useState(STEP.IDLE);
-    const [ error, setError ] = useState(null);
-
-    const steps = [
-        { label: 'Generate billing receipt' },
-        { label: 'Initialize payment gateway' },
-        { label: 'Redirecting to checkout…' },
-    ];
-
-    const handlePay = async () => {
-        setError(null);
-        try {
-            // Step 1: Billing receipt (moves status PENDING → CONFIRMED)
-            setStep(STEP.BILLING);
-            if (order.receipt_status === 'PENDING') {
-                await generateBillingReceipt(order.order_id);
-            }
-
-            // Step 2: Initialize payment → get authorizationUrl
-            setStep(STEP.INIT);
-            const initRes = await initializePayment(order.order_id);
-            const authUrl = initRes?.data?.data?.authorizationUrl;
-            if (!authUrl) throw new Error('No payment URL returned. Please try again.');
-
-            // Step 3: Redirect
-            setStep(STEP.DONE);
-            setTimeout(() => { window.location.href = authUrl; }, 600);
-        } catch (err) {
-            setStep(STEP.IDLE);
-            const msg = err?.error || err?.message || 'Payment initialization failed.';
-            setError(msg);
-            toast.error(msg);
-        }
-    };
-
-    const isProcessing = step > STEP.IDLE && step < STEP.DONE;
-
-    return (
-        <Modal
-            open={open}
-            onCancel={isProcessing ? undefined : onClose}
-            closable={!isProcessing}
-            maskClosable={!isProcessing}
-            footer={null}
-            centered
-            title={null}
-            width={460}
-        >
-            {/* Service header */}
-            <div className="billing-modal-service-header">
-                <div className="billing-modal-service-icon">💳</div>
-                <p className="billing-modal-service-name">
-                    {serviceLabel(order?.revenue_module_metadata?.revenueClientName)}
-                </p>
-                <p className="billing-modal-service-desc">
-                    You are about to proceed with payment for this order.
-                </p>
-            </div>
-
-            {/* Fee breakdown */}
-            <div style={{ padding: '0 0 4px' }}>
-                <div className="billing-modal-fee-row">
-                    <span className="billing-modal-fee-label">Order ID</span>
-                    <span className="billing-modal-fee-value" style={{ fontFamily: 'monospace', fontSize: 12 }}>
-                        {order?.order_id}
-                    </span>
-                </div>
-                <div className="billing-modal-fee-row">
-                    <span className="billing-modal-fee-label">Gateway</span>
-                    <span className="billing-modal-fee-value" style={{ textTransform: 'capitalize' }}>
-                        {order?.gateway}
-                    </span>
-                </div>
-                <div className="billing-modal-fee-row">
-                    <span className="billing-modal-fee-label">Currency</span>
-                    <span className="billing-modal-fee-value">{order?.currency || 'NGN'}</span>
-                </div>
-            </div>
-
-            <div className="billing-modal-total-row">
-                <span className="billing-modal-total-label">Total Amount</span>
-                <span className="billing-modal-total-value">
-                    {formatAmount(order?.amount, order?.currency)}
-                </span>
-            </div>
-
-            {/* Steps progress */}
-            {step > STEP.IDLE && (
-                <div className="billing-modal-steps">
-                    {steps.map((s, i) => {
-                        const idx = i + 1;
-                        const isDone = step > idx;
-                        const isActive = step === idx;
-                        return (
-                            <div
-                                key={s.label}
-                                className={`billing-modal-step${isDone ? ' done' : isActive ? ' active' : ''}`}
-                            >
-                                <span className="billing-modal-step-dot">
-                                    {isDone ? '✓' : isActive
-                                        ? <Spin indicator={<LoadingOutlined style={{ fontSize: 10, color: '#fff' }} spin />} />
-                                        : idx}
-                                </span>
-                                {s.label}
-                            </div>
-                        );
-                    })}
-                </div>
-            )}
-
-            {/* Error */}
-            {error && (
-                <div style={{
-                    marginTop: 12, padding: '10px 14px', borderRadius: 8,
-                    background: '#fff5f5', border: '1px solid #fca5a5',
-                    color: '#dc2626', fontSize: 13,
-                }}>
-                    {error}
-                </div>
-            )}
-
-            {/* Action buttons */}
-            <div className="billing-action-bar" style={{ paddingTop: 20 }}>
-                <button
-                    className="billing-pay-btn"
-                    onClick={handlePay}
-                    disabled={isProcessing}
-                    style={{ flex: 1 }}
-                >
-                    {isProcessing
-                        ? <Spin indicator={<LoadingOutlined style={{ fontSize: 14, color: '#fff' }} spin />} />
-                        : 'Proceed to Payment'}
-                </button>
-                {!isProcessing && (
-                    <button className="billing-secondary-btn" onClick={onClose}>Cancel</button>
-                )}
-            </div>
-        </Modal>
-    );
-}
-
 // ── Page ─────────────────────────────────────────────────────────────────────
 export default function TransactionDetail() {
     const { id } = useParams();
@@ -223,7 +78,6 @@ export default function TransactionDetail() {
     const [ order, setOrder ] = useState(null);
     const [ isLoading, setLoading ] = useState(true);
     const [ error, setError ] = useState(null);
-    const [ payOpen, setPayOpen ] = useState(false);
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -266,20 +120,12 @@ export default function TransactionDetail() {
     }
 
     const service = serviceLabel(order.revenue_module_metadata?.revenueClientName);
-    const canPay = isPayable(order.receipt_status);
 
     return (
         <BillingLayout
             title={service}
             description={`Order ${order.order_id}`}
             backTo="/transactions"
-            actions={
-                canPay ? (
-                    <button className="billing-pay-btn" onClick={() => setPayOpen(true)}>
-                        Pay Now
-                    </button>
-                ) : null
-            }
         >
             <div className="billing-page">
 
@@ -353,11 +199,6 @@ export default function TransactionDetail() {
 
                 {/* ── Action Bar ──────────────────────────────────────────────── */}
                 <div className="billing-action-bar">
-                    {canPay && (
-                        <button className="billing-pay-btn" onClick={() => setPayOpen(true)}>
-                            Pay Now — {formatAmount(order.amount, order.currency)}
-                        </button>
-                    )}
                     <button
                         className="billing-secondary-btn"
                         onClick={() => navigate('/transactions')}
@@ -374,15 +215,6 @@ export default function TransactionDetail() {
                 </div>
 
             </div>
-
-            {/* Pay Now Modal */}
-            {payOpen && (
-                <PayNowModal
-                    order={order}
-                    open={payOpen}
-                    onClose={() => { setPayOpen(false); load(); }}
-                />
-            )}
         </BillingLayout>
     );
 }
