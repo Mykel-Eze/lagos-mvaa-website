@@ -9,14 +9,14 @@ import OrderStatusBadge from '../components/OrderStatusBadge';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-const formatAmount = (amount, currency = 'NGN') => {
-    const symbol = currency === 'NGN' ? '₦' : currency;
-    const num = parseFloat(amount);
-    if (isNaN(num)) return `${symbol}—`;
-    return `${symbol}${num.toLocaleString('en-NG', {
-        minimumFractionDigits: 2, maximumFractionDigits: 2,
-    })}`;
-};
+// const formatAmount = (amount, currency = 'NGN') => {
+//     const symbol = currency === 'NGN' ? '₦' : currency;
+//     const num = parseFloat(amount);
+//     if (isNaN(num)) return `${symbol}—`;
+//     return `${symbol}${num.toLocaleString('en-NG', {
+//         minimumFractionDigits: 2, maximumFractionDigits: 2,
+//     })}`;
+// };
 
 const formatDate = (iso) => {
     if (!iso) return '—';
