@@ -1,4 +1,4 @@
-﻿// src/pages/AccountSettings.jsx
+// src/pages/AccountSettings.jsx
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Select, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';

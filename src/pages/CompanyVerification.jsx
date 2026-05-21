@@ -1,4 +1,4 @@
-﻿// src/pages/CompanyVerification.jsx
+// src/pages/CompanyVerification.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Spin } from 'antd';

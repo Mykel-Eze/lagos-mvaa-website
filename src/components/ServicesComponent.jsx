@@ -1,4 +1,4 @@
-﻿// src/components/ServicesComponent.jsx
+// src/components/ServicesComponent.jsx
 import React from 'react';
 import ServiceCard from './ServiceCard';
 import { toast } from 'react-toastify';

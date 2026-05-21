@@ -1,4 +1,4 @@
-﻿// src/components/Header.jsx
+// src/components/Header.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Logo from '../assets/images/full-mvaa-logo-3.png';

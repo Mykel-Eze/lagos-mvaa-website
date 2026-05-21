@@ -1,4 +1,4 @@
-﻿// src/pages/Login.jsx
+// src/pages/Login.jsx
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Tabs } from 'antd';
 import { EyeInvisibleOutlined, EyeTwoTone, UserOutlined, BankOutlined } from '@ant-design/icons';

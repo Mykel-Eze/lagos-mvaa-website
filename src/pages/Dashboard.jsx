@@ -1,4 +1,4 @@
-﻿// src/pages/Dashboard.jsx
+// src/pages/Dashboard.jsx
 import React, { useEffect, useState } from 'react';
 import { getProfile } from '../services/api';
 import ServicesLayout from '../layouts/ServicesLayout';

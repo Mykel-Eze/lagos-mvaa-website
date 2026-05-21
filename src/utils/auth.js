@@ -1,4 +1,4 @@
-﻿// src/utils/auth.js
+// src/utils/auth.js
 
 // Check if user is authenticated
 export const isAuthenticated = () => {
