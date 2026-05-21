@@ -126,7 +126,9 @@ const Header = () => {
   const isLoggedIn = !!Cookies.get('portal_session_id');
 
   // Determine verification status and type from user cookie
-  const isVerified = userData ? (userData.data?.is_verified ?? userData.is_verified ?? false) : true;
+  const isVerified = userData
+    ? (userData.data?.is_verified ?? userData.data?.isVerified ?? userData.is_verified ?? userData.isVerified ?? false)
+    : true;
   const isCompany = userData ? !!(userData.data?.companyName || userData.companyName) : false;
   const verifyPath = isCompany ? '/verify/company' : '/verify/individual';
 

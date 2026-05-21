@@ -46,7 +46,7 @@ const COOKIE_OPTS_STRICT = {
   sameSite: 'strict',
 };
 
-const AUTH_COOKIES = [ 'portal_session_id', 'portal_app_id', 'user_access_token', 'user', 'user_type' ];
+const AUTH_COOKIES = [ 'portal_session_id', 'portal_app_id', 'user_access_token', 'user_refresh_token', 'user', 'user_type' ];
 const clearAuthCookies = () => AUTH_COOKIES.forEach((k) => Cookies.remove(k));
 
 // ─── Auth ──────────────────────────────────────────────────────────────────────
@@ -57,11 +57,13 @@ export const login = async (email, password) => {
     const data = response.data.data || response.data;
     const sessionToken = data.session_token;
     const accessToken = data.access_token;
+    const refreshToken = data.refresh_token;
 
     if (sessionToken) {
       Cookies.set('portal_session_id', sessionToken, COOKIE_OPTS);
       Cookies.set('user_type', 'individual', COOKIE_OPTS);
-      Cookies.set('user_access_token', accessToken, COOKIE_OPTS);
+      if (accessToken) Cookies.set('user_access_token', accessToken, COOKIE_OPTS);
+      if (refreshToken) Cookies.set('user_refresh_token', refreshToken, COOKIE_OPTS);
       try { await getProfile(); } catch (e) { console.warn('Profile fetch failed post-login:', e); }
     }
     return response.data;
@@ -76,12 +78,14 @@ export const loginCompany = async (email, password) => {
     const data = response.data.data || response.data;
     const sessionToken = data.session_token;
     const accessToken = data.access_token;
+    const refreshToken = data.refresh_token;
     const app_id = '75e6df2eba1c1875ef359fc95c0f5a1ce5b8';
 
     if (sessionToken) {
       Cookies.set('portal_session_id', `${sessionToken}&${app_id}`, COOKIE_OPTS);
       Cookies.set('user_type', 'company', COOKIE_OPTS);
-      Cookies.set('user_access_token', accessToken, COOKIE_OPTS);
+      if (accessToken) Cookies.set('user_access_token', accessToken, COOKIE_OPTS);
+      if (refreshToken) Cookies.set('user_refresh_token', refreshToken, COOKIE_OPTS);
       try { await getProfile(); } catch (e) { console.warn('Profile fetch failed post-company-login:', e); }
     }
     return response.data;
@@ -111,36 +115,45 @@ export const registerCompany = async (companyData) => {
 /**
  * Fetch the authenticated user's profile.
  * Endpoint: GET /api/v1/shared/profile
- * Auth: cookie (portal_session_id via withCredentials) + explicit header (swagger requirement).
+ * Auth: Bearer user_access_token (confirmed by backend team as the correct auth
+ * method for this endpoint — same pattern as updateAccount).
  *
- * FIX: Previously called undocumented /portal/accounts/{userId}. Now uses the
- * correct swagger-documented endpoint. Profile fields are merged with any existing
- * cached user data so that locally-set fields (e.g. is_verified, companyName) are
- * preserved across refreshes.
+ * The backend wraps the profile in { status, message, data: { ... } }. We unwrap
+ * it and normalise the backend's camelCase `isVerified` to the frontend's
+ * snake_case `is_verified` so all components see a consistent field name.
  */
 export const getProfile = async () => {
   try {
     const sessionId = Cookies.get('portal_session_id');
     if (!sessionId) throw new Error('No session found');
 
-    const response = await api.get('/shared/profile');
+    const accessToken = Cookies.get('user_access_token');
+    const response = await api.get('/shared/profile', {
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+    });
+
+    // Unwrap the envelope — backend returns { status, message, data: { ... } }
+    const profileData = { ...(response.data.data || response.data) };
+
+    // Normalise camelCase fields from backend to snake_case used by frontend components
+    if (profileData.isVerified !== undefined) profileData.is_verified = profileData.isVerified;
+    if (profileData.isActivated !== undefined) profileData.is_activated = profileData.isActivated;
 
     const existing = (() => {
       try { return JSON.parse(Cookies.get('user') || '{}'); } catch { return {}; }
     })();
 
-    const merged = { ...existing, ...response.data };
-    // The swagger profile endpoint does not return is_verified. If we locally set it
-    // to true after submitVerification(), protect it from being wiped by future
-    // profile fetches in case the backend starts returning a stale false value.
-    if (existing.is_verified === true && !merged.is_verified) merged.is_verified = true;
+    const merged = { ...existing, ...profileData };
+    // Preserve a locally-confirmed is_verified written by submitVerification() against
+    // any future profile response where the backend might not yet reflect the update.
+    if (existing.is_verified === true) merged.is_verified = true;
 
     Cookies.set('user', JSON.stringify(merged), COOKIE_OPTS);
-    return response.data;
+    return merged;
   } catch (error) {
-    if (error.response?.status === 401 || error.response?.status === 403) {
-      clearAuthCookies();
-    }
+    // Do NOT call clearAuthCookies() here. A failed profile fetch does not mean the
+    // session is invalid — doing so would destroy tokens set by a successful login,
+    // causing silent logouts. Let each caller decide how to handle auth errors.
     throw error.response?.data || { error: 'Network error' };
   }
 };
@@ -192,8 +205,14 @@ export const updateAccount = async (email, userData) => {
       userData,
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    Cookies.set('user', JSON.stringify(response.data), COOKIE_OPTS_STRICT);
-    return response.data;
+    const profileData = { ...(response.data.data || response.data) };
+    if (profileData.isVerified !== undefined) profileData.is_verified = profileData.isVerified;
+    if (profileData.isActivated !== undefined) profileData.is_activated = profileData.isActivated;
+    const existing = (() => { try { return JSON.parse(Cookies.get('user') || '{}'); } catch { return {}; } })();
+    const merged = { ...existing, ...profileData };
+    if (existing.is_verified === true) merged.is_verified = true;
+    Cookies.set('user', JSON.stringify(merged), COOKIE_OPTS_STRICT);
+    return merged;
   } catch (error) {
     throw error.response?.data || { error: 'Network error' };
   }
@@ -390,6 +409,7 @@ export const verifyTransaction = async (ref) => {
 /**
  * Fetch all transactions for the authenticated user.
  * Endpoint: GET /api/v2/shared/transaction
+ * Auth: Bearer user_access_token (injected automatically by api_v2 interceptor).
  */
 export const fetchTransactions = async () => {
   const token = Cookies.get('user_access_token');
@@ -405,6 +425,7 @@ export const fetchTransactions = async () => {
 /**
  * Fetch a single transaction by ID.
  * Endpoint: GET /api/v2/shared/transaction/{id}
+ * Auth: Bearer user_access_token (injected automatically by api_v2 interceptor).
  */
 export const fetchTransaction = async (id) => {
   try {
