@@ -132,6 +132,8 @@ const Header = () => {
   const isCompany = userData ? !!(userData.data?.companyName || userData.companyName) : false;
   const verifyPath = isCompany ? '/verify/company' : '/verify/individual';
 
+  // console.log('Header render - isLoggedIn:', isLoggedIn, 'isVerified:', isVerified, 'userData:', userData);
+
   return (
     <>
       {/* Unverified User Banner */}
