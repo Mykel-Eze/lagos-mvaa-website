@@ -1,9 +1,8 @@
-// src/pages/CompanyVerification.jsx
+﻿// src/pages/CompanyVerification.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Spin } from 'antd';
 import { LoadingOutlined, CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
-import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
 import { verifyCAC, verifyBusinessNIN, verifyBusinessTIN, verifyPayerId, createPayerId, submitVerification } from '../services/api';
 
@@ -144,7 +143,7 @@ export default function CompanyVerification() {
     const [ submitting, setSubmitting ] = useState(false);
 
     useEffect(() => {
-        const raw = Cookies.get('user');
+        const raw = sessionStorage.getItem('user');
         if (!raw) { navigate('/login'); return; }
 
         let userData = (() => {
@@ -156,8 +155,8 @@ export default function CompanyVerification() {
 
         if (!userData) { navigate('/login'); return; }
 
-        // Merge localStorage company profile (fallback, same pattern as AccountSettings)
-        const companyRaw = localStorage.getItem('company_profile');
+        // Merge sessionStorage company profile (fallback, same pattern as AccountSettings)
+        const companyRaw = sessionStorage.getItem('company_profile');
         if (companyRaw) {
             try { userData = { ...JSON.parse(companyRaw), ...userData }; } catch { /* ignore */ }
         }

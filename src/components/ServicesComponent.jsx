@@ -1,7 +1,6 @@
-// src/components/ServicesComponent.jsx
+﻿// src/components/ServicesComponent.jsx
 import React from 'react';
 import ServiceCard from './ServiceCard';
-import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
 
 // Mapping of service app names to their external module entry URLs
@@ -11,13 +10,13 @@ const SERVICE_URL_MAP = {
 };
 
 const getUserCookie = () => {
-  try { return JSON.parse(Cookies.get('user') || '{}'); } catch { return {}; }
+  try { return JSON.parse(sessionStorage.getItem('user') || '{}'); } catch { return {}; }
 };
 
 const ServicesComponent = () => {
   const handleServiceClick = (appName, appId) => {
     // Guard: not authenticated
-    const sessionId = Cookies.get('portal_session_id');
+    const sessionId = sessionStorage.getItem('portal_session_id');
     if (!sessionId) {
       window.location.href = '/login';
       return;
@@ -27,7 +26,7 @@ const ServicesComponent = () => {
     const user = getUserCookie();
     const isVerified = user.is_verified ?? user.isVerified ?? false;
     if (!isVerified) {
-      const userType = Cookies.get('user_type') || 'individual';
+      const userType = sessionStorage.getItem('user_type') || 'individual';
       const verifyPath = userType === 'company' ? '/verify/company' : '/verify/individual';
       toast.error('Please complete your account verification before accessing services.', { autoClose: 4000 });
       setTimeout(() => { window.location.href = verifyPath; }, 1500);
@@ -37,10 +36,7 @@ const ServicesComponent = () => {
     const baseUrl = SERVICE_URL_MAP[ appName ] || 'https://default.module1url.com';
 
     // Store the app_id cookie for the external module's reference
-    Cookies.set('portal_app_id', appId, {
-      secure: window.location.protocol === 'https:',
-      sameSite: 'strict',
-    });
+    sessionStorage.setItem('portal_app_id', appId);
 
     window.location.href = `${baseUrl}?portal_session_id=${sessionId}&portal_app_id=${appId}`;
   };

@@ -1,7 +1,6 @@
-// src/pages/Dashboard.jsx
+﻿// src/pages/Dashboard.jsx
 import React, { useEffect, useState } from 'react';
 import { getProfile } from '../services/api';
-import Cookies from 'js-cookie';
 import ServicesLayout from '../layouts/ServicesLayout';
 
 const Dashboard = () => {
@@ -13,13 +12,13 @@ const Dashboard = () => {
     const fetchProfile = async () => {
       try {
         // Check if we have a session token
-        const token = Cookies.get('portal_session_id');
+        const token = sessionStorage.getItem('portal_session_id');
         if (!token) {
           throw new Error('No authentication token found');
         }
 
         // First load cached data if available
-        const cachedUserData = Cookies.get('user');
+        const cachedUserData = sessionStorage.getItem('user');
         if (cachedUserData) {
           const userData = JSON.parse(cachedUserData);
           setUser(userData);

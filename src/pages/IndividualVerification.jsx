@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Spin } from 'antd';
 import { LoadingOutlined, CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
-import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
 import { verifyNIN, verifyPayerId, createPayerId, submitVerification } from '../services/api';
 
@@ -90,7 +89,7 @@ export default function IndividualVerification() {
     const [ submitting, setSubmitting ] = useState(false);
 
     useEffect(() => {
-        const raw = Cookies.get('user');
+        const raw = sessionStorage.getItem('user');
         if (!raw) { navigate('/login'); return; }
         const parsed = JSON.parse(raw);
         const userData = parsed.data || parsed.user || parsed;

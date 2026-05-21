@@ -1,9 +1,8 @@
-// src/components/Header.jsx
+﻿// src/components/Header.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Logo from '../assets/images/full-mvaa-logo-3.png';
 import { toast } from 'react-toastify';
-import Cookies from 'js-cookie';
 import { logout } from '../services/api';
 
 const Header = () => {
@@ -13,16 +12,16 @@ const Header = () => {
   const location = useLocation();
   const dropdownRef = useRef(null);
 
-  // Get user data from cookies (plus localStorage company fallback)
+  // Get user data from cookies (plus sessionStorage company fallback)
   useEffect(() => {
     const loadUser = () => {
-      const userCookie = Cookies.get('user');
+      const userCookie = sessionStorage.getItem('user');
       let parsed = {};
       if (userCookie) {
         try { parsed = JSON.parse(userCookie); } catch { /* ignore */ }
       }
-      // Merge company details from localStorage if present (fallback for company profile)
-      const companyRaw = localStorage.getItem('company_profile');
+      // Merge company details from sessionStorage if present (fallback for company profile)
+      const companyRaw = sessionStorage.getItem('company_profile');
       if (companyRaw) {
         try {
           const company = JSON.parse(companyRaw);
@@ -77,7 +76,7 @@ const Header = () => {
     const firstName = userData.firstName || '';
     const companyName = userData.companyName || '';
     const rawName = firstName || companyName || userData.email || 'User';
-    return rawName.length > 16 ? rawName.slice(0, 16) + '…' : rawName;
+    return rawName.length > 16 ? rawName.slice(0, 16) + 'â€¦' : rawName;
   };
 
   // Toggle mobile menu
@@ -123,9 +122,9 @@ const Header = () => {
   };
 
   // Check if the user is logged in by checking the session cookie
-  const isLoggedIn = !!Cookies.get('portal_session_id');
+  const isLoggedIn = !!sessionStorage.getItem('portal_session_id');
   const isVerified = userData ? !!(userData.is_verified ?? userData.isVerified ?? false) : true;
-  const userType = Cookies.get('user_type') || 'individual';
+  const userType = sessionStorage.getItem('user_type') || 'individual';
   const verifyPath = userType === 'company' ? '/verify/company' : '/verify/individual';
 
   return (
@@ -252,32 +251,11 @@ const Header = () => {
               </ul>
 
               {/* Mobile menu button */}
-              <div className="flex flex-row items-center space-x-2 visible-xs-sm">
-                {isLoggedIn ? (
-                  /* Mobile User Avatar */
-                  <>
-                    <button
-                      onClick={toggleMobileMenu}
-                      className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white font-semibold text-sm"
-                    >
-                      {getUserInitials(userData)}
-                    </button>
-
-                    <button className="white-txt focus:outline-none pointer" onClick={toggleMobileMenu}>
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" stroke="#108a00"></path>
-                      </svg>
-                    </button>
-                  </>
-                ) :
-                  /* Mobile Hamburger Menu */
-                  <button className="white-txt focus:outline-none pointer" onClick={toggleMobileMenu}>
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" stroke="#108a00"></path>
-                    </svg>
-                  </button>
-                }
-              </div>
+              <button className="visible-xs-sm white-txt focus:outline-none pointer" onClick={toggleMobileMenu}>
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" stroke="#108a00" />
+                </svg>
+              </button>
 
             </nav>
           </div>
@@ -313,37 +291,27 @@ const Header = () => {
               ))}
             </ul>
 
-            <ul className="flex-div nav-btn-wrapper mt-5 mb-3">
+            <div className="mobile-menu-actions">
               {isLoggedIn ? (
                 <>
-                  <li>
-                    <Link to="/account-settings" className="pry-nav-btn" onClick={closeMobileMenu}>
-                      Account Settings
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/transactions" className="pry-nav-btn" onClick={closeMobileMenu}>
-                      Transaction History
-                    </Link>
-                  </li>
-                  <li>
-                    <button onClick={handleLogout} className="nav-btn text-white">Logout</button>
-                  </li>
+                  <Link to="/account-settings" className="mobile-nav-btn mobile-nav-btn--primary" onClick={closeMobileMenu}>
+                    Account Settings
+                  </Link>
+                  <Link to="/transactions" className="mobile-nav-btn mobile-nav-btn--primary" onClick={closeMobileMenu}>
+                    Transaction History
+                  </Link>
+                  <button onClick={handleLogout} className="mobile-nav-btn mobile-nav-btn--danger">Logout</button>
                 </>
               ) : (
                 <>
-                  <li>
-                    <Link to="/login" className="nav-btn" onClick={closeMobileMenu}>Login</Link>
-                  </li>
-                  <li>
-                    <Link to="/register" className="pry-nav-btn flex div" onClick={closeMobileMenu}>
-                      <span>Get Started</span>
-                      <img src={require("../assets/images/arrow-1.svg").default} alt="arrow-icon" />
-                    </Link>
-                  </li>
+                  <Link to="/login" className="mobile-nav-btn mobile-nav-btn--outline" onClick={closeMobileMenu}>Login</Link>
+                  <Link to="/register" className="mobile-nav-btn mobile-nav-btn--primary" onClick={closeMobileMenu}>
+                    <span>Get Started</span>
+                    <img src={require("../assets/images/arrow-1.svg").default} alt="arrow-icon" />
+                  </Link>
                 </>
               )}
-            </ul>
+            </div>
           </div>
         </div>
       </header>

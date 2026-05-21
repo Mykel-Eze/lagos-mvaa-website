@@ -102,6 +102,47 @@ header {
 main ul.flex-div.nav-btn-wrapper {
     display: flex !important;
 }
+/* ── Mobile menu action buttons ───────────────────────────────────────────── */
+.mobile-menu-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+    margin-bottom: 12px;
+}
+.mobile-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 13px 20px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-align: center;
+    box-sizing: border-box;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+.mobile-nav-btn--primary {
+    background-color: var(--sec-color);
+    color: #fff !important;
+    border-color: var(--sec-color);
+}
+.mobile-nav-btn--outline {
+    background-color: transparent;
+    color: #fff !important;
+    border-color: rgba(255, 255, 255, 0.55);
+}
+.mobile-nav-btn--danger {
+    background-color: transparent;
+    color: #fca5a5 !important;
+    border-color: rgba(239, 68, 68, 0.45);
+}
+
 .nav-overlay {
     display: none;
     position: fixed;

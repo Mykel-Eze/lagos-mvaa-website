@@ -1,4 +1,4 @@
-// src/pages/AccountSettings.jsx
+﻿// src/pages/AccountSettings.jsx
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Select, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -6,7 +6,6 @@ import { getProfile, updateAccount } from '../services/api';
 import { toast } from 'react-toastify';
 import lagosLGAs from '../data/lagosLGAs.json';
 import LoadingSpinner from '../components/LoadingSpinner';
-import Cookies from 'js-cookie';
 import ServicesLayout from '../layouts/ServicesLayout';
 
 const { Option } = Select;
@@ -26,7 +25,7 @@ const AccountSettings = () => {
     const loadProfile = async () => {
       try {
         // First try to get cached data
-        const cachedUserData = Cookies.get('user');
+        const cachedUserData = sessionStorage.getItem('user');
         let userData = null;
 
         if (cachedUserData) {
@@ -60,13 +59,13 @@ const AccountSettings = () => {
 
         if (userData) {
           // Detect company account via user_type cookie (most reliable)
-          const userType = Cookies.get('user_type');
+          const userType = sessionStorage.getItem('user_type');
           const companyAccount = userType === 'company';
           setIsCompany(companyAccount);
 
-          // Only merge localStorage company details for company accounts
+          // Only merge sessionStorage company details for company accounts
           if (companyAccount) {
-            const companyRaw = localStorage.getItem('company_profile');
+            const companyRaw = sessionStorage.getItem('company_profile');
             if (companyRaw) {
               try {
                 const localCompany = JSON.parse(companyRaw);
@@ -145,16 +144,7 @@ const AccountSettings = () => {
       // Call the update API
       await updateAccount(values.email, updateData);
 
-      // Update the user cookie with new data
-      const existingUser = Cookies.get('user');
-      const updatedUser = {
-        ...(existingUser ? JSON.parse(existingUser) : {}),
-        ...updateData,
-      };
-      Cookies.set('user', JSON.stringify(updatedUser), {
-        secure: window.location.protocol === 'https:',
-        sameSite: 'strict'
-      });
+      // updateAccount already saves to sessionStorage via saveUserProfile in api.js
 
       // Update initial values to reflect the saved state
       setInitialValues(values);
@@ -295,7 +285,7 @@ const AccountSettings = () => {
               </Form.Item>
             </div>
 
-            {/* Verification Details — read-only, only shown after verification */}
+            {/* Verification Details â€” read-only, only shown after verification */}
             {verificationDetails.isVerified && (verificationDetails.nin || verificationDetails.payerId) && (
               <>
                 <h3 className="text-base font-semibold text-gray-700 mt-4 mb-2">Verification Details</h3>

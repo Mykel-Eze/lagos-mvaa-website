@@ -1,20 +1,14 @@
-// src/utils/auth.js
-import Cookies from 'js-cookie';
+﻿// src/utils/auth.js
 
 // Check if user is authenticated
 export const isAuthenticated = () => {
-  const token = Cookies.get('portal_session_id');
-  const user = Cookies.get('user');
-
-  // console.log('The Token is: ' + token);
-  // console.log('The User is: ' + user);
-  return !!(token && user);
+  return !!(sessionStorage.getItem('portal_session_id') && sessionStorage.getItem('user'));
 };
 
 // Get current user data
 export const getCurrentUser = () => {
   try {
-    const userData = Cookies.get('user');
+    const userData = sessionStorage.getItem('user');
     return userData ? JSON.parse(userData) : null;
   } catch (error) {
     console.error('Error parsing user data:', error);
@@ -24,17 +18,15 @@ export const getCurrentUser = () => {
 
 // Get current session token
 export const getSessionToken = () => {
-  return Cookies.get('portal_session_id');
+  return sessionStorage.getItem('portal_session_id');
 };
 
 // Clear all authentication data
 export const clearAuthData = () => {
-  Cookies.remove('portal_session_id');
-  Cookies.remove('portal_app_id');
-  Cookies.remove('user');
+  ['portal_session_id', 'portal_app_id', 'user'].forEach((k) => sessionStorage.removeItem(k));
 };
 
-// Check if error is authentication related
+// Check if error is authentication-related
 export const isAuthError = (error) => {
   const status = error?.status || error?.response?.status;
   return status === 401 || status === 403;

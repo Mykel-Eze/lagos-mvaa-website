@@ -1,10 +1,8 @@
-// src/components/Hero.jsx
+﻿// src/components/Hero.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Cookies from 'js-cookie';
-
 const Hero = () => {
-  const isLoggedIn = !!Cookies.get('portal_session_id'); // Check if the user is logged in
+  const isLoggedIn = !!sessionStorage.getItem('portal_session_id');
 
   return (
     <section id="hero-section">

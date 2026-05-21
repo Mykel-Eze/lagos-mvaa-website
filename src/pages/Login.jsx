@@ -1,4 +1,4 @@
-// src/pages/Login.jsx
+﻿// src/pages/Login.jsx
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Tabs } from 'antd';
 import { EyeInvisibleOutlined, EyeTwoTone, UserOutlined, BankOutlined } from '@ant-design/icons';
@@ -7,7 +7,6 @@ import AuthLayout from '../layouts/AuthLayout';
 import { login, loginCompany } from '../services/api';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../components/LoadingSpinner';
-import Cookies from 'js-cookie';
 
 
 
@@ -79,7 +78,7 @@ const Login = () => {
 
   // Redirect if already logged in
   useEffect(() => {
-    if (Cookies.get('portal_session_id')) {
+    if (sessionStorage.getItem('portal_session_id')) {
       navigate('/services');
     }
   }, [ navigate ]);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 // import { useNavigate } from 'react-router-dom';
 import AuthLayout from '../layouts/AuthLayout';
 import IndividualRegistrationForm from '../components/IndividualRegistrationForm';
@@ -112,7 +112,7 @@ const Registration = () => {
       await registerCompany(companyData);
 
       // Save full company details locally as a fallback for profile display
-      localStorage.setItem('company_profile', JSON.stringify({
+      sessionStorage.setItem('company_profile', JSON.stringify({
         // Company info
         companyName: values.companyName,
         companyRCNumber: values.companyRCNumber,
