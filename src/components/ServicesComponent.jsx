@@ -28,19 +28,6 @@ const ServicesComponent = () => {
       return;
     }
 
-    // Guard: not verified
-    const user = getUserCookie();
-    const isVerified = user.data?.is_verified ?? user.is_verified ?? false;
-    if (!isVerified) {
-      const userType = Cookies.get('user_type') || 'individual';
-      const verifyPath = userType === 'company' ? '/verify/company' : '/verify/individual';
-      toast.error('Please complete your account verification before accessing services.', {
-        autoClose: 4000,
-      });
-      setTimeout(() => { window.location.href = verifyPath; }, 1500);
-      return;
-    }
-
     // Guard: prevent double-click while a redirect is in-flight
     if (loadingService) return;
 
@@ -100,9 +87,6 @@ const ServicesComponent = () => {
     }
   };
 
-  const user = getUserCookie();
-  const isVerified = !!(user.data?.is_verified ?? user.is_verified ?? false);
-
   return (
     <section id="services-section">
       <div className="container rel">
@@ -111,10 +95,7 @@ const ServicesComponent = () => {
           <p>Lagos State VEHICLE services and information</p>
         </div>
 
-        <div
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 service-card-grid gap-x-6 gap-y-8"
-          style={!isVerified ? { opacity: 0.55, filter: 'grayscale(0.4)' } : undefined}
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 service-card-grid gap-x-6 gap-y-8">
           {/* Number Plate Services — available to all authenticated users */}
           <ServiceCard
             title="Number Plate Services"

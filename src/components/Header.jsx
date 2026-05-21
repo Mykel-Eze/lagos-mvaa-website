@@ -125,19 +125,13 @@ const Header = () => {
   // Check if the user is logged in by checking the session cookie
   const isLoggedIn = !!Cookies.get('portal_session_id');
 
-  // Determine verification status and type from user cookie
-  const isVerified = userData
-    ? (userData.data?.is_verified ?? userData.data?.isVerified ?? userData.is_verified ?? userData.isVerified ?? false)
-    : true;
-  const isCompany = userData ? !!(userData.data?.companyName || userData.companyName) : false;
-  const verifyPath = isCompany ? '/verify/company' : '/verify/individual';
 
   // console.log('Header render - isLoggedIn:', isLoggedIn, 'isVerified:', isVerified, 'userData:', userData);
 
   return (
     <>
-      {/* Unverified User Banner */}
-      {isLoggedIn && !isVerified && (
+      {/* Unverified User Banner — temporarily hidden; re-enable when verification is enforced */}
+      {/* {isLoggedIn && !isVerified && (
         <div className="unverified-banner">
           <span className="unverified-banner-icon">⚠️</span>
           <span className="unverified-banner-text">
@@ -147,7 +141,7 @@ const Header = () => {
             Verify Now →
           </Link>
         </div>
-      )}
+      )} */}
       <header className="rel full-width">
         <div id="main-header">
           <div className="container">

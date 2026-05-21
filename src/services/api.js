@@ -143,7 +143,13 @@ export const getProfile = async () => {
       try { return JSON.parse(Cookies.get('user') || '{}'); } catch { return {}; }
     })();
 
-    const merged = { ...existing, ...profileData };
+    // Strip entityId before cookie storage — it contains a raw base64 photo (~200 KB)
+    // that far exceeds the 4 KB browser cookie limit, causing the write to fail silently.
+    // None of the UI components read entityId from the cookie; they consume it only at
+    // verification time from the API response directly.
+    const { entityId: _entityId, ...cookieSafeProfile } = profileData;
+
+    const merged = { ...existing, ...cookieSafeProfile };
     // Preserve a locally-confirmed is_verified written by submitVerification() against
     // any future profile response where the backend might not yet reflect the update.
     if (existing.is_verified === true) merged.is_verified = true;
@@ -208,8 +214,9 @@ export const updateAccount = async (email, userData) => {
     const profileData = { ...(response.data.data || response.data) };
     if (profileData.isVerified !== undefined) profileData.is_verified = profileData.isVerified;
     if (profileData.isActivated !== undefined) profileData.is_activated = profileData.isActivated;
+    const { entityId: _entityId, ...cookieSafeProfile } = profileData;
     const existing = (() => { try { return JSON.parse(Cookies.get('user') || '{}'); } catch { return {}; } })();
-    const merged = { ...existing, ...profileData };
+    const merged = { ...existing, ...cookieSafeProfile };
     if (existing.is_verified === true) merged.is_verified = true;
     Cookies.set('user', JSON.stringify(merged), COOKIE_OPTS_STRICT);
     return merged;
