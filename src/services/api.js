@@ -44,11 +44,13 @@ const normalizeProfile = (responseData) => {
   return safe;
 };
 
-// Merges normalized profile into sessionStorage, preserving a locally-confirmed is_verified.
+// Merges normalized profile into sessionStorage.
+// On a fresh login (no existing session data) the server value for is_verified is trusted.
+// On subsequent fetches the local value wins — only submitVerification may flip it to true.
 const saveUserProfile = (profile) => {
   const existing = getUser();
   const merged = { ...existing, ...profile };
-  if (existing.is_verified === true) merged.is_verified = true;
+  if (existing.is_verified !== undefined) merged.is_verified = existing.is_verified;
   sessionStorage.setItem('user', JSON.stringify(merged));
   return merged;
 };
@@ -202,7 +204,7 @@ export const verifyPayerId = async (pid) => {
 
 export const createPayerId = async (dto) => {
   try {
-    const response = await api.post('/shared/billing/identification', dto);
+    const response = await api.post('/shared/billing/identification', dto, { headers: bearerHeader() });
     return response.data;
   } catch (error) { throwError(error); }
 };
@@ -211,7 +213,7 @@ export const submitVerification = async (email, extraFields = {}) => {
   try {
     const response = await api.patch(
       `/portal/accounts/update-account/${email}`,
-      { is_verified: true },
+      { is_verified: true, ...extraFields },
       { headers: bearerHeader() }
     );
     sessionStorage.setItem('user', JSON.stringify({ ...getUser(), is_verified: true, ...extraFields }));

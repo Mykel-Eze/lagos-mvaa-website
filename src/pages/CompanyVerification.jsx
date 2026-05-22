@@ -303,7 +303,12 @@ export default function CompanyVerification() {
         setSubmitting(true);
         try {
             const pid = payerResult?.Pid || payerResult?.pid || payerId;
-            await submitVerification(company?.email, { payerId: pid });
+            await submitVerification(company?.email, {
+                cac: cac.trim(),
+                nin: nin.trim(),
+                tin: tin.trim(),
+                payerId: pid,
+            });
             toast.success('Company account verified! Welcome.');
             navigate('/services');
         } catch (err) {

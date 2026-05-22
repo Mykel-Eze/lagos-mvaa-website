@@ -76,7 +76,7 @@ const Header = () => {
     const firstName = userData.firstName || '';
     const companyName = userData.companyName || '';
     const rawName = firstName || companyName || userData.email || 'User';
-    return rawName.length > 16 ? rawName.slice(0, 16) + 'â€¦' : rawName;
+    return rawName.length > 16 ? rawName.slice(0, 16) + '…' : rawName;
   };
 
   // Toggle mobile menu

@@ -18,7 +18,7 @@ const AccountSettings = () => {
   const [ hasChanges, setHasChanges ] = useState(false);
   const [ initialValues, setInitialValues ] = useState({});
   const [ isCompany, setIsCompany ] = useState(false);
-  const [ verificationDetails, setVerificationDetails ] = useState({ nin: '', payerId: '', isVerified: false });
+  const [ verificationDetails, setVerificationDetails ] = useState({ nin: '', payerId: '', cac: '', tin: '', isVerified: false });
 
   // Load user profile data
   useEffect(() => {
@@ -95,6 +95,8 @@ const AccountSettings = () => {
           setVerificationDetails({
             nin: userData.nin || '',
             payerId: userData.payerId || '',
+            cac: userData.cac || '',
+            tin: userData.tin || '',
             isVerified: !!(userData.data?.is_verified ?? userData.is_verified ?? false),
           });
 
@@ -285,14 +287,24 @@ const AccountSettings = () => {
               </Form.Item>
             </div>
 
-            {/* Verification Details â€” read-only, only shown after verification */}
-            {verificationDetails.isVerified && (verificationDetails.nin || verificationDetails.payerId) && (
+            {/* Verification Details - read-only, only shown after verification */}
+            {verificationDetails.isVerified && (verificationDetails.nin || verificationDetails.payerId || verificationDetails.cac || verificationDetails.tin) && (
               <>
                 <h3 className="text-base font-semibold text-gray-700 mt-4 mb-2">Verification Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-y-1 gap-x-10 max-w-4xl">
+                  {verificationDetails.cac && (
+                    <Form.Item label="CAC Registration Number">
+                      <Input size="large" value={verificationDetails.cac} disabled className="rounded-md" />
+                    </Form.Item>
+                  )}
                   {verificationDetails.nin && (
-                    <Form.Item label="NIN">
+                    <Form.Item label={isCompany ? 'Business Owner NIN' : 'NIN'}>
                       <Input size="large" value={verificationDetails.nin} disabled className="rounded-md" />
+                    </Form.Item>
+                  )}
+                  {verificationDetails.tin && (
+                    <Form.Item label="TIN">
+                      <Input size="large" value={verificationDetails.tin} disabled className="rounded-md" />
                     </Form.Item>
                   )}
                   {verificationDetails.payerId && (
