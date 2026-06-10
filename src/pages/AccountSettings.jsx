@@ -19,6 +19,9 @@ const AccountSettings = () => {
   const [ initialValues, setInitialValues ] = useState({});
   const [ isCompany, setIsCompany ] = useState(false);
   const [ verificationDetails, setVerificationDetails ] = useState({ nin: '', payerId: '', cac: '', tin: '', isVerified: false });
+  // Full address from the backend profile — preserved so company updates can resend
+  // fields the form doesn't edit (blockNumber, email, utilityBill, …).
+  const [ loadedAddress, setLoadedAddress ] = useState({});
 
   // Load user profile data
   useEffect(() => {
@@ -63,16 +66,7 @@ const AccountSettings = () => {
           const companyAccount = userType === 'company';
           setIsCompany(companyAccount);
 
-          // Only merge sessionStorage company details for company accounts
-          if (companyAccount) {
-            const companyRaw = sessionStorage.getItem('company_profile');
-            if (companyRaw) {
-              try {
-                const localCompany = JSON.parse(companyRaw);
-                userData = { ...localCompany, ...userData };
-              } catch { /* ignore */ }
-            }
-          }
+          // Company fields come from the backend profile (no client-side PII cache).
 
           // For company accounts, rep name/phone fill the personal fields
           const repNameParts = (userData.companyRepName || '').trim().split(/\s+/);
@@ -86,11 +80,18 @@ const AccountSettings = () => {
             phone: userData.phone || (companyAccount ? userData.companyRepPhone : '') || '',
             street: userData.address?.street || '',
             lga: userData.address?.lga || '',
+            // Company address fields — editable and required by the company update endpoint
+            flatNumber: companyAccount ? (userData.address?.flatNumber || '') : '',
+            landmark: companyAccount ? (userData.address?.landmark || '') : '',
+            contactPhone: companyAccount ? (userData.address?.contactPhone || '') : '',
             // Company-specific (read-only, only set for company accounts)
             companyName: companyAccount ? (userData.companyName || '') : '',
             companyRCNumber: companyAccount ? (userData.companyRCNumber || '') : '',
             companyTIN: companyAccount ? (userData.companyTIN || '') : '',
           };
+
+          // Keep the full address so a company update can resend fields we don't edit here.
+          setLoadedAddress(userData.address || {});
 
           setVerificationDetails({
             nin: userData.nin || '',
@@ -130,18 +131,42 @@ const AccountSettings = () => {
   const handleSubmit = async (values) => {
     setIsLoading(true);
     try {
-      // Format the data for the API
-      const updateData = {
-        email: values.email,
-        firstName: values.firstName,
-        lastName: values.lastName,
-        phone: values.phone,
-        address: {
-          street: values.street,
-          lga: values.lga,
-          state: "Lagos",
-        },
-      };
+      // The company update endpoint validates a fuller address (flatNumber, landmark,
+      // contactPhone, email). Send those for company accounts, merging over the loaded
+      // address so fields we don't edit here (blockNumber, utilityBill, …) are preserved.
+      const address = isCompany
+        ? {
+            ...loadedAddress,
+            street: values.street,
+            lga: values.lga,
+            state: 'Lagos',
+            flatNumber: values.flatNumber,
+            landmark: values.landmark,
+            contactPhone: values.contactPhone,
+            email: loadedAddress.email || values.email,
+          }
+        : {
+            street: values.street,
+            lga: values.lga,
+            state: 'Lagos',
+          };
+
+      // The two endpoints accept different shapes. The company endpoint rejects
+      // individual-only fields (firstName/lastName/phone) and also companyRepPhone — its
+      // whitelist accepts companyRepName and address. The rep/contact phone is edited via
+      // address.contactPhone instead.
+      const updateData = isCompany
+        ? {
+            companyRepName: `${(values.firstName || '').trim()} ${(values.lastName || '').trim()}`.trim(),
+            address,
+          }
+        : {
+            email: values.email,
+            firstName: values.firstName,
+            lastName: values.lastName,
+            phone: values.phone,
+            address,
+          };
 
       // Call the update API
       await updateAccount(values.email, updateData);
@@ -286,6 +311,41 @@ const AccountSettings = () => {
                 </Select>
               </Form.Item>
             </div>
+
+            {/* Company address — required by the company update endpoint */}
+            {isCompany && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-1 gap-x-10 max-w-4xl">
+                <Form.Item
+                  label="Flat Number"
+                  name="flatNumber"
+                  rules={[
+                    { required: true, message: 'Please enter your flat number' },
+                    { min: 2, message: 'Flat number must be at least 2 characters' },
+                  ]}
+                >
+                  <Input placeholder="Enter flat number" size="large" className="rounded-md" />
+                </Form.Item>
+
+                <Form.Item
+                  label="Landmark"
+                  name="landmark"
+                  rules={[
+                    { required: true, message: 'Please enter a nearby landmark' },
+                    { min: 2, message: 'Landmark must be at least 2 characters' },
+                  ]}
+                >
+                  <Input placeholder="Enter a nearby landmark" size="large" className="rounded-md" />
+                </Form.Item>
+
+                <Form.Item
+                  label="Contact Phone"
+                  name="contactPhone"
+                  rules={[ { required: true, message: 'Please enter a contact phone number' } ]}
+                >
+                  <Input placeholder="+2348100000000" size="large" className="rounded-md" />
+                </Form.Item>
+              </div>
+            )}
 
             {/* Verification Details - read-only, only shown after verification */}
             {verificationDetails.isVerified && (verificationDetails.nin || verificationDetails.payerId || verificationDetails.cac || verificationDetails.tin) && (
