@@ -68,16 +68,16 @@ const AccountSettings = () => {
 
           // Company fields come from the backend profile (no client-side PII cache).
 
-          // For company accounts, rep name/phone fill the personal fields
-          const repNameParts = (userData.companyRepName || '').trim().split(/\s+/);
-          const repFirstName = repNameParts[ 0 ] || '';
-          const repLastName = repNameParts.slice(1).join(' ') || '';
+          // Single Name field. For companies it maps to the representative's name.
+          const fullName = companyAccount
+            ? (userData.companyRepName || '').trim()
+            : `${userData.firstName || ''} ${userData.lastName || ''}`.trim();
 
           const formData = {
-            firstName: userData.firstName || (companyAccount ? repFirstName : ''),
-            lastName: userData.lastName || (companyAccount ? repLastName : ''),
+            name: fullName,
             email: userData.email || '',
-            phone: userData.phone || (companyAccount ? userData.companyRepPhone : '') || '',
+            // Phone is only editable/saved for individual accounts.
+            phone: companyAccount ? '' : (userData.phone || ''),
             street: userData.address?.street || '',
             lga: userData.address?.lga || '',
             // Company address fields — editable and required by the company update endpoint
@@ -151,19 +151,25 @@ const AccountSettings = () => {
             state: 'Lagos',
           };
 
+      // Single Name field: companies send it as companyRepName; individuals split it back
+      // into firstName/lastName for their endpoint.
+      const fullName = (values.name || '').trim();
+      const [ firstName, ...restName ] = fullName.split(/\s+/);
+      const lastName = restName.join(' ');
+
       // The two endpoints accept different shapes. The company endpoint rejects
-      // individual-only fields (firstName/lastName/phone) and also companyRepPhone — its
-      // whitelist accepts companyRepName and address. The rep/contact phone is edited via
+      // individual-only fields (firstName/lastName/phone) and companyRepPhone — its
+      // whitelist accepts companyRepName and address. The contact phone is edited via
       // address.contactPhone instead.
       const updateData = isCompany
         ? {
-            companyRepName: `${(values.firstName || '').trim()} ${(values.lastName || '').trim()}`.trim(),
+            companyRepName: fullName,
             address,
           }
         : {
             email: values.email,
-            firstName: values.firstName,
-            lastName: values.lastName,
+            firstName: firstName || '',
+            lastName,
             phone: values.phone,
             address,
           };
@@ -221,26 +227,14 @@ const AccountSettings = () => {
           >
             {/* Form Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-y-1 gap-x-10 max-w-4xl">
-              {/* Name Fields */}
+              {/* Name */}
               <Form.Item
-                label="First Name"
-                name="firstName"
-                rules={[ { required: true, message: 'Please enter your first name' } ]}
+                label="Name"
+                name="name"
+                rules={[ { required: true, message: 'Please enter your name' } ]}
               >
                 <Input
-                  placeholder="Enter your first name"
-                  size="large"
-                  className="rounded-md"
-                />
-              </Form.Item>
-
-              <Form.Item
-                label="Last Name"
-                name="lastName"
-                rules={[ { required: true, message: 'Please enter your last name' } ]}
-              >
-                <Input
-                  placeholder="Enter your last name"
+                  placeholder="Enter your name"
                   size="large"
                   className="rounded-md"
                 />
@@ -263,18 +257,20 @@ const AccountSettings = () => {
                 />
               </Form.Item>
 
-              {/* Phone Number */}
-              <Form.Item
-                label="Phone Number"
-                name="phone"
-                rules={[ { required: true, message: 'Please enter your phone number' } ]}
-              >
-                <Input
-                  placeholder="+2348100000000"
-                  size="large"
-                  className="rounded-md"
-                />
-              </Form.Item>
+              {/* Phone Number — only editable/saved for individual accounts */}
+              {!isCompany && (
+                <Form.Item
+                  label="Phone Number"
+                  name="phone"
+                  rules={[ { required: true, message: 'Please enter your phone number' } ]}
+                >
+                  <Input
+                    placeholder="+2348100000000"
+                    size="large"
+                    className="rounded-md"
+                  />
+                </Form.Item>
+              )}
 
               {/* Address Fields */}
               <Form.Item
