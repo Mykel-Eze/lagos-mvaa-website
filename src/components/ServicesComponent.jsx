@@ -2,6 +2,7 @@
 import React from 'react';
 import ServiceCard from './ServiceCard';
 import { toast } from 'react-toastify';
+import { issueServiceToken } from '../services/api';
 
 // Mapping of service app names to their external module entry URLs
 const SERVICE_URL_MAP = {
@@ -14,7 +15,7 @@ const getUserCookie = () => {
 };
 
 const ServicesComponent = () => {
-  const handleServiceClick = (appName, appId) => {
+  const handleServiceClick = async (appName, appId) => {
     // Guard: not authenticated
     const sessionId = sessionStorage.getItem('portal_session_id');
     if (!sessionId) {
@@ -33,22 +34,24 @@ const ServicesComponent = () => {
       return;
     }
 
-    const baseUrl = SERVICE_URL_MAP[ appName ] || 'https://default.module1url.com';
+    const targetUrl = SERVICE_URL_MAP[ appName ] || 'https://default.module1url.com';
 
-    // Store the app_id cookie for the external module's reference
+    // Store the app_id for the external module's reference.
     sessionStorage.setItem('portal_app_id', appId);
 
-    // portal_session_id is now an opaque encrypted envelope (JSON), so it must be
-    // URL-encoded to survive the query string intact for the receiving module.
-    //
-    // SECURITY: the session token travels in the URL query string to an external origin,
-    // which can leak it via browser history, the destination's server logs, and Referer
-    // headers. This is considered acceptable ONLY because the token is single-use — the
-    // login envelope carries `used:0`/`purpose`, and the backend must invalidate it on
-    // first redemption so a leaked URL can't be replayed. Do not reuse this pattern for a
-    // long-lived credential; switch to a URL fragment or POST body if that ever changes.
-    const params = new URLSearchParams({ portal_session_id: sessionId, portal_app_id: appId });
-    window.location.href = `${baseUrl}?${params.toString()}`;
+    // Hand off via the v2 session handshake instead of attaching our session credential to
+    // the third-party URL. issueServiceToken authenticates the same way as our v1 calls (the
+    // session header) and returns the target `url` with a short-lived (180s) one-time token
+    // appended — we navigate there, so the third party only ever receives the disposable
+    // token, never our session.
+    const userType = sessionStorage.getItem('user_type') || 'individual';
+    try {
+      const data = await issueServiceToken({ email: user.email || '', url: targetUrl, userType });
+      if (!data?.url) throw new Error('Could not start the service session.');
+      window.location.href = data.url;
+    } catch (err) {
+      toast.error(err?.error || err?.details || err?.message || 'Could not connect to the service. Please try again.');
+    }
   };
 
   const isVerified = !!(getUserCookie().is_verified ?? getUserCookie().isVerified ?? false);

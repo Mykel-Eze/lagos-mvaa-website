@@ -383,6 +383,41 @@ const ENDPOINT_GROUPS = [
         response: { data: { id: 'txn_001', reference: 'REF123', amount: 5000, status: 'success', service: 'Number Plate', createdAt: '2026-06-01T10:00:00Z' } }
       }
     ]
+  },
+  {
+    id: 'session-handshake',
+    title: 'Session Handshake (v2)',
+    desc: 'Hand a session off to an external service module via a short-lived one-time token, instead of exposing the session to third parties. Note: these live under /api/v2, not the /api/v1 base.',
+    endpoints: [
+      {
+        id: 'issue-token',
+        name: 'Issue handshake token',
+        method: 'GET',
+        path: '/api/v2/session/auth/issuetoken',
+        absolutePath: true,
+        auth: 'session',
+        desc: 'Mint a short-lived (180s) one-time token to redirect a user to an external service with an authenticated handoff. The portal’s service cards use this so the third party never receives the session itself.',
+        queryParams: [
+          { name: 'email', desc: 'Account email', example: 'user@example.com', required: true },
+          { name: 'url', desc: 'External service URL to hand off to', example: 'https://mvatvtlagos.com/mvaa-app/verify-session', required: true },
+          { name: 'userType', desc: 'individual or company', example: 'individual', required: true },
+          { name: 'redirect', desc: 'true → server 302-redirects to url?token=<oht>; false → returns the JSON below (use false from this console / a fetch)', example: 'false', required: true }
+        ],
+        response: {
+          success: 'true',
+          expiresIn: 180,
+          status: 200,
+          url: 'https://mvatvtlagos.com/mvaa-app/verify-session?token=iUi9W8MlWQIBSxxaVKibFF-lYnxuHj0JOH4yu7zlqVo',
+          oht: 'iUi9W8MlWQIBSxxaVKibFF-lYnxuHj0JOH4yu7zlqVo'
+        },
+        notes: [
+          'Authenticates exactly like the v1 endpoints — via the session header (<code>X-Portal-Session-Id</code>) carrying the encrypted login envelope. A server-side guard resolves the session, so a <code>sid</code> query param is no longer required.',
+          'Tokens expire after <strong>180 seconds</strong> and are single-use.',
+          'With <code>redirect=true</code> + <code>url</code>, the server 302-redirects to <code>url?token=&lt;oht&gt;</code>. With <code>redirect=false</code> it returns the JSON so the client navigates itself.',
+          'The portal calls this with <code>redirect=false</code> then navigates to the returned <code>url</code> — so the external module only ever receives the disposable <code>oht</code>, never the session envelope.'
+        ]
+      }
+    ]
   }
 ];
 
@@ -602,7 +637,9 @@ async function sendRequest(ep, inputs, bodyEditor, resp, sendBtn) {
     .join('&');
 
   const base = (store.base || DEFAULT_BASE_URL).replace(/\/+$/, '');
-  const url = base + path + (qs ? '?' + qs : '');
+  // absolutePath endpoints (e.g. the v2 handshake) hang off the origin, not the /api/v1 base.
+  const root = ep.absolutePath ? new URL(base).origin : base;
+  const url = root + path + (qs ? '?' + qs : '');
 
   // Headers
   const headers = { 'Content-Type': 'application/json' };

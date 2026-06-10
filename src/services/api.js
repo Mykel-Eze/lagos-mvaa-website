@@ -193,6 +193,22 @@ export const resendVerificationEmail = async (email) => {
   } catch (error) { throwError(error); }
 };
 
+// ----- Service handoff (v2 session handshake) ----------------------------------
+
+// Issues a short-lived (180s) one-time token to hand the session off to an external service
+// module. Authenticates the same way as v1 endpoints — via the session header added by the
+// request interceptor (no `sid` needed; the backend guards it server-side). `redirect=false`
+// makes it return JSON ({ url, oht, expiresIn }) instead of a 302; navigate the browser to `url`.
+export const issueServiceToken = async ({ email, url, userType }) => {
+  try {
+    const origin = new URL(API_BASE_URL).origin;
+    const response = await api.get(`${origin}/api/v2/session/auth/issuetoken`, {
+      params: { email, url, userType, redirect: 'false' },
+    });
+    return response.data;
+  } catch (error) { throwError(error); }
+};
+
 // ----- Verification -------------------------------------------------------------
 
 export const verifyNIN = async (nin, firstname, lastname) => {
