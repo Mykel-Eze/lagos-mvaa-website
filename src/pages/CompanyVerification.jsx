@@ -155,11 +155,8 @@ export default function CompanyVerification() {
 
         if (!userData) { navigate('/login'); return; }
 
-        // Merge sessionStorage company profile (fallback, same pattern as AccountSettings)
-        const companyRaw = sessionStorage.getItem('company_profile');
-        if (companyRaw) {
-            try { userData = { ...JSON.parse(companyRaw), ...userData }; } catch { /* ignore */ }
-        }
+        // Company details (incl. owner name used for the business-NIN check) come from the
+        // backend profile — no client-side PII cache.
 
         if (userData.is_verified) { navigate('/services'); return; }
 

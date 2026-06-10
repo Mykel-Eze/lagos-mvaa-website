@@ -1,4 +1,5 @@
 // src/utils/auth.js
+import { clearAuthStorage } from '../services/api';
 
 // Check if user is authenticated
 export const isAuthenticated = () => {
@@ -21,10 +22,9 @@ export const getSessionToken = () => {
   return sessionStorage.getItem('portal_session_id');
 };
 
-// Clear all authentication data
-export const clearAuthData = () => {
-  ['portal_session_id', 'portal_app_id', 'user'].forEach((k) => sessionStorage.removeItem(k));
-};
+// Clear all authentication data. Delegates to the single source of truth in api.js so
+// every auth/PII key (session token, user_type, company_profile, …) is wiped consistently.
+export const clearAuthData = () => clearAuthStorage();
 
 // Check if error is authentication-related
 export const isAuthError = (error) => {

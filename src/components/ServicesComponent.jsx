@@ -40,6 +40,13 @@ const ServicesComponent = () => {
 
     // portal_session_id is now an opaque encrypted envelope (JSON), so it must be
     // URL-encoded to survive the query string intact for the receiving module.
+    //
+    // SECURITY: the session token travels in the URL query string to an external origin,
+    // which can leak it via browser history, the destination's server logs, and Referer
+    // headers. This is considered acceptable ONLY because the token is single-use — the
+    // login envelope carries `used:0`/`purpose`, and the backend must invalidate it on
+    // first redemption so a leaked URL can't be replayed. Do not reuse this pattern for a
+    // long-lived credential; switch to a URL fragment or POST body if that ever changes.
     const params = new URLSearchParams({ portal_session_id: sessionId, portal_app_id: appId });
     window.location.href = `${baseUrl}?${params.toString()}`;
   };

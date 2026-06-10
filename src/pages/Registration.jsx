@@ -111,42 +111,9 @@ const Registration = () => {
 
       await registerCompany(companyData);
 
-      // Save full company details locally as a fallback for profile display
-      sessionStorage.setItem('company_profile', JSON.stringify({
-        // Company info
-        companyName: values.companyName,
-        companyRCNumber: values.companyRCNumber,
-        companyTIN: values.companyTIN,
-        email: values.email,
-        // Rep details
-        companyRepName: values.companyRepName,
-        companyRepPhone: values.repCountryCode + values.repPhone,
-        companyRepEmail: values.companyRepEmail,
-        // Address
-        address: {
-          flatNumber: values.flatNumber,
-          blockNumber: values.blockNumber || 'N/A',
-          street: values.street,
-          landmark: values.landmark,
-          lga: values.lga,
-          state: 'Lagos',
-          contactPhone: values.contactCountryCode + values.contactPhone,
-        },
-        // Owner details
-        companyOwner: {
-          title: values.ownerTitle,
-          firstName: values.ownerFirstName,
-          surname: values.ownerSurname,
-          otherName: values.ownerOtherName,
-          sex: values.ownerSex,
-          maritalStatus: values.ownerMaritalStatus,
-          dob: values.ownerDob ? values.ownerDob.format('YYYY-MM-DD') : null,
-          placeOfBirth: values.ownerPlaceOfBirth,
-          nationalIdentificationNumber: values.ownerNIN,
-          driverLicenseNumber: values.ownerDriverLicense,
-          passportNumber: values.ownerPassport,
-        },
-      }));
+      // NOTE: company details (incl. owner NIN/DOB/passport/license) are intentionally
+      // NOT cached in sessionStorage — that PII must not live in the browser. The profile
+      // screens read company data from the backend (/shared/profile) instead.
 
       setUserEmail(values.email);
       setShowVerification(true);

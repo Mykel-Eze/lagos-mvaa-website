@@ -12,21 +12,13 @@ const Header = () => {
   const location = useLocation();
   const dropdownRef = useRef(null);
 
-  // Get user data from cookies (plus sessionStorage company fallback)
+  // Get user data from the cached profile (sourced from the backend).
   useEffect(() => {
     const loadUser = () => {
       const userCookie = sessionStorage.getItem('user');
       let parsed = {};
       if (userCookie) {
         try { parsed = JSON.parse(userCookie); } catch { /* ignore */ }
-      }
-      // Merge company details from sessionStorage if present (fallback for company profile)
-      const companyRaw = sessionStorage.getItem('company_profile');
-      if (companyRaw) {
-        try {
-          const company = JSON.parse(companyRaw);
-          parsed = { ...company, ...parsed }; // cookie fields win if they exist
-        } catch { /* ignore */ }
       }
       setUserData(parsed);
     };

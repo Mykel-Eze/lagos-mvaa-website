@@ -20,10 +20,14 @@ api.interceptors.request.use((config) => {
 
 // ----- Storage helpers -------------------------------------------------------------
 
+// Every key that holds auth state or cached PII. Logout / session-expiry must wipe
+// all of these. `company_profile` is no longer written (PII is not cached client-side)
+// but is kept here so any legacy value from an older session is purged on logout.
 const AUTH_KEYS = [
   'portal_session_id', 'portal_app_id',
   'user_access_token',
   'user', 'user_type',
+  'company_profile',
 ];
 
 export const clearAuthStorage = () => AUTH_KEYS.forEach((k) => sessionStorage.removeItem(k));
