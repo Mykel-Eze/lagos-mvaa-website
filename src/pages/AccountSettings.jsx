@@ -68,13 +68,11 @@ const AccountSettings = () => {
 
           // Company fields come from the backend profile (no client-side PII cache).
 
-          // Single Name field. For companies it maps to the representative's name.
-          const fullName = companyAccount
-            ? (userData.companyRepName || '').trim()
-            : `${userData.firstName || ''} ${userData.lastName || ''}`.trim();
-
           const formData = {
-            name: fullName,
+            // Individuals edit first & last name separately; companies use a single rep name.
+            firstName: companyAccount ? '' : (userData.firstName || ''),
+            lastName: companyAccount ? '' : (userData.lastName || ''),
+            name: companyAccount ? (userData.companyRepName || '').trim() : '',
             email: userData.email || '',
             // Phone is only editable/saved for individual accounts.
             phone: companyAccount ? '' : (userData.phone || ''),
@@ -151,25 +149,20 @@ const AccountSettings = () => {
             state: 'Lagos',
           };
 
-      // Single Name field: companies send it as companyRepName; individuals split it back
-      // into firstName/lastName for their endpoint.
-      const fullName = (values.name || '').trim();
-      const [ firstName, ...restName ] = fullName.split(/\s+/);
-      const lastName = restName.join(' ');
-
       // The two endpoints accept different shapes. The company endpoint rejects
       // individual-only fields (firstName/lastName/phone) and companyRepPhone — its
-      // whitelist accepts companyRepName and address. The contact phone is edited via
-      // address.contactPhone instead.
+      // whitelist accepts companyRepName (from the single Name field) and address. The
+      // contact phone is edited via address.contactPhone instead. Individuals keep the
+      // separate firstName/lastName/phone their endpoint requires.
       const updateData = isCompany
         ? {
-            companyRepName: fullName,
+            companyRepName: (values.name || '').trim(),
             address,
           }
         : {
             email: values.email,
-            firstName: firstName || '',
-            lastName,
+            firstName: values.firstName,
+            lastName: values.lastName,
             phone: values.phone,
             address,
           };
@@ -227,18 +220,46 @@ const AccountSettings = () => {
           >
             {/* Form Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-y-1 gap-x-10 max-w-4xl">
-              {/* Name */}
-              <Form.Item
-                label="Name"
-                name="name"
-                rules={[ { required: true, message: 'Please enter your name' } ]}
-              >
-                <Input
-                  placeholder="Enter your name"
-                  size="large"
-                  className="rounded-md"
-                />
-              </Form.Item>
+              {/* Name — single field for companies (rep name); first/last for individuals */}
+              {isCompany ? (
+                <Form.Item
+                  label="Name"
+                  name="name"
+                  rules={[ { required: true, message: 'Please enter the representative name' } ]}
+                >
+                  <Input
+                    placeholder="Enter the representative name"
+                    size="large"
+                    className="rounded-md"
+                  />
+                </Form.Item>
+              ) : (
+                <>
+                  <Form.Item
+                    label="First Name"
+                    name="firstName"
+                    rules={[ { required: true, message: 'Please enter your first name' } ]}
+                  >
+                    <Input
+                      placeholder="Enter your first name"
+                      size="large"
+                      className="rounded-md"
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Last Name"
+                    name="lastName"
+                    rules={[ { required: true, message: 'Please enter your last name' } ]}
+                  >
+                    <Input
+                      placeholder="Enter your last name"
+                      size="large"
+                      className="rounded-md"
+                    />
+                  </Form.Item>
+                </>
+              )}
 
               {/* Email Address */}
               <Form.Item
