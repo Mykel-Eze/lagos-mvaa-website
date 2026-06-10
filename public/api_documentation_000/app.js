@@ -151,14 +151,33 @@ const ENDPOINT_GROUPS = [
         auth: 'session',
         desc: 'Fetch the signed-in user’s profile. Returns individual or company fields depending on the account type.',
         response: {
+          status: 200,
+          message: 'company profile fetch successful',
+          success: 'true',
           data: {
-            firstName: 'John', lastName: 'Doe', email: 'john@example.com', phone: '+2348100000000',
-            address: { street: '12 Marina Road', lga: 'Lagos Island', state: 'Lagos' },
-            is_verified: true, isActivated: true,
-            nin: '12345678901', payerId: 'PID000123', cac: '', tin: ''
+            id: '21fd1042-d0b6-41ac-849e-cf72401bea49',
+            email: 'company@acme.com', isActivated: true, isVerified: false,
+            payerId: null, role: 'USER', userType: 'company',
+            address: {
+              flatNumber: '12', blockNumber: '12', street: 'Olabiran Street, Shomolu',
+              landmark: 'Itablae', lga: 'Apapa', state: 'Lagos',
+              contactPhone: '+2348175125000', email: 'company@acme.com',
+              utilityBill: 'Pending Utility Bill', utilityBillDescription: 'Pending Utility Bill'
+            },
+            companyOwner: {
+              title: 'Mr', firstName: 'Mykel', surname: 'Dev', otherName: 'Ebube',
+              sex: 'Male', maritalStatus: 'Single', dob: '2008-06-04T23:00:00.000Z',
+              placeOfBirth: 'Lagos', nationalIdentificationNumber: '10202020202',
+              driverLicenseNumber: '202939', passportNumber: 'BC-12929'
+            },
+            companyName: 'Acme Motors Ltd', companyRCNumber: '1234567', companyTIN: '12345678',
+            companyRepName: 'Jane Doe', companyRepPhone: '+2348127273732', companyRepEmail: 'company@acme.com'
           }
         },
-        notes: [ 'Company accounts additionally return <code>companyName</code>, <code>companyRCNumber</code>, <code>companyTIN</code>, <code>companyRepName</code>, and a fuller <code>address</code> object.' ]
+        notes: [
+          'The example above is a <strong>company</strong> profile. <strong>Individual</strong> accounts return <code>firstName</code>, <code>lastName</code>, <code>phone</code>, and a simpler <code>address</code> instead of the company/owner objects.',
+          '<code>isVerified</code> / <code>isActivated</code> are also surfaced as <code>is_verified</code> / <code>is_activated</code> by the client.'
+        ]
       },
       {
         id: 'update-account',
@@ -187,16 +206,23 @@ const ENDPOINT_GROUPS = [
         pathParams: [ { name: 'email', desc: 'Account email (identifier)', example: 'company@acme.com' } ],
         body: {
           companyRepName: 'Jane Doe',
+          companyOwner: { firstName: 'John', surname: 'Doe' },
           address: {
             street: '12 Marina Road', lga: 'Lagos Island', state: 'Lagos',
             flatNumber: '4B', landmark: 'Near CMS Bus Stop',
             contactPhone: '+2348100000000', email: 'company@acme.com'
           }
         },
-        response: { status: 200, message: 'account updated', success: 'true', data: {} },
+        response: {
+          message: 'corporate account updated successfully', status: 200, success: 'true',
+          data: { companyRepName: 'Jane Doe', address: { /* full address */ }, id: '21fd1042-…', updatedAt: '2026-06-10T07:50:27.651Z' }
+        },
         notes: [
+          'Accepted fields: <code>companyRepName</code>, <code>companyOwner</code> (e.g. <code>firstName</code>, <code>surname</code>), and <code>address</code>.',
           'The address requires <code>flatNumber</code> (min 2), <code>landmark</code> (min 2), a valid <code>contactPhone</code>, and a valid <code>email</code>.',
-          'Sending individual-only fields (<code>firstName</code>, <code>lastName</code>, <code>phone</code>) or <code>companyRepPhone</code> returns <code>400</code> — they are not on this DTO.'
+          'Sending individual-only fields (<code>firstName</code>, <code>lastName</code>, <code>phone</code>) or <code>companyRepPhone</code> returns <code>400</code> — they are not on this DTO.',
+          'Send the full <code>companyOwner</code> object (merge over the profile’s value) — a partial object may overwrite the omitted owner fields.',
+          'The <code>companyOwner</code> update DTO is a strict whitelist: it accepts <code>title</code>, <code>firstName</code>, <code>surname</code>, <code>sex</code>, <code>maritalStatus</code>, <code>dob</code>, <code>placeOfBirth</code>, <code>nationalIdentificationNumber</code>, <code>driverLicenseNumber</code>, <code>passportNumber</code>. It rejects extras like <code>otherName</code> and <code>entityId</code> (the NIN-verification blob the profile gains after verification) — send only the allowlisted fields.'
         ]
       },
       {

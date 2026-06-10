@@ -186,6 +186,7 @@ export default function CompanyVerification() {
         if (!nin.trim()) return;
         setNinStatus(STATUS.LOADING);
         try {
+            // Owner name is sourced from the company profile (companyOwner).
             const ownerFirstName = company?.companyOwner?.firstName || '';
             const ownerLastName = company?.companyOwner?.surname || '';
             const res = await verifyBusinessNIN(nin.trim(), ownerFirstName, ownerLastName);
@@ -318,10 +319,10 @@ export default function CompanyVerification() {
     if (!company) return null;
 
     const progressSteps = [
-        { label: 'CAC', status: cacStatus },
         { label: 'Owner NIN', status: ninStatus },
         { label: 'TIN', status: tinStatus },
         { label: 'Payer ID', status: payerStatus },
+        { label: 'CAC', status: cacStatus },
     ];
 
     return (
@@ -355,49 +356,15 @@ export default function CompanyVerification() {
                     </div>
                 </div>
 
-                {/* ── Step 1: CAC ────────────────────────────────────────────────── */}
+                {/* ── Step 1: Business Owner NIN ─────────────────────────────────── */}
                 <div className="verification-section">
                     <h2 className="verification-section-title">
-                        Step 1 — CAC Registration
-                        {cacStatus === STATUS.SUCCESS && <CheckCircleFilled className="section-check" />}
-                    </h2>
-                    <p className="verification-section-desc">
-                        Enter your Corporate Affairs Commission registration number to confirm your company's legal standing.
-                    </p>
-                    <VerifyField
-                        id="cac-input"
-                        label="CAC Registration Number"
-                        placeholder="e.g. RC1234"
-                        value={cac}
-                        onChange={e => { setCac(e.target.value); if (cacStatus !== STATUS.IDLE) setCacStatus(STATUS.IDLE); }}
-                        status={cacStatus}
-                        onVerify={handleVerifyCAC}
-                        hint="Accepted formats: RC1234, BN1234, IT1234, etc."
-                    />
-                    {cacResult && cacStatus === STATUS.SUCCESS && (
-                        <ResultCard rows={[
-                            { label: 'Company Name', value: cacResult.companyName },
-                            { label: 'RC Number', value: cacResult.rcNumber },
-                            { label: 'Classification', value: cacResult.classification },
-                            {
-                                label: 'Registration Date', value: cacResult.registrationDate
-                                    ? new Date(cacResult.registrationDate).toLocaleDateString('en-NG', { day: 'numeric', month: 'long', year: 'numeric' })
-                                    : '—'
-                            },
-                            { label: 'Status', value: cacResult.status, badge: true },
-                        ]} />
-                    )}
-                </div>
-
-                {/* ── Step 2: Business Owner NIN ─────────────────────────────────── */}
-                <div className="verification-section">
-                    <h2 className="verification-section-title">
-                        Step 2 — Business Owner NIN
+                        Step 1 — Business Owner NIN
                         {ninStatus === STATUS.SUCCESS && <CheckCircleFilled className="section-check" />}
                     </h2>
                     <p className="verification-section-desc">
                         Enter the 11-digit National Identification Number of the registered business owner.
-                        It will be matched against the owner name provided during registration.
+                        It will be matched against the owner name from your company profile.
                     </p>
                     <VerifyField
                         id="nin-input"
@@ -419,10 +386,10 @@ export default function CompanyVerification() {
                     )}
                 </div>
 
-                {/* ── Step 3: TIN ────────────────────────────────────────────────── */}
+                {/* ── Step 2: TIN ────────────────────────────────────────────────── */}
                 <div className="verification-section">
                     <h2 className="verification-section-title">
-                        Step 3 — Tax Identification Number (TIN)
+                        Step 2 — Tax Identification Number (TIN)
                         {tinStatus === STATUS.SUCCESS && <CheckCircleFilled className="section-check" />}
                     </h2>
                     <p className="verification-section-desc">
@@ -448,10 +415,10 @@ export default function CompanyVerification() {
                     )}
                 </div>
 
-                {/* ── Step 4: Payer ID ───────────────────────────────────────────── */}
+                {/* ── Step 3: Payer ID ───────────────────────────────────────────── */}
                 <div className="verification-section">
                     <h2 className="verification-section-title">
-                        Step 4 — Payer ID
+                        Step 3 — Payer ID
                         {payerStatus === STATUS.SUCCESS && <CheckCircleFilled className="section-check" />}
                     </h2>
                     <p className="verification-section-desc">
@@ -469,7 +436,7 @@ export default function CompanyVerification() {
                         <div className="create-payer-link">
                             Don't have a Payer ID?{' '}
                             {ninStatus !== STATUS.SUCCESS ? (
-                                <span style={{ color: '#9ca3af', fontSize: 12 }}>Verify the owner NIN first (Step 2) to create one.</span>
+                                <span style={{ color: '#9ca3af', fontSize: 12 }}>Verify the owner NIN first (Step 1) to create one.</span>
                             ) : (
                                 <button
                                     type="button"
@@ -567,6 +534,40 @@ export default function CompanyVerification() {
                             { label: 'Payer ID', value: payerResult.Pid },
                             { label: 'State', value: payerResult.State },
                             { label: 'Status', value: payerResult.Status, badge: true },
+                        ]} />
+                    )}
+                </div>
+
+                {/* ── Step 4: CAC ────────────────────────────────────────────────── */}
+                <div className="verification-section">
+                    <h2 className="verification-section-title">
+                        Step 4 — CAC Registration
+                        {cacStatus === STATUS.SUCCESS && <CheckCircleFilled className="section-check" />}
+                    </h2>
+                    <p className="verification-section-desc">
+                        Enter your Corporate Affairs Commission registration number to confirm your company's legal standing.
+                    </p>
+                    <VerifyField
+                        id="cac-input"
+                        label="CAC Registration Number"
+                        placeholder="e.g. RC1234"
+                        value={cac}
+                        onChange={e => { setCac(e.target.value); if (cacStatus !== STATUS.IDLE) setCacStatus(STATUS.IDLE); }}
+                        status={cacStatus}
+                        onVerify={handleVerifyCAC}
+                        hint="Accepted formats: RC1234, BN1234, IT1234, etc."
+                    />
+                    {cacResult && cacStatus === STATUS.SUCCESS && (
+                        <ResultCard rows={[
+                            { label: 'Company Name', value: cacResult.companyName },
+                            { label: 'RC Number', value: cacResult.rcNumber },
+                            { label: 'Classification', value: cacResult.classification },
+                            {
+                                label: 'Registration Date', value: cacResult.registrationDate
+                                    ? new Date(cacResult.registrationDate).toLocaleDateString('en-NG', { day: 'numeric', month: 'long', year: 'numeric' })
+                                    : '—'
+                            },
+                            { label: 'Status', value: cacResult.status, badge: true },
                         ]} />
                     )}
                 </div>

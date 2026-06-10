@@ -22,6 +22,9 @@ const AccountSettings = () => {
   // Full address from the backend profile — preserved so company updates can resend
   // fields the form doesn't edit (blockNumber, email, utilityBill, …).
   const [ loadedAddress, setLoadedAddress ] = useState({});
+  // Full companyOwner from the profile — preserved so updates keep owner fields
+  // (title, dob, NIN, …) we don't expose for editing.
+  const [ loadedCompanyOwner, setLoadedCompanyOwner ] = useState({});
 
   // Load user profile data
   useEffect(() => {
@@ -73,6 +76,9 @@ const AccountSettings = () => {
             firstName: companyAccount ? '' : (userData.firstName || ''),
             lastName: companyAccount ? '' : (userData.lastName || ''),
             name: companyAccount ? (userData.companyRepName || '').trim() : '',
+            // Company owner name — editable for company accounts.
+            ownerFirstName: companyAccount ? (userData.companyOwner?.firstName || '') : '',
+            ownerLastName: companyAccount ? (userData.companyOwner?.surname || '') : '',
             email: userData.email || '',
             // Phone is only editable/saved for individual accounts.
             phone: companyAccount ? '' : (userData.phone || ''),
@@ -88,8 +94,9 @@ const AccountSettings = () => {
             companyTIN: companyAccount ? (userData.companyTIN || '') : '',
           };
 
-          // Keep the full address so a company update can resend fields we don't edit here.
+          // Keep the full address & owner so a company update can resend fields we don't edit here.
           setLoadedAddress(userData.address || {});
+          setLoadedCompanyOwner(userData.companyOwner || {});
 
           setVerificationDetails({
             nin: userData.nin || '',
@@ -154,9 +161,28 @@ const AccountSettings = () => {
       // whitelist accepts companyRepName (from the single Name field) and address. The
       // contact phone is edited via address.contactPhone instead. Individuals keep the
       // separate firstName/lastName/phone their endpoint requires.
+      // The companyOwner update DTO accepts only a specific set of fields. Build it from an
+      // allowlist so extra profile fields (otherName, entityId — the NIN verification blob,
+      // …) don't trip the backend's strict whitelist. First/last name come from the form;
+      // the rest are preserved from the loaded profile.
+      const OWNER_FIELDS = [
+        'title', 'sex', 'maritalStatus', 'dob', 'placeOfBirth',
+        'nationalIdentificationNumber', 'driverLicenseNumber', 'passportNumber',
+      ];
+      const companyOwner = {
+        firstName: (values.ownerFirstName || '').trim(),
+        surname: (values.ownerLastName || '').trim(),
+      };
+      OWNER_FIELDS.forEach((k) => {
+        if (loadedCompanyOwner[k] !== undefined && loadedCompanyOwner[k] !== null) {
+          companyOwner[k] = loadedCompanyOwner[k];
+        }
+      });
+
       const updateData = isCompany
         ? {
             companyRepName: (values.name || '').trim(),
+            companyOwner,
             address,
           }
         : {
@@ -170,7 +196,9 @@ const AccountSettings = () => {
       // Call the update API
       await updateAccount(values.email, updateData);
 
-      // updateAccount already saves to sessionStorage via saveUserProfile in api.js
+      // Re-fetch the full profile so sessionStorage stays complete — the update response
+      // omits some fields and can return companyOwner: null.
+      try { await getProfile(); } catch { /* non-fatal */ }
 
       // Update initial values to reflect the saved state
       setInitialValues(values);
@@ -220,19 +248,45 @@ const AccountSettings = () => {
           >
             {/* Form Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-y-1 gap-x-10 max-w-4xl">
-              {/* Name — single field for companies (rep name); first/last for individuals */}
+              {/* Name — company shows rep name + owner name; individuals show first/last */}
               {isCompany ? (
-                <Form.Item
-                  label="Name"
-                  name="name"
-                  rules={[ { required: true, message: 'Please enter the representative name' } ]}
-                >
-                  <Input
-                    placeholder="Enter the representative name"
-                    size="large"
-                    className="rounded-md"
-                  />
-                </Form.Item>
+                <>
+                  <Form.Item
+                    label="Owner First Name"
+                    name="ownerFirstName"
+                    rules={[ { required: true, message: "Please enter the owner's first name" } ]}
+                  >
+                    <Input
+                      placeholder="Enter the business owner's first name"
+                      size="large"
+                      className="rounded-md"
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Owner Last Name"
+                    name="ownerLastName"
+                    rules={[ { required: true, message: "Please enter the owner's last name" } ]}
+                  >
+                    <Input
+                      placeholder="Enter the business owner's last name"
+                      size="large"
+                      className="rounded-md"
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Company Rep Name"
+                    name="name"
+                    rules={[ { required: true, message: 'Please enter the company representative name' } ]}
+                  >
+                    <Input
+                      placeholder="Enter the company representative name"
+                      size="large"
+                      className="rounded-md"
+                    />
+                  </Form.Item>
+                </>
               ) : (
                 <>
                   <Form.Item
