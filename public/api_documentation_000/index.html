@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lagos MVAA — API Documentation</title>
+  <meta name="description" content="Developer reference and interactive console for the Lagos State MVAA portal API." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <button id="menu-toggle" class="menu-toggle" aria-label="Toggle navigation">☰</button>
+
+  <div class="layout">
+    <!-- ── Sidebar ─────────────────────────────────────────────── -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="logo"><span class="dot">M</span> MVAA API</div>
+        <div class="tag">Portal API reference &amp; console</div>
+      </div>
+      <div class="nav-search">
+        <input id="nav-search-input" type="text" placeholder="Search endpoints…" autocomplete="off" />
+      </div>
+      <nav class="nav-group">
+        <div class="nav-group-title">Overview</div>
+        <a class="nav-link" href="#getting-started"><span>Getting started</span></a>
+        <a class="nav-link" href="#authentication"><span>Authentication</span></a>
+        <a class="nav-link" href="#conventions"><span>Conventions &amp; errors</span></a>
+        <a class="nav-link" href="#testing"><span>Testing &amp; CORS</span></a>
+      </nav>
+      <div id="nav"><!-- endpoint links injected here --></div>
+    </aside>
+
+    <!-- ── Main ────────────────────────────────────────────────── -->
+    <main class="main">
+      <!-- Global request config -->
+      <div class="configbar">
+        <div class="field grow">
+          <label for="base-input">Base URL</label>
+          <input id="base-input" type="text" spellcheck="false" />
+        </div>
+        <div class="field grow">
+          <label for="token-input">Session Token (X-Portal-Session-Id)</label>
+          <input id="token-input" type="text" spellcheck="false" placeholder="Paste a session token, or sign in below" />
+        </div>
+        <span id="token-chip" class="status-chip empty">○ No session token</span>
+      </div>
+
+      <div class="content">
+        <!-- Hero -->
+        <div class="hero">
+          <h1>Lagos MVAA API</h1>
+          <p class="sub">Developer reference for the Motor Vehicle Administration Agency portal API — with a live console to test every endpoint from your browser.</p>
+        </div>
+
+        <!-- Getting started -->
+        <section class="section" id="getting-started">
+          <h2>Getting started <a class="anchor" href="#getting-started">#</a></h2>
+          <p>Every request is made against a single <strong>Base URL</strong>. The default points at the test environment:</p>
+          <div class="code-wrap">
+            <pre class="code">https://licensetest.permit.org.ng/api/v1</pre>
+          </div>
+          <p>You can change it in the <strong>Base URL</strong> field at the top of the page — it’s saved in your browser and used by every “Try it” console below.</p>
+          <div class="callout">
+            <strong>Three steps to test a protected endpoint:</strong>
+            <div>1. Open <a href="#signin">Sign in</a> and send your credentials.</div>
+            <div>2. Click <strong>“✓ Use as session token”</strong> on the response to capture the session.</div>
+            <div>3. Every 🔒 Session endpoint will now send that token automatically.</div>
+          </div>
+        </section>
+
+        <!-- Authentication -->
+        <section class="section" id="authentication">
+          <h2>Authentication <a class="anchor" href="#authentication">#</a></h2>
+          <p>Sign-in does <strong>not</strong> return plain tokens. Instead it returns a single server-encrypted <em>session envelope</em> in the <code>data</code> field:</p>
+          <div class="code-wrap">
+            <pre class="code">{
+  "status": 200,
+  "message": "login successful",
+  "success": "true",
+  "data": "{\"iv\":\"…\",\"txt\":\"…\",\"tag\":\"…\",\"used\":0,\"purpose\":\"login\"}"
+}</pre>
+          </div>
+          <p>Treat that <code>data</code> string as an <strong>opaque session token</strong>. Do not decrypt it on the client — store it verbatim and send it back on every authenticated request via the request header:</p>
+          <div class="code-wrap">
+            <pre class="code">X-Portal-Session-Id: &lt;the data envelope&gt;</pre>
+          </div>
+          <div class="callout">
+            Endpoints marked <span class="auth-badge session">🔒 Session</span> require this header. The console adds it automatically from the <strong>Session Token</strong> field above. Endpoints marked <span class="auth-badge none">Public</span> need no token.
+          </div>
+          <div class="callout warn">
+            <strong>Note:</strong> the envelope appears to be single-use (<code>used:0</code> / <code>purpose</code>). A token may stop working after the backend redeems it — re-run sign-in to get a fresh one.
+          </div>
+        </section>
+
+        <!-- Conventions -->
+        <section class="section" id="conventions">
+          <h2>Conventions &amp; errors <a class="anchor" href="#conventions">#</a></h2>
+          <p>All requests and responses use <code>application/json</code>. Successful responses generally wrap their payload in a <code>data</code> field. Validation and other failures return a consistent error shape:</p>
+          <div class="code-wrap">
+            <pre class="code">{
+  "success": "false",
+  "error": "Bad Request Exception",
+  "timestamp": "2026-06-10T05:02:53.554Z",
+  "path": "/api/v1/portal/accounts/update-company-account/…",
+  "status": 400,
+  "details": [
+    "address.flatNumber must be longer than or equal to 2 characters"
+  ]
+}</pre>
+          </div>
+          <table class="def">
+            <tr><th>Status</th><th>Meaning</th></tr>
+            <tr><td><code>200 / 201</code></td><td>Success.</td></tr>
+            <tr><td><code>400</code></td><td>Validation error — see the <code>details</code> array for the exact fields.</td></tr>
+            <tr><td><code>401 / 403</code></td><td>Missing, invalid, or expired session — sign in again.</td></tr>
+            <tr><td><code>404</code></td><td>Resource not found.</td></tr>
+            <tr><td><code>500</code></td><td>Server error.</td></tr>
+          </table>
+        </section>
+
+        <!-- Testing / CORS -->
+        <section class="section" id="testing">
+          <h2>Testing &amp; CORS <a class="anchor" href="#testing">#</a></h2>
+          <p>The “Try it” consoles send real <code>fetch</code> requests from your browser to the Base URL. Because the API lives on a different origin, the server must allow this page’s origin via <strong>CORS</strong>.</p>
+          <div class="callout warn">
+            If a request fails with a network/CORS error but the API is up, the server hasn’t whitelisted your origin. Options: open this page from an allowed origin (e.g. the deployed app domain), have the backend allow it, or copy the request into a REST client (Postman/Insomnia) or the generated <code>cURL</code>-style call.
+          </div>
+          <p>Nothing is sent anywhere except the Base URL you set. Your session token is stored only in this browser’s <code>localStorage</code>.</p>
+        </section>
+
+        <!-- Endpoints (rendered by app.js) -->
+        <div id="endpoints"></div>
+
+        <footer class="doc-footer">
+          Lagos State Motor Vehicle Administration Agency — API documentation.
+          Generated from the portal client’s API layer. Keep this in sync with <code>src/services/api.js</code>.
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
