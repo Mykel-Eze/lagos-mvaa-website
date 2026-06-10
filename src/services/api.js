@@ -1,4 +1,4 @@
-// src/services/api.js
+﻿// src/services/api.js
 import axios from 'axios';
 
 const API_BASE_URL =
@@ -22,7 +22,7 @@ api.interceptors.request.use((config) => {
 
 const AUTH_KEYS = [
   'portal_session_id', 'portal_app_id',
-  'user_access_token', 'user_refresh_token',
+  'user_access_token',
   'user', 'user_type',
 ];
 
@@ -65,18 +65,36 @@ const throwError = (error) => { throw error.response?.data || { error: 'Network 
 
 // ----- Auth -----------------------------------------------------------------------------------
 
-const APP_ID = '75e6df2eba1c1875ef359fc95c0f5a1ce5b8';
+// The backend no longer returns plaintext session_token / access_token / refresh_token.
+// Login now responds with a single server-encrypted envelope under `data`
+// (e.g. {"iv":...,"txt":...,"tag":...,"used":0,"purpose":"login"}). We treat it as an
+// opaque credential: store it verbatim and hand it straight back to the backend, which
+// decrypts it server-side. We never decrypt it on the client.
+const extractSessionToken = (responseData) => {
+  const raw = responseData?.data;
+  if (raw == null || raw === '') return null;
+  // `data` arrives as a JSON string; keep it exactly as received.
+  return typeof raw === 'string' ? raw : JSON.stringify(raw);
+};
+
+// Persists the opaque session credential. The backend now reads the session header as the
+// raw envelope (it JSON-parses/decrypts it directly), so we store it verbatim — no
+// `&<appId>` suffix, which would otherwise trail the JSON and break parsing server-side.
+const persistSession = (sessionToken, userType) => {
+  sessionStorage.setItem('portal_session_id', sessionToken);
+  sessionStorage.setItem('user_type', userType);
+  // The opaque envelope is now the only credential we have — reuse it where a bearer
+  // token was previously sent.
+  sessionStorage.setItem('user_access_token', sessionToken);
+};
 
 export const login = async (email, password) => {
   try {
     const response = await api.post('/portal/auth/signin', { email, password });
-    const { session_token, access_token, refresh_token } = response.data.data || response.data;
+    const sessionToken = extractSessionToken(response.data);
 
-    if (session_token) {
-      sessionStorage.setItem('portal_session_id', `${session_token}&${APP_ID}`);
-      sessionStorage.setItem('user_type', 'individual');
-      if (access_token) sessionStorage.setItem('user_access_token', access_token);
-      if (refresh_token) sessionStorage.setItem('user_refresh_token', refresh_token);
+    if (sessionToken) {
+      persistSession(sessionToken, 'individual');
       try { await getProfile(); } catch (e) { console.warn('Profile fetch failed post-login:', e); }
     }
     return response.data;
@@ -86,13 +104,10 @@ export const login = async (email, password) => {
 export const loginCompany = async (email, password) => {
   try {
     const response = await api.post('/portal/auth/signin-entity', { email, password });
-    const { session_token, access_token, refresh_token } = response.data.data || response.data;
+    const sessionToken = extractSessionToken(response.data);
 
-    if (session_token) {
-      sessionStorage.setItem('portal_session_id', `${session_token}&${APP_ID}`);
-      sessionStorage.setItem('user_type', 'company');
-      if (access_token) sessionStorage.setItem('user_access_token', access_token);
-      if (refresh_token) sessionStorage.setItem('user_refresh_token', refresh_token);
+    if (sessionToken) {
+      persistSession(sessionToken, 'company');
       try { await getProfile(); } catch (e) { console.warn('Profile fetch failed post-company-login:', e); }
     }
     return response.data;
@@ -145,10 +160,19 @@ export const resetPassword = async (token, password) => {
   } catch (error) { throwError(error); }
 };
 
-export const updateAccount = async (email, userData) => {
+// Individuals and companies have separate update endpoints. By default we route by the
+// account type recorded at login (user_type), but callers in a known context may override.
+const isCompanyAccount = () => sessionStorage.getItem('user_type') === 'company';
+
+const accountUpdatePath = (email, isCompany) =>
+  (isCompany ?? isCompanyAccount())
+    ? `/portal/accounts/update-company-account/${email}`
+    : `/portal/accounts/update-account/${email}`;
+
+export const updateAccount = async (email, userData, isCompany) => {
   try {
     const response = await api.patch(
-      `/portal/accounts/update-account/${email}`,
+      accountUpdatePath(email, isCompany),
       userData,
       { headers: bearerHeader() }
     );
@@ -188,9 +212,9 @@ export const verifyCAC = async (regNumber) => {
   } catch (error) { throwError(error); }
 };
 
-export const verifyBusinessTIN = async (tin) => {
+export const verifyBusinessTIN = async (tinNumber) => {
   try {
-    const response = await api.post('/shared/verify/businessTin', { tin });
+    const response = await api.post('/shared/verify/businessTin', { tinNumber });
     return response.data;
   } catch (error) { throwError(error); }
 };
@@ -209,10 +233,10 @@ export const createPayerId = async (dto) => {
   } catch (error) { throwError(error); }
 };
 
-export const submitVerification = async (email, extraFields = {}) => {
+export const submitVerification = async (email, extraFields = {}, isCompany) => {
   try {
     const response = await api.patch(
-      `/portal/accounts/update-account/${email}`,
+      accountUpdatePath(email, isCompany),
       { is_verified: true, ...extraFields },
       { headers: bearerHeader() }
     );

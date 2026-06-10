@@ -308,7 +308,7 @@ export default function CompanyVerification() {
                 nin: nin.trim(),
                 tin: tin.trim(),
                 payerId: pid,
-            });
+            }, true);
             toast.success('Company account verified! Welcome.');
             navigate('/services');
         } catch (err) {

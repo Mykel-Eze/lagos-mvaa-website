@@ -194,7 +194,7 @@ export default function IndividualVerification() {
             await submitVerification(user?.email, {
                 nin: nin.trim(),
                 payerId: pid,
-            });
+            }, false);
             toast.success('Account verified! Welcome.');
             navigate('/services');
         } catch (err) {

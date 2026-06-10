@@ -38,7 +38,10 @@ const ServicesComponent = () => {
     // Store the app_id cookie for the external module's reference
     sessionStorage.setItem('portal_app_id', appId);
 
-    window.location.href = `${baseUrl}?portal_session_id=${sessionId}&portal_app_id=${appId}`;
+    // portal_session_id is now an opaque encrypted envelope (JSON), so it must be
+    // URL-encoded to survive the query string intact for the receiving module.
+    const params = new URLSearchParams({ portal_session_id: sessionId, portal_app_id: appId });
+    window.location.href = `${baseUrl}?${params.toString()}`;
   };
 
   const isVerified = !!(getUserCookie().is_verified ?? getUserCookie().isVerified ?? false);
