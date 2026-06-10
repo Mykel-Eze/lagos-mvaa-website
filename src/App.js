@@ -14,6 +14,7 @@ import EmailVerificationSuccessful from './pages/EmailVerificationSuccessful';
 import Dashboard from './pages/Dashboard';
 import Services from './pages/Services';
 import Home from './pages/Home';
+import Contact from './pages/Contact';
 import NumberPlateServices from './pages/NumberPlateServices';
 import NewPlateIdSteps from './pages/NewPlateIdSteps';
 import GetNewPlateId from './pages/GetNewPlateId';
@@ -49,6 +50,7 @@ function App() {
         <Routes>
           {/* ── Public Routes ──────────────────────────────────────── */}
           <Route path="/" element={<Home />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Registration />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
