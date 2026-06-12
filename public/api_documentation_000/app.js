@@ -426,7 +426,15 @@ const ENDPOINT_GROUPS = [
 ---------------------------------------------------------------------------- */
 
 const store = {
-  get base() { return localStorage.getItem('mvaa_doc_base') || DEFAULT_BASE_URL; },
+  get base() {
+    const base = localStorage.getItem('mvaa_doc_base');
+
+    if (!base) return DEFAULT_BASE_URL;
+
+    return base.includes('/api/v1')
+      ? base
+      : `${base.replace(/\/+$/, '')}/api/v1`;
+  },
   set base(v) { localStorage.setItem('mvaa_doc_base', v); },
   get token() { return localStorage.getItem('mvaa_doc_token') || ''; },
   set token(v) { localStorage.setItem('mvaa_doc_token', v); }
