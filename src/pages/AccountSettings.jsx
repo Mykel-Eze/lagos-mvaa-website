@@ -18,7 +18,7 @@ const AccountSettings = () => {
   const [ hasChanges, setHasChanges ] = useState(false);
   const [ initialValues, setInitialValues ] = useState({});
   const [ isCompany, setIsCompany ] = useState(false);
-  const [ verificationDetails, setVerificationDetails ] = useState({ nin: '', payerId: '', cac: '', tin: '', isVerified: false });
+  const [ verificationDetails, setVerificationDetails ] = useState({ nin: '', payerId: '', isVerified: false });
   // Full address from the backend profile — preserved so company updates can resend
   // fields the form doesn't edit (blockNumber, email, utilityBill, …).
   const [ loadedAddress, setLoadedAddress ] = useState({});
@@ -90,8 +90,9 @@ const AccountSettings = () => {
             contactPhone: companyAccount ? (userData.address?.contactPhone || '') : '',
             // Company-specific (read-only, only set for company accounts)
             companyName: companyAccount ? (userData.companyName || '') : '',
-            companyRCNumber: companyAccount ? (userData.companyRCNumber || '') : '',
-            companyTIN: companyAccount ? (userData.companyTIN || '') : '',
+            // Show the verified CAC (RC) / TIN values once verified, overriding signup values.
+            companyRCNumber: companyAccount ? (userData.entityId?.rcNumber || userData.companyRCNumber || '') : '',
+            companyTIN: companyAccount ? (userData.tinEntityId?.tin || userData.companyTIN || '') : '',
           };
 
           // Keep the full address & owner so a company update can resend fields we don't edit here.
@@ -99,11 +100,9 @@ const AccountSettings = () => {
           setLoadedCompanyOwner(userData.companyOwner || {});
 
           setVerificationDetails({
-            nin: userData.nin || '',
+            nin: companyAccount ? (userData.companyOwner?.entityId?.nin || '') : (userData.entityId?.nin || ''),
             payerId: userData.payerId || '',
-            cac: userData.cac || '',
-            tin: userData.tin || '',
-            isVerified: !!(userData.data?.is_verified ?? userData.is_verified ?? false),
+            isVerified: !!userData.is_verified,
           });
 
           setInitialValues(formData);
@@ -236,7 +235,20 @@ const AccountSettings = () => {
       <div className="account-settings-container">
         {/* Profile Information Section */}
         <div className="bg-white rounded-lg shadow-sm">
-          <h1 className="agencies-link-header">Profile Information</h1>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <h1 className="agencies-link-header">Profile Information</h1>
+            {/* Verified identity summary — shown on the right once fully verified */}
+            {verificationDetails.isVerified && (verificationDetails.nin || verificationDetails.payerId) && (
+              <div className="text-right text-sm text-gray-700 pr-4 pt-4">
+                {verificationDetails.nin && (
+                  <div><span className="text-gray-400 mr-2">NIN:</span><span className="font-semibold">{verificationDetails.nin}</span></div>
+                )}
+                {verificationDetails.payerId && (
+                  <div><span className="text-gray-400 mr-2">Payer ID:</span><span className="font-semibold">{verificationDetails.payerId}</span></div>
+                )}
+              </div>
+            )}
+          </div>
 
           <Form
             form={form}
@@ -418,34 +430,7 @@ const AccountSettings = () => {
               </div>
             )}
 
-            {/* Verification Details - read-only, only shown after verification */}
-            {verificationDetails.isVerified && (verificationDetails.nin || verificationDetails.payerId || verificationDetails.cac || verificationDetails.tin) && (
-              <>
-                <h3 className="text-base font-semibold text-gray-700 mt-4 mb-2">Verification Details</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-1 gap-x-10 max-w-4xl">
-                  {verificationDetails.cac && (
-                    <Form.Item label="CAC Registration Number">
-                      <Input size="large" value={verificationDetails.cac} disabled className="rounded-md" />
-                    </Form.Item>
-                  )}
-                  {verificationDetails.nin && (
-                    <Form.Item label={isCompany ? 'Business Owner NIN' : 'NIN'}>
-                      <Input size="large" value={verificationDetails.nin} disabled className="rounded-md" />
-                    </Form.Item>
-                  )}
-                  {verificationDetails.tin && (
-                    <Form.Item label="TIN">
-                      <Input size="large" value={verificationDetails.tin} disabled className="rounded-md" />
-                    </Form.Item>
-                  )}
-                  {verificationDetails.payerId && (
-                    <Form.Item label="Payer ID">
-                      <Input size="large" value={verificationDetails.payerId} disabled className="rounded-md" />
-                    </Form.Item>
-                  )}
-                </div>
-              </>
-            )}
+            {/* NIN & Payer ID appear in the header summary; CAC/TIN are in Company Details below. */}
 
             {/* Company-specific fields */}
             {isCompany && (

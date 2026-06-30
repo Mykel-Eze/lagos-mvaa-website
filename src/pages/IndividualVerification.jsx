@@ -94,7 +94,20 @@ export default function IndividualVerification() {
         const parsed = JSON.parse(raw);
         const userData = parsed.data || parsed.user || parsed;
         setUser(userData);
-        if (userData.is_verified) navigate('/services');
+        if (userData.is_verified) { navigate('/services'); return; }
+
+        // Resume previously-verified steps: prefill the value, mark it done, rebuild the result.
+        const ninRecord = userData.entityId;
+        if (ninRecord?.nin) {
+            setNin(ninRecord.nin);
+            setNinResult(ninRecord);
+            setNinStatus(STATUS.SUCCESS);
+            setCreateMiddleName(ninRecord.middlename || '');
+        }
+        if (userData.payerId) {
+            setPayerId(userData.payerId);
+            setPayerStatus(STATUS.SUCCESS);
+        }
     }, [ navigate ]);
 
     const handleVerifyNIN = async () => {
@@ -143,7 +156,7 @@ export default function IndividualVerification() {
                 : user?.address?.street || '';
 
             const dto = {
-                type: 'Individual',
+                type: 'N', // N = iNdividual (backend expects 'N' | 'C' | 'J')
                 title: createTitle,
                 sex: mapSex(ninResult?.gender),
                 maritalStatus: createMaritalStatus,

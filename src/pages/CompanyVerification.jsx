@@ -161,6 +161,39 @@ export default function CompanyVerification() {
         if (userData.is_verified) { navigate('/services'); return; }
 
         setCompany(userData);
+
+        // For each step: if already verified, prefill the verified value, mark it done and
+        // rebuild its result card; otherwise fall back to the value captured at signup.
+        const ninRecord = userData.companyOwner?.entityId;
+        if (ninRecord?.nin) {
+            setNin(ninRecord.nin);
+            setNinResult(ninRecord);
+            setNinStatus(STATUS.SUCCESS);
+            setCreateMiddleName(ninRecord.middlename || '');
+        } else {
+            setNin(userData.companyOwner?.nationalIdentificationNumber || '');
+        }
+
+        if (userData.entityId?.rcNumber) {
+            setCac(userData.entityId.rcNumber);
+            setCacResult(userData.entityId);
+            setCacStatus(STATUS.SUCCESS);
+        } else {
+            setCac(userData.companyRCNumber || '');
+        }
+
+        if (userData.tinEntityId?.tin) {
+            setTin(userData.tinEntityId.tin);
+            setTinResult(userData.tinEntityId);
+            setTinStatus(STATUS.SUCCESS);
+        } else {
+            setTin(userData.companyTIN || '');
+        }
+
+        if (userData.payerId) {
+            setPayerId(userData.payerId);
+            setPayerStatus(STATUS.SUCCESS);
+        }
     }, [ navigate ]);
 
     // ── Handlers ────────────────────────────────────────────────────────────────
@@ -250,7 +283,7 @@ export default function CompanyVerification() {
                 : '';
 
             const dto = {
-                type: 'Corporate',
+                type: 'C', // C = Corporate (backend expects 'N' | 'C' | 'J')
                 title: createTitle,
                 sex: mapSex(ninResult?.gender),
                 maritalStatus: createMaritalStatus,

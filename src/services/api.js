@@ -38,7 +38,8 @@ const getUser = () => {
 
 // ----- Profile helpers -------------------------------------------------------------
 
-// Unwraps the response envelope, normalises camelCase fields, strips entityId (large base64 photo).
+// Unwraps the response envelope, normalises camelCase fields, derives verification status,
+// and drops the heavy base64 NIN photos while keeping the rest of the verification records.
 const normalizeProfile = (responseData) => {
   const raw = responseData.data || responseData;
   const profile = { ...raw };
@@ -59,8 +60,18 @@ const normalizeProfile = (responseData) => {
   profile.is_verified = verified;
   profile.isVerified = verified;
 
-  const { entityId: _entityId, ...safe } = profile;
-  return safe;
+  // Keep the verification records so the UI can prefill verified values (NIN/CAC/TIN/Payer
+  // ID), but strip the large base64 NIN photo to keep sessionStorage small.
+  if (profile.entityId && typeof profile.entityId === 'object') {
+    const { photo: _photo, ...rest } = profile.entityId;
+    profile.entityId = rest;
+  }
+  if (profile.companyOwner?.entityId && typeof profile.companyOwner.entityId === 'object') {
+    const { photo: _ownerPhoto, ...rest } = profile.companyOwner.entityId;
+    profile.companyOwner = { ...profile.companyOwner, entityId: rest };
+  }
+
+  return profile;
 };
 
 // Merges normalized profile into sessionStorage. `is_verified` is recomputed from the
