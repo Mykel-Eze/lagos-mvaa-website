@@ -42,19 +42,33 @@ const getUser = () => {
 const normalizeProfile = (responseData) => {
   const raw = responseData.data || responseData;
   const profile = { ...raw };
-  if (profile.isVerified !== undefined) profile.is_verified = profile.isVerified;
   if (profile.isActivated !== undefined) profile.is_activated = profile.isActivated;
+
+  // Derive verification from the actual presence of the required records rather than the
+  // backend `isVerified` flag, which over-reports (it flips true after only NIN for an
+  // individual, or only CAC for a company). Required records:
+  //   Individual: NIN (entityId) + Payer ID (payerId)
+  //   Company:    NIN (companyOwner.entityId) + CAC (entityId) + Payer ID (payerId)
+  const isCompany = profile.userType === 'company';
+  const ninVerified = isCompany ? profile.companyOwner?.entityId != null : profile.entityId != null;
+  const cacVerified = profile.entityId != null; // company CAC lives in the top-level entityId
+  const payerVerified = profile.payerId != null;
+  const verified = isCompany
+    ? (ninVerified && cacVerified && payerVerified)
+    : (ninVerified && payerVerified);
+  profile.is_verified = verified;
+  profile.isVerified = verified;
+
   const { entityId: _entityId, ...safe } = profile;
   return safe;
 };
 
-// Merges normalized profile into sessionStorage.
-// On a fresh login (no existing session data) the server value for is_verified is trusted.
-// On subsequent fetches the local value wins — only submitVerification may flip it to true.
+// Merges normalized profile into sessionStorage. `is_verified` is recomputed from the
+// profile records on every fetch (see normalizeProfile), so the fresh value always wins.
+// submitVerification still writes an optimistic flag for the immediate post-submit redirect.
 const saveUserProfile = (profile) => {
   const existing = getUser();
   const merged = { ...existing, ...profile };
-  if (existing.is_verified !== undefined) merged.is_verified = existing.is_verified;
   sessionStorage.setItem('user', JSON.stringify(merged));
   return merged;
 };
