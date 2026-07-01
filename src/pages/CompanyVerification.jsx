@@ -264,9 +264,22 @@ export default function CompanyVerification() {
     const mapSex = (gender) => {
         if (!gender) return '';
         const g = gender.toLowerCase();
-        if (g === 'm' || g === 'male') return 'Male';
-        if (g === 'f' || g === 'female') return 'Female';
+        if (g === 'm' || g === 'male') return 'M';
+        if (g === 'f' || g === 'female') return 'F';
         return gender;
+    };
+
+    const MONTHS = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ];
+
+    // NIN returns birthdate as DD-MM-YYYY; backend expects DD-MonthName-YYYY (e.g. 06-January-1974)
+    const formatBirthdate = (birthdate) => {
+        if (!birthdate) return '';
+        const parts = birthdate.split('-');
+        if (parts.length !== 3) return birthdate;
+        const [ day, month, year ] = parts;
+        const monthIdx = parseInt(month, 10) - 1;
+        if (monthIdx < 0 || monthIdx > 11) return birthdate;
+        return `${day}-${MONTHS[monthIdx]}-${year}`;
     };
 
     const handleCreatePayerId = async () => {
@@ -290,7 +303,7 @@ export default function CompanyVerification() {
                 firstName: ninResult?.firstname || '',
                 lastName: ninResult?.lastname || '',
                 middleName: createMiddleName,
-                dateOfBirth: ninResult?.birthdate || '',
+                dateOfBirth: formatBirthdate(ninResult?.birthdate),
                 phoneNumber: ninResult?.phone || company?.companyRepPhone || '',
                 email: company?.email || '',
                 address,
@@ -517,10 +530,10 @@ export default function CompanyVerification() {
                                             style={{ height: 40, flex: 'auto' }}
                                         >
                                             <option value="">Select status</option>
-                                            <option value="Single">Single</option>
-                                            <option value="Married">Married</option>
-                                            <option value="Divorced">Divorced</option>
-                                            <option value="Widowed">Widowed</option>
+                                            <option value="S">Single</option>
+                                            <option value="M">Married</option>
+                                            <option value="D">Divorced</option>
+                                            <option value="W">Widowed</option>
                                         </select>
                                     </div>
                                 </div>

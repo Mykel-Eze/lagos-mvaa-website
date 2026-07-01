@@ -12,9 +12,22 @@ const STATUS = { IDLE: 'idle', LOADING: 'loading', SUCCESS: 'success', ERROR: 'e
 const mapSex = (gender) => {
     if (!gender) return '';
     const g = gender.toLowerCase();
-    if (g === 'm' || g === 'male') return 'Male';
-    if (g === 'f' || g === 'female') return 'Female';
+    if (g === 'm' || g === 'male') return 'M';
+    if (g === 'f' || g === 'female') return 'F';
     return gender;
+};
+
+const MONTHS = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ];
+
+// NIN returns birthdate as DD-MM-YYYY; backend expects DD-MonthName-YYYY (e.g. 06-January-1974)
+const formatBirthdate = (birthdate) => {
+    if (!birthdate) return '';
+    const parts = birthdate.split('-');
+    if (parts.length !== 3) return birthdate;
+    const [ day, month, year ] = parts;
+    const monthIdx = parseInt(month, 10) - 1;
+    if (monthIdx < 0 || monthIdx > 11) return birthdate;
+    return `${day}-${MONTHS[monthIdx]}-${year}`;
 };
 
 function InfoCard({ label, value }) {
@@ -163,7 +176,7 @@ export default function IndividualVerification() {
                 firstName: ninResult?.firstname || user?.firstName || user?.firstname || '',
                 lastName: ninResult?.lastname || user?.lastName || user?.lastname || '',
                 middleName: createMiddleName,
-                dateOfBirth: ninResult?.birthdate || '',
+                dateOfBirth: formatBirthdate(ninResult?.birthdate),
                 phoneNumber: ninResult?.phone || user?.phone || '',
                 email: user?.email || '',
                 address,
@@ -360,10 +373,10 @@ export default function IndividualVerification() {
                                             style={{ height: 40, flex: 'auto' }}
                                         >
                                             <option value="">Select status</option>
-                                            <option value="Single">Single</option>
-                                            <option value="Married">Married</option>
-                                            <option value="Divorced">Divorced</option>
-                                            <option value="Widowed">Widowed</option>
+                                            <option value="S">Single</option>
+                                            <option value="M">Married</option>
+                                            <option value="D">Divorced</option>
+                                            <option value="W">Widowed</option>
                                         </select>
                                     </div>
                                 </div>
