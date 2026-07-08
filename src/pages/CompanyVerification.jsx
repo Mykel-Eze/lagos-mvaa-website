@@ -21,7 +21,14 @@ const deriveBusinessType = (rcValue) => {
     return BUSINESS_TYPES.includes(prefix) ? prefix : '';
 };
 
-const normalizeRcNumber = (rcValue) => rcValue?.trim().toUpperCase() || '';
+// The CAC-verify response's `rcNumber` sometimes comes back with the RC/BN/IT prefix
+// already stripped (digits only), even though the endpoint wants it prefixed. Re-attach
+// the prefix (from the selected Business Type) whenever the value doesn't already have one.
+const normalizeRcNumber = (rcValue, businessType) => {
+    const trimmed = rcValue?.trim().toUpperCase() || '';
+    if (!trimmed) return '';
+    return /^[A-Z]/.test(trimmed) ? trimmed : `${businessType}${trimmed}`;
+};
 
 // ── Shared sub-components (mirror IndividualVerification pattern) ────────────
 
@@ -267,7 +274,7 @@ export default function CompanyVerification() {
         try {
             const dto = {
                 type: 'C', // C = Corporate (backend expects 'N' | 'C' | 'J')
-                rcNumber: normalizeRcNumber(cacResult?.rcNumber || cac),
+                rcNumber: normalizeRcNumber(cacResult?.rcNumber || cac, createBusinessType),
                 BusinessType: createBusinessType,
                 CompanyName: cacResult?.companyName || company?.companyName || '',
                 Industry: createIndustry.trim(),
@@ -526,7 +533,7 @@ export default function CompanyVerification() {
 
                                 <div className="create-payer-preview">
                                     <div className="create-payer-row"><span>Company Name</span><span>{cacResult?.companyName || company?.companyName || '—'}</span></div>
-                                    <div className="create-payer-row"><span>RC Number</span><span>{normalizeRcNumber(cacResult?.rcNumber || cac) || '—'}</span></div>
+                                    <div className="create-payer-row"><span>RC Number</span><span>{normalizeRcNumber(cacResult?.rcNumber || cac, createBusinessType) || '—'}</span></div>
                                     <div className="create-payer-row"><span>Business Type</span><span>{createBusinessType || '—'}</span></div>
                                     <div className="create-payer-row"><span>Phone</span><span>{company?.companyRepPhone || '—'}</span></div>
                                     <div className="create-payer-row"><span>Email</span><span>{company?.email || '—'}</span></div>
