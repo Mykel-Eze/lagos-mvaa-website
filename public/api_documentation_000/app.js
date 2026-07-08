@@ -334,11 +334,11 @@ const ENDPOINT_GROUPS = [
       },
       {
         id: 'create-payer',
-        name: 'Create Payer ID',
+        name: 'Create Payer ID (Individual)',
         method: 'POST',
         path: '/shared/billing/identification',
         auth: 'session',
-        desc: 'Create a new Payer ID. Use type "Individual" for individuals or "Corporate" for company owners.',
+        desc: 'Create a new individual Payer ID from a verified NIN. For corporate accounts, use <a href="#create-company-payer">Create Payer ID (Company)</a> instead.',
         body: {
           type: 'Individual',
           title: 'Mr',
@@ -355,6 +355,43 @@ const ENDPOINT_GROUPS = [
         },
         response: { data: { Pid: 'PID000456', name: 'John Doe' } },
         notes: [ 'The created ID may be returned as <code>Pid</code>, <code>pid</code>, <code>PID</code>, or <code>payerId</code>.' ]
+      },
+      {
+        id: 'create-company-payer',
+        name: 'Create Payer ID (Company)',
+        method: 'POST',
+        path: '/shared/billing/identification/company',
+        auth: 'session',
+        desc: 'Create a Lagos Revenue Portal Payer ID for a corporate account using its CAC/RC number.',
+        body: {
+          type: 'C',
+          rcNumber: '123456',
+          BusinessType: 'RC',
+          CompanyName: 'test Company limited',
+          Industry: 'Construction',
+          phoneNumber: '08012345678',
+          email: 'btdlt@blissshelter.com',
+          addressNo: '73',
+          address: 'SAMUEL LADOKE AKINTOLA BOULEVARD'
+        },
+        response: {
+          status: 200,
+          message: 'Pid Generated',
+          success: 'true',
+          data: {
+            Pid: 'Payer Created: -TEST COMPANY LIMITED (C-1912217)',
+            Status: 'SUCCESS',
+            StatusMessage: 'Pid Generated',
+            IssuerId: 'C-1912217',
+            payerId: { issueType: 'corporate', issuerId: 'C-1912217' }
+          }
+        },
+        notes: [
+          'Requires an authenticated company session whose CAC has already been verified (see <a href="#verify-cac">Verify CAC</a>).',
+          'The submitted <code>rcNumber</code> must match the verified CAC on the profile — submit the numeric registration digits only (e.g. <code>123456</code>, not <code>RC123456</code>).',
+          '<code>BusinessType</code> must be one of <code>RC</code>, <code>BN</code>, <code>IT</code>.',
+          'The actual Payer ID to use elsewhere is <code>data.IssuerId</code> (or <code>data.payerId.issuerId</code>) — <code>data.Pid</code> is a human-readable confirmation message, not the ID itself.'
+        ]
       }
     ]
   },

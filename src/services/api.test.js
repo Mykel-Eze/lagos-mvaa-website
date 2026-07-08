@@ -2,8 +2,8 @@
 //
 // Tests for the auth logic in api.js:
 //  - login stores the opaque encrypted envelope verbatim (no `&<appId>` suffix)
-//  - updateAccount / submitVerification route to the company vs individual
-//    endpoint based on user_type, and honour the explicit isCompany flag.
+//  - updateAccount routes to the company vs individual endpoint based on
+//    user_type, and honours the explicit isCompany flag.
 
 // Mock axios with a single shared instance. The instance is created inside the
 // factory (which jest hoists above the imports) and the same reference is returned
@@ -19,7 +19,7 @@ jest.mock('axios', () => {
 });
 
 import axios from 'axios';
-import { login, loginCompany, updateAccount, submitVerification } from './api';
+import { login, loginCompany, updateAccount } from './api';
 
 const mockApi = axios.create();
 
@@ -111,38 +111,5 @@ describe('updateAccount endpoint routing', () => {
     await updateAccount('co@example.com', { firstName: 'A' }, true);
 
     expect(mockApi.patch.mock.calls[0][0]).toBe('/portal/accounts/update-company-account/co@example.com');
-  });
-});
-
-describe('submitVerification endpoint routing', () => {
-  beforeEach(() => {
-    sessionStorage.setItem('user_access_token', ENVELOPE);
-    mockApi.patch.mockResolvedValue({ data: {} });
-  });
-
-  it('routes to the company endpoint when isCompany is true', async () => {
-    sessionStorage.setItem('user_type', 'individual');
-
-    await submitVerification('co@example.com', { cac: '123' }, true);
-
-    expect(mockApi.patch.mock.calls[0][0]).toBe('/portal/accounts/update-company-account/co@example.com');
-  });
-
-  it('routes to the individual endpoint when isCompany is false', async () => {
-    sessionStorage.setItem('user_type', 'company');
-
-    await submitVerification('user@example.com', { nin: '123' }, false);
-
-    expect(mockApi.patch.mock.calls[0][0]).toBe('/portal/accounts/update-account/user@example.com');
-  });
-
-  it('marks the user verified in storage', async () => {
-    sessionStorage.setItem('user_type', 'individual');
-
-    await submitVerification('user@example.com', { nin: '123' }, false);
-
-    const user = JSON.parse(sessionStorage.getItem('user'));
-    expect(user.is_verified).toBe(true);
-    expect(user.nin).toBe('123');
   });
 });

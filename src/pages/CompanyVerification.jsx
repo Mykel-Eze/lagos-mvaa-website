@@ -4,10 +4,22 @@ import { useNavigate } from 'react-router-dom';
 import { Spin } from 'antd';
 import { LoadingOutlined, CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { toast } from 'react-toastify';
-import { verifyCAC, verifyBusinessNIN, verifyBusinessTIN, verifyPayerId, createPayerId, submitVerification } from '../services/api';
+import { verifyCAC, verifyBusinessNIN, verifyPayerId, createCompanyPayerId, getProfile } from '../services/api';
 
 // ── Status constants ─────────────────────────────────────────────────────────
 const STATUS = { IDLE: 'idle', LOADING: 'loading', SUCCESS: 'success', ERROR: 'error' };
+
+// ── Company Payer ID creation ─────────────────────────────────────────────────
+// The backend's create-company-payer-id endpoint expects the RC/BN/IT prefix and
+// the numeric registration digits as separate fields (BusinessType + rcNumber).
+const BUSINESS_TYPES = [ 'RC', 'BN', 'IT' ];
+
+const deriveBusinessType = (rcValue) => {
+    const prefix = rcValue?.trim().toUpperCase().match(/^([A-Z]+)/)?.[ 1 ];
+    return BUSINESS_TYPES.includes(prefix) ? prefix : '';
+};
+
+const deriveRcDigits = (rcValue) => rcValue?.trim().match(/(\d+)/)?.[ 1 ] || rcValue?.trim() || '';
 
 // ── Shared sub-components (mirror IndividualVerification pattern) ────────────
 
@@ -124,11 +136,6 @@ export default function CompanyVerification() {
     const [ ninStatus, setNinStatus ] = useState(STATUS.IDLE);
     const [ ninResult, setNinResult ] = useState(null);
 
-    // TIN
-    const [ tin, setTin ] = useState('');
-    const [ tinStatus, setTinStatus ] = useState(STATUS.IDLE);
-    const [ tinResult, setTinResult ] = useState(null);
-
     // Payer ID
     const [ payerId, setPayerId ] = useState('');
     const [ payerStatus, setPayerStatus ] = useState(STATUS.IDLE);
@@ -136,9 +143,10 @@ export default function CompanyVerification() {
 
     const [ showCreateForm, setShowCreateForm ] = useState(false);
     const [ createLoading, setCreateLoading ] = useState(false);
-    const [ createTitle, setCreateTitle ] = useState('');
-    const [ createMaritalStatus, setCreateMaritalStatus ] = useState('');
-    const [ createMiddleName, setCreateMiddleName ] = useState('');
+    const [ createBusinessType, setCreateBusinessType ] = useState('');
+    const [ createIndustry, setCreateIndustry ] = useState('');
+    const [ createAddressNo, setCreateAddressNo ] = useState('');
+    const [ createAddress, setCreateAddress ] = useState('');
 
     const [ submitting, setSubmitting ] = useState(false);
 
@@ -169,7 +177,6 @@ export default function CompanyVerification() {
             setNin(ninRecord.nin);
             setNinResult(ninRecord);
             setNinStatus(STATUS.SUCCESS);
-            setCreateMiddleName(ninRecord.middlename || '');
         } else {
             setNin(userData.companyOwner?.nationalIdentificationNumber || '');
         }
@@ -178,17 +185,17 @@ export default function CompanyVerification() {
             setCac(userData.entityId.rcNumber);
             setCacResult(userData.entityId);
             setCacStatus(STATUS.SUCCESS);
+            setCreateBusinessType(deriveBusinessType(userData.entityId.rcNumber));
         } else {
             setCac(userData.companyRCNumber || '');
         }
 
-        if (userData.tinEntityId?.tin) {
-            setTin(userData.tinEntityId.tin);
-            setTinResult(userData.tinEntityId);
-            setTinStatus(STATUS.SUCCESS);
-        } else {
-            setTin(userData.companyTIN || '');
-        }
+        setCreateAddressNo(userData.address?.flatNumber || '');
+        setCreateAddress(
+            [ userData.address?.street, userData.address?.landmark, userData.address?.lga ]
+                .filter(Boolean)
+                .join(', ')
+        );
 
         if (userData.payerId) {
             setPayerId(userData.payerId);
@@ -205,6 +212,7 @@ export default function CompanyVerification() {
             const res = await verifyCAC(cac.trim());
             setCacResult(res.data);
             setCacStatus(STATUS.SUCCESS);
+            setCreateBusinessType(prev => prev || deriveBusinessType(res.data?.rcNumber));
             toast.success('CAC verified successfully!');
         } catch (err) {
             setCacStatus(STATUS.ERROR);
@@ -225,25 +233,10 @@ export default function CompanyVerification() {
             const res = await verifyBusinessNIN(nin.trim(), ownerFirstName, ownerLastName);
             setNinResult(res.data);
             setNinStatus(STATUS.SUCCESS);
-            setCreateMiddleName(res.data?.middlename || '');
             toast.success('Business owner NIN verified!');
         } catch (err) {
             setNinStatus(STATUS.ERROR);
             toast.error(err?.error || err?.details || 'NIN verification failed.');
-        }
-    };
-
-    const handleVerifyTIN = async () => {
-        if (!tin.trim()) return;
-        setTinStatus(STATUS.LOADING);
-        try {
-            const res = await verifyBusinessTIN(tin.trim());
-            setTinResult(res.data);
-            setTinStatus(STATUS.SUCCESS);
-            toast.success('TIN verified successfully!');
-        } catch (err) {
-            setTinStatus(STATUS.ERROR);
-            toast.error(err?.error || err?.details || 'TIN verification failed.');
         }
     };
 
@@ -261,57 +254,30 @@ export default function CompanyVerification() {
         }
     };
 
-    const mapSex = (gender) => {
-        if (!gender) return '';
-        const g = gender.toLowerCase();
-        if (g === 'm' || g === 'male') return 'M';
-        if (g === 'f' || g === 'female') return 'F';
-        return gender;
-    };
-
-    const MONTHS = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ];
-
-    // NIN returns birthdate as DD-MM-YYYY; backend expects DD-MonthName-YYYY (e.g. 06-January-1974)
-    const formatBirthdate = (birthdate) => {
-        if (!birthdate) return '';
-        const parts = birthdate.split('-');
-        if (parts.length !== 3) return birthdate;
-        const [ day, month, year ] = parts;
-        const monthIdx = parseInt(month, 10) - 1;
-        if (monthIdx < 0 || monthIdx > 11) return birthdate;
-        return `${day}-${MONTHS[monthIdx]}-${year}`;
-    };
-
     const handleCreatePayerId = async () => {
-        if (!createTitle) { toast.error('Please select a title.'); return; }
-        if (!createMaritalStatus) { toast.error('Please select a marital status.'); return; }
-        if (!createMiddleName.trim()) { toast.error('Please enter the owner\'s middle name.'); return; }
-        if (ninStatus !== STATUS.SUCCESS) { toast.error('Please verify the business owner NIN first.'); return; }
+        if (cacStatus !== STATUS.SUCCESS) { toast.error('Please verify your CAC registration first.'); return; }
+        if (!createBusinessType) { toast.error('Please select a business type.'); return; }
+        if (!createIndustry.trim()) { toast.error('Please enter the company\'s industry.'); return; }
+        if (!createAddressNo.trim()) { toast.error('Please enter the address number.'); return; }
+        if (!createAddress.trim()) { toast.error('Please enter the company address.'); return; }
 
         setCreateLoading(true);
         try {
-            const res_addr = ninResult?.residence;
-            const address = res_addr
-                ? [ res_addr.address1, res_addr.town, res_addr.lga, res_addr.state ].filter(Boolean).join(', ')
-                : '';
-
             const dto = {
                 type: 'C', // C = Corporate (backend expects 'N' | 'C' | 'J')
-                title: createTitle,
-                sex: mapSex(ninResult?.gender),
-                maritalStatus: createMaritalStatus,
-                firstName: ninResult?.firstname || '',
-                lastName: ninResult?.lastname || '',
-                middleName: createMiddleName,
-                dateOfBirth: formatBirthdate(ninResult?.birthdate),
-                phoneNumber: ninResult?.phone || company?.companyRepPhone || '',
+                rcNumber: deriveRcDigits(cacResult?.rcNumber || cac),
+                BusinessType: createBusinessType,
+                CompanyName: cacResult?.companyName || company?.companyName || '',
+                Industry: createIndustry.trim(),
+                phoneNumber: company?.companyRepPhone || '',
                 email: company?.email || '',
-                address,
-                ninNumber: nin.trim(),
+                addressNo: createAddressNo.trim(),
+                address: createAddress.trim(),
             };
 
-            const res = await createPayerId(dto);
-            const pid = res.data?.Pid || res.data?.pid || res.data?.PID || res.data?.payerId || res.Pid || res.pid;
+            const res = await createCompanyPayerId(dto);
+            const pid = res.data?.IssuerId || res.data?.payerId?.issuerId ||
+                res.data?.Pid || res.data?.pid || res.data?.PID;
             if (!pid) throw new Error('No Payer ID returned from server.');
 
             toast.success('Payer ID created successfully!');
@@ -339,24 +305,20 @@ export default function CompanyVerification() {
     const allVerified =
         cacStatus === STATUS.SUCCESS &&
         ninStatus === STATUS.SUCCESS &&
-        tinStatus === STATUS.SUCCESS &&
         payerStatus === STATUS.SUCCESS;
 
     const handleSubmit = async () => {
         if (!allVerified) return;
         setSubmitting(true);
         try {
-            const pid = payerResult?.Pid || payerResult?.pid || payerId;
-            await submitVerification(company?.email, {
-                cac: cac.trim(),
-                nin: nin.trim(),
-                tin: tin.trim(),
-                payerId: pid,
-            }, true);
+            // CAC/NIN/Payer ID verification already persisted the records (and flipped
+            // isVerified) on the backend — refresh the cached profile so the rest of
+            // the app sees the up-to-date CAC/NIN/Payer ID/verified status.
+            await getProfile();
             toast.success('Company account verified! Welcome.');
             navigate('/services');
         } catch (err) {
-            toast.error(err?.error || 'Could not complete verification. Please try again.');
+            toast.error(err?.error || 'Could not refresh your profile. Please try again.');
         } finally {
             setSubmitting(false);
         }
@@ -365,10 +327,9 @@ export default function CompanyVerification() {
     if (!company) return null;
 
     const progressSteps = [
-        { label: 'Owner NIN', status: ninStatus },
-        { label: 'TIN', status: tinStatus },
-        { label: 'Payer ID', status: payerStatus },
         { label: 'CAC', status: cacStatus },
+        { label: 'Owner NIN', status: ninStatus },
+        { label: 'Payer ID', status: payerStatus },
     ];
 
     return (
@@ -381,7 +342,7 @@ export default function CompanyVerification() {
                     <h1 className="verification-title">Company Verification</h1>
                     <p className="verification-subtitle">
                         Verify your company's identity to unlock all MVAA business services.
-                        Complete all four steps below — your registration details are shown for reference.
+                        Complete all three steps below — your registration details are shown for reference.
                     </p>
                     <ProgressTracker steps={progressSteps} />
                 </div>
@@ -396,202 +357,20 @@ export default function CompanyVerification() {
                         <InfoCard label="Company Name" value={company.companyName} />
                         <InfoCard label="Email" value={company.email} />
                         <InfoCard label="RC Number" value={company.companyRCNumber} />
-                        <InfoCard label="TIN" value={company.companyTIN} />
                         <InfoCard label="Rep Name" value={company.companyRepName} />
                         <InfoCard label="Rep Phone" value={company.companyRepPhone} />
                     </div>
                 </div>
 
-                {/* ── Step 1: Business Owner NIN ─────────────────────────────────── */}
+                {/* ── Step 1: CAC ────────────────────────────────────────────────── */}
                 <div className="verification-section">
                     <h2 className="verification-section-title">
-                        Step 1 — Business Owner NIN
-                        {ninStatus === STATUS.SUCCESS && <CheckCircleFilled className="section-check" />}
-                    </h2>
-                    <p className="verification-section-desc">
-                        Enter the 11-digit National Identification Number of the registered business owner.
-                        It will be matched against the owner name from your company profile.
-                    </p>
-                    <VerifyField
-                        id="nin-input"
-                        label="Owner NIN"
-                        placeholder="Enter 11-digit NIN"
-                        value={nin}
-                        onChange={e => { setNin(e.target.value); if (ninStatus !== STATUS.IDLE) setNinStatus(STATUS.IDLE); }}
-                        status={ninStatus}
-                        onVerify={handleVerifyNIN}
-                    />
-                    {ninResult && ninStatus === STATUS.SUCCESS && (
-                        <ResultCard rows={[
-                            { label: 'Name', value: [ ninResult.firstname, ninResult.middlename, ninResult.lastname ].filter(Boolean).join(' ') },
-                            { label: 'Date of Birth', value: ninResult.birthdate },
-                            { label: 'Phone', value: ninResult.phone },
-                            { label: 'LGA', value: ninResult.residence?.lga },
-                            { label: 'State', value: ninResult.residence?.state },
-                        ]} />
-                    )}
-                </div>
-
-                {/* ── Step 2: TIN ────────────────────────────────────────────────── */}
-                <div className="verification-section">
-                    <h2 className="verification-section-title">
-                        Step 2 — Tax Identification Number (TIN)
-                        {tinStatus === STATUS.SUCCESS && <CheckCircleFilled className="section-check" />}
-                    </h2>
-                    <p className="verification-section-desc">
-                        Enter your Federal Inland Revenue Service (FIRS) Tax Identification Number.
-                    </p>
-                    <VerifyField
-                        id="tin-input"
-                        label="TIN"
-                        placeholder="e.g. 08120451-1001"
-                        value={tin}
-                        onChange={e => { setTin(e.target.value); if (tinStatus !== STATUS.IDLE) setTinStatus(STATUS.IDLE); }}
-                        status={tinStatus}
-                        onVerify={handleVerifyTIN}
-                    />
-                    {tinResult && tinStatus === STATUS.SUCCESS && (
-                        <ResultCard rows={[
-                            { label: 'Taxpayer Name', value: tinResult.taxpayerName },
-                            { label: 'TIN', value: tinResult.tin },
-                            { label: 'CAC Reg No', value: tinResult.cacRegNo },
-                            { label: 'Tax Office', value: tinResult.taxOffice },
-                            { label: 'Entity Type', value: tinResult.entityType },
-                        ]} />
-                    )}
-                </div>
-
-                {/* ── Step 3: Payer ID ───────────────────────────────────────────── */}
-                <div className="verification-section">
-                    <h2 className="verification-section-title">
-                        Step 3 — Payer ID
-                        {payerStatus === STATUS.SUCCESS && <CheckCircleFilled className="section-check" />}
-                    </h2>
-                    <p className="verification-section-desc">
-                        Enter your Lagos State Revenue Service Payer ID to link your company's tax profile.
-                    </p>
-                    <VerifyField
-                        id="payer-id-input"
-                        label="Payer ID"
-                        placeholder="e.g. N-191005"
-                        value={payerId}
-                        onChange={e => { setPayerId(e.target.value); if (payerStatus !== STATUS.IDLE) setPayerStatus(STATUS.IDLE); }}
-                        status={payerStatus}
-                        onVerify={handleVerifyPayerId}
-                    >
-                        <div className="create-payer-link">
-                            Don't have a Payer ID?{' '}
-                            {ninStatus !== STATUS.SUCCESS ? (
-                                <span style={{ color: '#9ca3af', fontSize: 12 }}>Verify the owner NIN first (Step 1) to create one.</span>
-                            ) : (
-                                <button
-                                    type="button"
-                                    className="create-payer-toggle"
-                                    onClick={() => setShowCreateForm(v => !v)}
-                                >
-                                    {showCreateForm ? 'Cancel' : 'Create one here →'}
-                                </button>
-                            )}
-                        </div>
-                        {showCreateForm && ninStatus === STATUS.SUCCESS && (
-                            <div className="create-payer-form">
-                                <p className="create-payer-form-desc">
-                                    The business owner's NIN details will be used to register the company Payer ID. Fill in the additional fields below.
-                                </p>
-                                <div className="create-payer-selects">
-                                    <div className="create-payer-select-group">
-                                        <label htmlFor="co-create-title">Owner Title <span style={{ color: '#ef4444' }}>*</span></label>
-                                        <select
-                                            id="co-create-title"
-                                            name="co-create-title"
-                                            value={createTitle}
-                                            onChange={e => setCreateTitle(e.target.value)}
-                                            className="verification-input"
-                                            style={{ height: 40, flex: 'auto' }}
-                                        >
-                                            <option value="">Select title</option>
-                                            <option value="Mr">Mr</option>
-                                            <option value="Mrs">Mrs</option>
-                                            <option value="Miss">Miss</option>
-                                            <option value="Dr">Dr</option>
-                                            <option value="Prof">Prof</option>
-                                            <option value="Engr">Engr</option>
-                                            <option value="Chief">Chief</option>
-                                        </select>
-                                    </div>
-                                    <div className="create-payer-select-group">
-                                        <label htmlFor="co-create-marital-status">Owner Marital Status <span style={{ color: '#ef4444' }}>*</span></label>
-                                        <select
-                                            id="co-create-marital-status"
-                                            name="co-create-marital-status"
-                                            value={createMaritalStatus}
-                                            onChange={e => setCreateMaritalStatus(e.target.value)}
-                                            className="verification-input"
-                                            style={{ height: 40, flex: 'auto' }}
-                                        >
-                                            <option value="">Select status</option>
-                                            <option value="S">Single</option>
-                                            <option value="M">Married</option>
-                                            <option value="D">Divorced</option>
-                                            <option value="W">Widowed</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                {!ninResult?.middlename && (
-                                    <div className="create-payer-select-group" style={{ marginBottom: 14 }}>
-                                        <label htmlFor="co-create-middle-name">Owner Middle Name <span style={{ color: '#ef4444' }}>*</span></label>
-                                        <input
-                                            id="co-create-middle-name"
-                                            name="co-create-middle-name"
-                                            type="text"
-                                            className="verification-input"
-                                            placeholder="Enter owner's middle name"
-                                            value={createMiddleName}
-                                            style={{ height: 40, flex: 'auto' }}
-                                            onChange={e => setCreateMiddleName(e.target.value)}
-                                        />
-                                    </div>
-                                )}
-
-                                <div className="create-payer-preview">
-                                    <div className="create-payer-row"><span>Owner Name</span><span>{[ ninResult?.firstname, createMiddleName || ninResult?.middlename, ninResult?.lastname ].filter(Boolean).join(' ') || '—'}</span></div>
-                                    <div className="create-payer-row"><span>Date of Birth</span><span>{ninResult?.birthdate || '—'}</span></div>
-                                    <div className="create-payer-row"><span>Phone</span><span>{ninResult?.phone || company?.companyRepPhone || '—'}</span></div>
-                                    <div className="create-payer-row"><span>Email</span><span>{company?.email || '—'}</span></div>
-                                    <div className="create-payer-row"><span>NIN</span><span>{nin}</span></div>
-                                </div>
-                                <button
-                                    type="button"
-                                    className="verification-complete-btn"
-                                    style={{ marginTop: 12, width: '100%' }}
-                                    onClick={handleCreatePayerId}
-                                    disabled={createLoading}
-                                >
-                                    {createLoading
-                                        ? <Spin indicator={<LoadingOutlined style={{ fontSize: 14, color: '#fff' }} spin />} />
-                                        : 'Create Payer ID'}
-                                </button>
-                            </div>
-                        )}
-                    </VerifyField>
-                    {payerResult && payerStatus === STATUS.SUCCESS && (
-                        <ResultCard rows={[
-                            { label: 'Full Name', value: payerResult.Fullname },
-                            { label: 'Payer ID', value: payerResult.Pid },
-                            { label: 'State', value: payerResult.State },
-                            { label: 'Status', value: payerResult.Status, badge: true },
-                        ]} />
-                    )}
-                </div>
-
-                {/* ── Step 4: CAC ────────────────────────────────────────────────── */}
-                <div className="verification-section">
-                    <h2 className="verification-section-title">
-                        Step 4 — CAC Registration
+                        Step 1 — CAC Registration
                         {cacStatus === STATUS.SUCCESS && <CheckCircleFilled className="section-check" />}
                     </h2>
                     <p className="verification-section-desc">
                         Enter your Corporate Affairs Commission registration number to confirm your company's legal standing.
+                        This must be verified before a Payer ID can be created.
                     </p>
                     <VerifyField
                         id="cac-input"
@@ -618,12 +397,168 @@ export default function CompanyVerification() {
                     )}
                 </div>
 
+                {/* ── Step 2: Business Owner NIN ─────────────────────────────────── */}
+                <div className="verification-section">
+                    <h2 className="verification-section-title">
+                        Step 2 — Business Owner NIN
+                        {ninStatus === STATUS.SUCCESS && <CheckCircleFilled className="section-check" />}
+                    </h2>
+                    <p className="verification-section-desc">
+                        Enter the 11-digit National Identification Number of the registered business owner.
+                        It will be matched against the owner name from your company profile.
+                    </p>
+                    <VerifyField
+                        id="nin-input"
+                        label="Owner NIN"
+                        placeholder="Enter 11-digit NIN"
+                        value={nin}
+                        onChange={e => { setNin(e.target.value); if (ninStatus !== STATUS.IDLE) setNinStatus(STATUS.IDLE); }}
+                        status={ninStatus}
+                        onVerify={handleVerifyNIN}
+                    />
+                    {ninResult && ninStatus === STATUS.SUCCESS && (
+                        <ResultCard rows={[
+                            { label: 'Name', value: [ ninResult.firstname, ninResult.middlename, ninResult.lastname ].filter(Boolean).join(' ') },
+                            { label: 'Date of Birth', value: ninResult.birthdate },
+                            { label: 'Phone', value: ninResult.phone },
+                            { label: 'LGA', value: ninResult.residence?.lga },
+                            { label: 'State', value: ninResult.residence?.state },
+                        ]} />
+                    )}
+                </div>
+
+                {/* ── Step 3: Payer ID ───────────────────────────────────────────── */}
+                <div className="verification-section">
+                    <h2 className="verification-section-title">
+                        Step 3 — Payer ID
+                        {payerStatus === STATUS.SUCCESS && <CheckCircleFilled className="section-check" />}
+                    </h2>
+                    <p className="verification-section-desc">
+                        Enter your Lagos State Revenue Service Payer ID to link your company's tax profile.
+                    </p>
+                    <VerifyField
+                        id="payer-id-input"
+                        label="Payer ID"
+                        placeholder="e.g. N-191005"
+                        value={payerId}
+                        onChange={e => { setPayerId(e.target.value); if (payerStatus !== STATUS.IDLE) setPayerStatus(STATUS.IDLE); }}
+                        status={payerStatus}
+                        onVerify={handleVerifyPayerId}
+                    >
+                        <div className="create-payer-link">
+                            Don't have a Payer ID?{' '}
+                            {cacStatus !== STATUS.SUCCESS ? (
+                                <span style={{ color: '#9ca3af', fontSize: 12 }}>Verify your CAC registration first (Step 1) to create one.</span>
+                            ) : (
+                                <button
+                                    type="button"
+                                    className="create-payer-toggle"
+                                    onClick={() => setShowCreateForm(v => !v)}
+                                >
+                                    {showCreateForm ? 'Cancel' : 'Create one here →'}
+                                </button>
+                            )}
+                        </div>
+                        {showCreateForm && cacStatus === STATUS.SUCCESS && (
+                            <div className="create-payer-form">
+                                <p className="create-payer-form-desc">
+                                    Your verified CAC details will be used to register the company Payer ID. Fill in the additional fields below.
+                                </p>
+                                <div className="create-payer-selects">
+                                    <div className="create-payer-select-group">
+                                        <label htmlFor="co-create-business-type">Business Type <span style={{ color: '#ef4444' }}>*</span></label>
+                                        <select
+                                            id="co-create-business-type"
+                                            name="co-create-business-type"
+                                            value={createBusinessType}
+                                            onChange={e => setCreateBusinessType(e.target.value)}
+                                            className="verification-input"
+                                            style={{ height: 40, flex: 'auto' }}
+                                        >
+                                            <option value="">Select business type</option>
+                                            {BUSINESS_TYPES.map(bt => <option key={bt} value={bt}>{bt}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="create-payer-select-group">
+                                        <label htmlFor="co-create-industry">Industry <span style={{ color: '#ef4444' }}>*</span></label>
+                                        <input
+                                            id="co-create-industry"
+                                            name="co-create-industry"
+                                            type="text"
+                                            className="verification-input"
+                                            placeholder="e.g. Construction"
+                                            value={createIndustry}
+                                            style={{ height: 40, flex: 'auto' }}
+                                            onChange={e => setCreateIndustry(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="create-payer-selects">
+                                    <div className="create-payer-select-group">
+                                        <label htmlFor="co-create-address-no">Address No <span style={{ color: '#ef4444' }}>*</span></label>
+                                        <input
+                                            id="co-create-address-no"
+                                            name="co-create-address-no"
+                                            type="text"
+                                            className="verification-input"
+                                            placeholder="e.g. 73"
+                                            value={createAddressNo}
+                                            style={{ height: 40, flex: 'auto' }}
+                                            onChange={e => setCreateAddressNo(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="create-payer-select-group">
+                                        <label htmlFor="co-create-address">Address <span style={{ color: '#ef4444' }}>*</span></label>
+                                        <input
+                                            id="co-create-address"
+                                            name="co-create-address"
+                                            type="text"
+                                            className="verification-input"
+                                            placeholder="e.g. Samuel Ladoke Akintola Boulevard"
+                                            value={createAddress}
+                                            style={{ height: 40, flex: 'auto' }}
+                                            onChange={e => setCreateAddress(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="create-payer-preview">
+                                    <div className="create-payer-row"><span>Company Name</span><span>{cacResult?.companyName || company?.companyName || '—'}</span></div>
+                                    <div className="create-payer-row"><span>RC Number</span><span>{deriveRcDigits(cacResult?.rcNumber || cac) || '—'}</span></div>
+                                    <div className="create-payer-row"><span>Business Type</span><span>{createBusinessType || '—'}</span></div>
+                                    <div className="create-payer-row"><span>Phone</span><span>{company?.companyRepPhone || '—'}</span></div>
+                                    <div className="create-payer-row"><span>Email</span><span>{company?.email || '—'}</span></div>
+                                </div>
+                                <button
+                                    type="button"
+                                    className="verification-complete-btn"
+                                    style={{ marginTop: 12, width: '100%' }}
+                                    onClick={handleCreatePayerId}
+                                    disabled={createLoading}
+                                >
+                                    {createLoading
+                                        ? <Spin indicator={<LoadingOutlined style={{ fontSize: 14, color: '#fff' }} spin />} />
+                                        : 'Create Payer ID'}
+                                </button>
+                            </div>
+                        )}
+                    </VerifyField>
+                    {payerResult && payerStatus === STATUS.SUCCESS && (
+                        <ResultCard rows={[
+                            { label: 'Full Name', value: payerResult.Fullname },
+                            { label: 'Payer ID', value: payerResult.Pid },
+                            { label: 'State', value: payerResult.State },
+                            { label: 'Status', value: payerResult.Status, badge: true },
+                        ]} />
+                    )}
+                </div>
+
                 {/* ── Complete Verification ──────────────────────────────────────── */}
                 {allVerified && (
                     <div className="verification-complete-section">
                         <div className="verification-complete-banner">
                             <CheckCircleFilled style={{ color: '#108A00', fontSize: 22, marginRight: 8 }} />
-                            All four checks passed! You may now complete your company verification.
+                            All three checks passed! You may now complete your company verification.
                         </div>
                         <button
                             onClick={handleSubmit}

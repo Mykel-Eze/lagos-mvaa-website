@@ -71,12 +71,17 @@ const normalizeProfile = (responseData) => {
     profile.companyOwner = { ...profile.companyOwner, entityId: rest };
   }
 
+  // Backend stores payerId as a record ({ issuerId, issueType, portalId, ... }); the UI only
+  // ever displays/prefills the issuer id string.
+  if (profile.payerId && typeof profile.payerId === 'object') {
+    profile.payerId = profile.payerId.issuerId || null;
+  }
+
   return profile;
 };
 
 // Merges normalized profile into sessionStorage. `is_verified` is recomputed from the
 // profile records on every fetch (see normalizeProfile), so the fresh value always wins.
-// submitVerification still writes an optimistic flag for the immediate post-submit redirect.
 const saveUserProfile = (profile) => {
   const existing = getUser();
   const merged = { ...existing, ...profile };
@@ -278,14 +283,12 @@ export const createPayerId = async (dto) => {
   } catch (error) { throwError(error); }
 };
 
-export const submitVerification = async (email, extraFields = {}, isCompany) => {
+// Creates a corporate Payer ID from a company's verified CAC/RC number.
+// Requires an authenticated company session whose CAC has already been verified;
+// the submitted rcNumber must match the verified CAC on the profile.
+export const createCompanyPayerId = async (dto) => {
   try {
-    const response = await api.patch(
-      accountUpdatePath(email, isCompany),
-      { is_verified: true, ...extraFields },
-      { headers: bearerHeader() }
-    );
-    sessionStorage.setItem('user', JSON.stringify({ ...getUser(), is_verified: true, ...extraFields }));
+    const response = await api.post('/shared/billing/identification/company', dto, { headers: bearerHeader() });
     return response.data;
   } catch (error) { throwError(error); }
 };

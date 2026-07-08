@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Spin } from 'antd';
 import { LoadingOutlined, CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { toast } from 'react-toastify';
-import { verifyNIN, verifyPayerId, createPayerId, submitVerification } from '../services/api';
+import { verifyNIN, verifyPayerId, createPayerId, getProfile } from '../services/api';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -216,15 +216,14 @@ export default function IndividualVerification() {
         if (!allVerified) return;
         setSubmitting(true);
         try {
-            const pid = payerResult?.Pid || payerResult?.pid || payerId;
-            await submitVerification(user?.email, {
-                nin: nin.trim(),
-                payerId: pid,
-            }, false);
+            // NIN/Payer ID verification already persisted the records (and flipped
+            // isVerified) on the backend — refresh the cached profile so the rest of
+            // the app sees the up-to-date NIN/Payer ID/verified status.
+            await getProfile();
             toast.success('Account verified! Welcome.');
             navigate('/services');
         } catch (err) {
-            toast.error(err?.error || 'Could not complete verification. Please try again.');
+            toast.error(err?.error || 'Could not refresh your profile. Please try again.');
         } finally {
             setSubmitting(false);
         }
