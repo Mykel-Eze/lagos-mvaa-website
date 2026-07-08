@@ -10,8 +10,10 @@ import { verifyCAC, verifyBusinessNIN, verifyPayerId, createCompanyPayerId, getP
 const STATUS = { IDLE: 'idle', LOADING: 'loading', SUCCESS: 'success', ERROR: 'error' };
 
 // ── Company Payer ID creation ─────────────────────────────────────────────────
-// The backend's create-company-payer-id endpoint expects the RC/BN/IT prefix and
-// the numeric registration digits as separate fields (BusinessType + rcNumber).
+// The backend's create-company-payer-id endpoint validates rcNumber as a full CAC
+// number with its prefix (e.g. "RC1234") — sending digits alone ("1234") fails with
+// "company registration number is missing or malformed". BusinessType is submitted
+// alongside it as the same RC/BN/IT prefix.
 const BUSINESS_TYPES = [ 'RC', 'BN', 'IT' ];
 
 const deriveBusinessType = (rcValue) => {
@@ -19,7 +21,7 @@ const deriveBusinessType = (rcValue) => {
     return BUSINESS_TYPES.includes(prefix) ? prefix : '';
 };
 
-const deriveRcDigits = (rcValue) => rcValue?.trim().match(/(\d+)/)?.[ 1 ] || rcValue?.trim() || '';
+const normalizeRcNumber = (rcValue) => rcValue?.trim().toUpperCase() || '';
 
 // ── Shared sub-components (mirror IndividualVerification pattern) ────────────
 
@@ -265,7 +267,7 @@ export default function CompanyVerification() {
         try {
             const dto = {
                 type: 'C', // C = Corporate (backend expects 'N' | 'C' | 'J')
-                rcNumber: deriveRcDigits(cacResult?.rcNumber || cac),
+                rcNumber: normalizeRcNumber(cacResult?.rcNumber || cac),
                 BusinessType: createBusinessType,
                 CompanyName: cacResult?.companyName || company?.companyName || '',
                 Industry: createIndustry.trim(),
@@ -524,7 +526,7 @@ export default function CompanyVerification() {
 
                                 <div className="create-payer-preview">
                                     <div className="create-payer-row"><span>Company Name</span><span>{cacResult?.companyName || company?.companyName || '—'}</span></div>
-                                    <div className="create-payer-row"><span>RC Number</span><span>{deriveRcDigits(cacResult?.rcNumber || cac) || '—'}</span></div>
+                                    <div className="create-payer-row"><span>RC Number</span><span>{normalizeRcNumber(cacResult?.rcNumber || cac) || '—'}</span></div>
                                     <div className="create-payer-row"><span>Business Type</span><span>{createBusinessType || '—'}</span></div>
                                     <div className="create-payer-row"><span>Phone</span><span>{company?.companyRepPhone || '—'}</span></div>
                                     <div className="create-payer-row"><span>Email</span><span>{company?.email || '—'}</span></div>

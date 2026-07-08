@@ -365,7 +365,7 @@ const ENDPOINT_GROUPS = [
         desc: 'Create a Lagos Revenue Portal Payer ID for a corporate account using its CAC/RC number.',
         body: {
           type: 'C',
-          rcNumber: '123456',
+          rcNumber: 'RC123456',
           BusinessType: 'RC',
           CompanyName: 'test Company limited',
           Industry: 'Construction',
@@ -388,8 +388,8 @@ const ENDPOINT_GROUPS = [
         },
         notes: [
           'Requires an authenticated company session whose CAC has already been verified (see <a href="#verify-cac">Verify CAC</a>).',
-          'The submitted <code>rcNumber</code> must match the verified CAC on the profile — submit the numeric registration digits only (e.g. <code>123456</code>, not <code>RC123456</code>).',
-          '<code>BusinessType</code> must be one of <code>RC</code>, <code>BN</code>, <code>IT</code>.',
+          'The submitted <code>rcNumber</code> must be the full CAC number including its prefix (e.g. <code>RC123456</code>), matching the verified CAC on the profile. Digits alone (<code>123456</code>) are rejected with "company registration number is missing or malformed".',
+          '<code>BusinessType</code> must be one of <code>RC</code>, <code>BN</code>, <code>IT</code> — the same prefix as <code>rcNumber</code>.',
           'The actual Payer ID to use elsewhere is <code>data.IssuerId</code> (or <code>data.payerId.issuerId</code>) — <code>data.Pid</code> is a human-readable confirmation message, not the ID itself.'
         ]
       }
