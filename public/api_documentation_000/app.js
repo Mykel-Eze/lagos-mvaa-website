@@ -407,7 +407,11 @@ const ENDPOINT_GROUPS = [
         path: '/shared/transaction',
         auth: 'session',
         desc: 'Return the signed-in user’s transactions.',
-        response: { data: [ { id: 'txn_001', reference: 'REF123', amount: 5000, status: 'success', createdAt: '2026-06-01T10:00:00Z' } ] }
+        response: { data: [ { order_id: 'MVAA-20260601-0001', amount: '5000.00', gateway: 'paystack', gateway_reference: 'gw_ref_abc123', payment_reference: 'pay_ref_xyz789', receipt_status: 'CONFIRMED', userId: 'a1b2c3d4-...', companyId: null, createdAt: '2026-06-01T10:00:00Z', updatedAt: '2026-06-01T10:05:00Z' } ] },
+        notes: [
+          'The response has no uuid <code>id</code> field — the backend\'s select list for this query only returns the fields shown above. Use <code>order_id</code> as the transaction\'s identifier everywhere, including the path param for <a href="#transaction-detail">Get transaction</a> below.',
+          '<code>receipt_status</code> is one of <code>PENDING</code>, <code>CONFIRMED</code>, <code>FULFILLED</code>, <code>PROCESSED</code>, <code>FAILED</code>, <code>CANCELLED</code>.'
+        ]
       },
       {
         id: 'transaction-detail',
@@ -415,9 +419,12 @@ const ENDPOINT_GROUPS = [
         method: 'GET',
         path: '/shared/transaction/:id',
         auth: 'session',
-        desc: 'Return a single transaction by id.',
-        pathParams: [ { name: 'id', desc: 'Transaction id', example: 'txn_001' } ],
-        response: { data: { id: 'txn_001', reference: 'REF123', amount: 5000, status: 'success', service: 'Number Plate', createdAt: '2026-06-01T10:00:00Z' } }
+        desc: 'Return a single transaction by its order_id.',
+        pathParams: [ { name: 'id', desc: 'The transaction\'s order_id, as returned by List transactions (NOT a uuid)', example: 'MVAA-20260601-0001' } ],
+        response: { data: { order_id: 'MVAA-20260601-0001', amount: '5000.00', gateway: 'paystack', gateway_reference: 'gw_ref_abc123', payment_reference: 'pay_ref_xyz789', receipt_status: 'CONFIRMED', userId: 'a1b2c3d4-...', companyId: null, createdAt: '2026-06-01T10:00:00Z', updatedAt: '2026-06-01T10:05:00Z' } },
+        notes: [
+          'Despite the path segment being named <code>:id</code>, the backend looks this record up by <code>order_id</code>, not the entity\'s internal uuid <code>id</code> (which isn\'t exposed by either endpoint).'
+        ]
       }
     ]
   },
