@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import { fetchTransaction } from '../services/api';
+import { fetchTransaction, initializeTransaction } from '../services/api';
 import BillingLayout from '../layouts/BillingLayout';
 import OrderStatusBadge from '../components/OrderStatusBadge';
 
@@ -78,6 +78,23 @@ export default function TransactionDetail() {
     const [ order, setOrder ] = useState(null);
     const [ isLoading, setLoading ] = useState(true);
     const [ error, setError ] = useState(null);
+    const [ isResuming, setResuming ] = useState(false);
+    const [ resumeError, setResumeError ] = useState(null);
+
+    const handleResumePayment = async () => {
+        setResuming(true);
+        setResumeError(null);
+        try {
+            const res = await initializeTransaction(order.order_id);
+            const payload = res?.data ?? res;
+            const redirectUrl = typeof payload === 'string' ? payload : payload?.authorizationUrl;
+            if (!redirectUrl) throw new Error('No payment link was returned. Please try again.');
+            window.location.href = redirectUrl;
+        } catch (err) {
+            setResumeError(err?.error || err?.message || 'Could not resume payment. Please try again.');
+            setResuming(false);
+        }
+    };
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -199,6 +216,15 @@ export default function TransactionDetail() {
 
                 {/* ── Action Bar ──────────────────────────────────────────────── */}
                 <div className="billing-action-bar">
+                    {order.receipt_status === 'CONFIRMED' && (
+                        <button
+                            className="billing-pay-btn"
+                            onClick={handleResumePayment}
+                            disabled={isResuming}
+                        >
+                            {isResuming ? 'Redirecting…' : 'Resume Payment'}
+                        </button>
+                    )}
                     <button
                         className="billing-secondary-btn"
                         onClick={() => navigate('/transactions')}
@@ -213,6 +239,10 @@ export default function TransactionDetail() {
                         ↻ Refresh Status
                     </button>
                 </div>
+
+                {resumeError && (
+                    <p style={{ color: '#dc2626', fontSize: 13, marginTop: 10 }}>{resumeError}</p>
+                )}
 
             </div>
         </BillingLayout>

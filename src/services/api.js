@@ -309,4 +309,13 @@ export const fetchTransaction = async (id) => {
   } catch (error) { throwError(error); }
 };
 
+// Resumes gateway checkout for a CONFIRMED order and returns the gateway's payment link.
+// `orderId` is the order's `order_id` string (not the internal uuid).
+export const initializeTransaction = async (orderId) => {
+  try {
+    const response = await api.post('/shared/payment/initialize', { orderId });
+    return response.data;
+  } catch (error) { throwError(error); }
+};
+
 export default api;
