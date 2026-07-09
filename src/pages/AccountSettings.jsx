@@ -235,16 +235,22 @@ const AccountSettings = () => {
       <div className="account-settings-container">
         {/* Profile Information Section */}
         <div className="bg-white rounded-lg shadow-sm">
-          <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-4">
             <h1 className="agencies-link-header">Profile Information</h1>
             {/* Verified identity summary — shown on the right once fully verified */}
             {verificationDetails.isVerified && (verificationDetails.nin || verificationDetails.payerId) && (
-              <div className="text-right text-sm text-gray-700 pr-4 pt-4">
+              <div className="text-right text-sm text-gray-700 py-4">
                 {verificationDetails.nin && (
-                  <div><span className="text-gray-400 mr-2">NIN:</span><span className="font-semibold">{verificationDetails.nin}</span></div>
+                  <div className="sec-color">
+                    <span className="text-gray-400 mr-2">NIN:</span>
+                    <span className="font-semibold">{verificationDetails.nin}</span>
+                  </div>
                 )}
                 {verificationDetails.payerId && (
-                  <div><span className="text-gray-400 mr-2">Payer ID:</span><span className="font-semibold">{verificationDetails.payerId}</span></div>
+                  <div className="sec-color">
+                    <span className="text-gray-400 mr-2">Payer ID:</span>
+                    <span className="font-semibold">{verificationDetails.payerId}</span>
+                  </div>
                 )}
               </div>
             )}

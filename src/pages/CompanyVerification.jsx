@@ -97,7 +97,7 @@ function ProgressTracker({ steps }) {
                             padding: '6px 12px', borderRadius: '999px',
                             border: `1.5px solid ${c.border}`, background: c.bg,
                             fontSize: '12px', fontWeight: 600, color: c.text,
-                            fontFamily: 'Plus Jakarta Sans, sans-serif',
+                            fontFamily: 'var(--font-smbold)',
                             transition: 'all 0.2s',
                         }}
                     >

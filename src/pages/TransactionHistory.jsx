@@ -75,7 +75,7 @@ function EmptyState({ filter }) {
 function TransactionRow({ order }) {
   const service = serviceLabel(order.revenue_module_metadata?.revenueClientName);
   return (
-    <Link to={`/transactions/${order.id}`} className="billing-row">
+    <Link to={`/transactions/${order.order_id}`} className="billing-row">
       <div className="billing-row-left">
         <span className="billing-row-service">{service}</span>
         <span className="billing-row-id">{order.order_id}</span>
@@ -187,7 +187,7 @@ export default function TransactionHistory() {
         ) : (
           <div className="billing-list">
             {filtered.map(order => (
-              <TransactionRow key={order.id} order={order} />
+              <TransactionRow key={order.order_id} order={order} />
             ))}
           </div>
         )}

@@ -43,7 +43,7 @@ const OrderStatusBadge = ({ status, size = 'md' }) => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '5px',
-                fontFamily: 'Plus Jakarta Sans, sans-serif',
+                fontFamily: 'var(--font-bold)',
                 fontWeight: 700,
                 letterSpacing: '0.04em',
                 borderRadius: '999px',
