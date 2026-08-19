@@ -6,7 +6,7 @@ import { issueServiceToken } from '../services/api';
 
 // Mapping of service app names to their external module entry URLs
 const SERVICE_URL_MAP = {
-  NUMBER_PLATE_SERVICES: 'https://mvaa-portal.netlify.app/auth/shared-user',
+  NUMBER_PLATE_SERVICES: 'https://numberplates.mvaa.lagosstate.gov.ng/auth/shared-user',
   AUTO_DEALER_SPARE_PARTS: 'https://mvatvtlagos.com/mvaa-app/verify-session',
 };
 
